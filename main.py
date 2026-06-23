@@ -469,6 +469,9 @@ def proteger_rutas_con_session():
     endpoint = request.endpoint
     ruta = request.path or ""
 
+    if ruta == app.config.get("JWT_AUTH_URL_RULE", "/auth"):
+        return None
+
     if endpoint in RUTAS_PUBLICAS:
         return None
 
