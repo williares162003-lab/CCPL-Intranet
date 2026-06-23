@@ -6,7 +6,6 @@ import re
 import base64
 import hashlib
 from datetime import date, datetime, timedelta
-from functools import wraps
 from io import BytesIO, StringIO
 from pathlib import Path
 from tempfile import NamedTemporaryFile
@@ -15,6 +14,7 @@ from uuid import uuid4
 import pymysql
 from decimal import Decimal
 from flask import Flask, Response, flash, g, jsonify, redirect, render_template, request, session, url_for
+from flask_jwt import JWT, jwt_required, current_identity
 from werkzeug.utils import secure_filename
 
 from bd import obtenerconexion
@@ -123,6 +123,41 @@ app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "ccpl-secret-key")
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+app.config["JWT_AUTH_URL_RULE"] = "/auth"
+app.config["JWT_AUTH_HEADER_PREFIX"] = "JWT"
+
+
+class User(object):
+    def __init__(self, id, username, password, rol="admin", nombre=""):
+        self.id = id
+        self.username = username
+        self.password = password
+        self.rol = rol
+        self.nombre = nombre
+
+    def __str__(self):
+        return "User(id='%s')" % self.id
+
+
+def authenticate(username, password):
+    usuario = autenticar_usuario(username, password)
+    if usuario and usuario.get("rol") == "admin":
+        return User(
+            usuario.get("matricula"),
+            usuario.get("matricula"),
+            password,
+            usuario.get("rol"),
+            usuario.get("nombre", "")
+        )
+    return None
+
+
+def identity(payload):
+    user_id = payload["identity"]
+    return User(user_id, user_id, "", "admin", "Administrador CCPL")
+
+
+jwt = JWT(app, authenticate, identity)
 
 EXTENSIONES_IMAGEN = {"jpg", "jpeg", "png", "webp"}
 EXTENSIONES_ARCHIVO = EXTENSIONES_IMAGEN | {"pdf"}
@@ -272,6 +307,7 @@ RUTAS_PUBLICAS = {
     "logout",
     "recuperar_contrasena",
     "restablecer_contrasena",
+    "jwt",
     "api_token",
     "api_auth",
     "api_postman_collection",
@@ -357,8 +393,8 @@ def _usuario_desde_jwt():
 
     usuario = {
         "matricula": payload.get("identity") or payload.get("sub"),
-        "rol": payload.get("rol"),
-        "nombre": payload.get("nombre"),
+        "rol": payload.get("rol") or "admin",
+        "nombre": payload.get("nombre") or payload.get("identity") or "Administrador CCPL",
     }
     if not usuario["matricula"] or not usuario["rol"]:
         return None, "El token JWT no contiene datos de usuario validos."
@@ -385,21 +421,6 @@ def _usuario_api_actual():
         return usuario, ""
 
     return None, error
-
-
-def jwt_required(roles=("admin",)):
-    def decorador(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            usuario, error = _usuario_api_actual()
-            if not usuario:
-                return _respuesta_api(0, error, status=401)
-            if roles and usuario.get("rol") not in roles:
-                return _respuesta_api(0, "No tiene permisos para usar esta API.", status=403)
-            return func(*args, **kwargs)
-        return wrapper
-    return decorador
-
 
 def _respuesta_no_autenticado(endpoint):
     if _es_peticion_api(endpoint):
@@ -4941,7 +4962,6 @@ def admin_estado_ticket(tid):
 # APIS
 # ============================================================
 
-@app.route("/auth", methods=["POST"], endpoint="api_auth")
 @app.route("/api/token", methods=["POST"], endpoint="api_token")
 def api_token():
     try:
@@ -4971,7 +4991,7 @@ def api_token():
             )
 
         token = _generar_token_jwt(usuario)
-        return _respuesta_api(1, "Token generado correctamente.", {
+        token_data = {
             "access_token": token,
             "token_type": "Bearer",
             "expires_in": 28800,
@@ -4980,7 +5000,15 @@ def api_token():
                 "nombre": usuario.get("nombre"),
                 "rol": usuario.get("rol"),
             }
+        }
+        respuesta = jsonify({
+            "access_token": token,
+            "token_type": "Bearer",
+            "code": 1,
+            "data": token_data,
+            "message": "Token generado correctamente."
         })
+        return respuesta, 200
     except Exception as e:
         print("Error en /api/token:", repr(e))
         return _respuesta_api(0, str(e), status=500)
@@ -6302,7 +6330,7 @@ def api_postman_collection():
                         "password": "admin2024"
                     }, indent=2)
                 },
-                "url": "{{base_url}}/api/token"
+                "url": "{{base_url}}/auth"
             }
         }
     ]
@@ -6315,7 +6343,7 @@ def api_postman_collection():
                 "name": f"api_leer{plural}",
                 "request": {
                     "method": "GET",
-                    "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]},
+                    "header": [{"key": "Authorization", "value": "JWT {{token}}"}],
                     "url": f"{{{{base_url}}}}/api_leer{plural}"
                 }
             },
@@ -6323,7 +6351,7 @@ def api_postman_collection():
                 "name": f"api_leer{singular}xid",
                 "request": {
                     "method": "GET",
-                    "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]},
+                    "header": [{"key": "Authorization", "value": "JWT {{token}}"}],
                     "url": f"{{{{base_url}}}}/api_leer{singular}xid/1"
                 }
             },
@@ -6331,8 +6359,10 @@ def api_postman_collection():
                 "name": f"api_guardar{singular}",
                 "request": {
                     "method": "POST",
-                    "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]},
-                    "header": [{"key": "Content-Type", "value": "application/json"}],
+                    "header": [
+                        {"key": "Authorization", "value": "JWT {{token}}"},
+                        {"key": "Content-Type", "value": "application/json"}
+                    ],
                     "body": {"mode": "raw", "raw": "{}"},
                     "url": f"{{{{base_url}}}}/api_guardar{singular}"
                 }
@@ -6341,8 +6371,10 @@ def api_postman_collection():
                 "name": f"api_actualizar{singular}",
                 "request": {
                     "method": "PUT",
-                    "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]},
-                    "header": [{"key": "Content-Type", "value": "application/json"}],
+                    "header": [
+                        {"key": "Authorization", "value": "JWT {{token}}"},
+                        {"key": "Content-Type", "value": "application/json"}
+                    ],
                     "body": {"mode": "raw", "raw": "{\n  \"id\": 1\n}"},
                     "url": f"{{{{base_url}}}}/api_actualizar{singular}/1"
                 }
@@ -6351,7 +6383,7 @@ def api_postman_collection():
                 "name": f"api_eliminar{singular}",
                 "request": {
                     "method": "DELETE",
-                    "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]},
+                    "header": [{"key": "Authorization", "value": "JWT {{token}}"}],
                     "url": f"{{{{base_url}}}}/api_eliminar{singular}/1"
                 }
             },

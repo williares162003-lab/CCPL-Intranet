@@ -1,10 +1,11 @@
 Flask==2.3.3
-PyMySQL==1.2.0
-Werkzeug==2.3.7
+Flask-JWT==0.3.2
+PyJWT==1.4.2
+PyMySQL==1.1.2
+Werkzeug==3.1.3
 fpdf==1.7.2
 Pillow==11.3.0
 qrcode[pil]==8.2
-requests==2.32.4
+requests==2.32.5
 pyHanko[pkcs11]==0.35.1
 signxml==4.5.1
-PyJWT==2.8.0

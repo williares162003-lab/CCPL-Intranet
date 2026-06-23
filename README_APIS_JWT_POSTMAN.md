@@ -8,14 +8,18 @@ Las APIs estan protegidas con token JWT para probarlas desde Postman.
 pip install -r requirements.txt
 ```
 
-El proyecto usa `Flask==2.3.3` y `PyJWT==2.8.0`.
+El proyecto usa las versiones trabajadas en clase:
+
+- `Flask==2.3.3`
+- `Flask-JWT==0.3.2`
+- `PyJWT==1.4.2`
 
 ## 2. Generar token
 
 Ruta:
 
 ```http
-POST /api/token
+POST /auth
 ```
 
 Body:
@@ -31,24 +35,16 @@ Respuesta esperada:
 
 ```json
 {
-  "code": 1,
-  "data": {
-    "access_token": "TOKEN_GENERADO",
-    "token_type": "Bearer"
-  },
-  "message": "Token generado correctamente."
+  "access_token": "TOKEN_GENERADO"
 }
 ```
+
+Tambien queda disponible `POST /api/token`, pero para la presentacion usa `/auth`
+porque es la ruta creada por `JWT(app, authenticate, identity)`.
 
 ## 3. Usar token en Postman
 
 En cada API protegida agregar:
-
-```http
-Authorization: Bearer TOKEN_GENERADO
-```
-
-Tambien acepta el formato usado en clase:
 
 ```http
 Authorization: JWT TOKEN_GENERADO
@@ -118,21 +114,21 @@ Listar colegiados:
 
 ```http
 GET /api_leercolegiados
-Authorization: Bearer TOKEN_GENERADO
+Authorization: JWT TOKEN_GENERADO
 ```
 
 Leer colegiado por id:
 
 ```http
 GET /api_leercolegiadoxid/1
-Authorization: Bearer TOKEN_GENERADO
+Authorization: JWT TOKEN_GENERADO
 ```
 
 Guardar especialidad:
 
 ```http
 POST /api_guardarespecialidadcolegiado
-Authorization: Bearer TOKEN_GENERADO
+Authorization: JWT TOKEN_GENERADO
 Content-Type: application/json
 
 {
@@ -145,7 +141,7 @@ Actualizar especialidad:
 
 ```http
 PUT /api_actualizarespecialidadcolegiado/1
-Authorization: Bearer TOKEN_GENERADO
+Authorization: JWT TOKEN_GENERADO
 Content-Type: application/json
 
 {
@@ -158,5 +154,5 @@ Eliminar especialidad:
 
 ```http
 DELETE /api_eliminarespecialidadcolegiado/1
-Authorization: Bearer TOKEN_GENERADO
+Authorization: JWT TOKEN_GENERADO
 ```
