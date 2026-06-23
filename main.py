@@ -116,7 +116,7 @@ from ponenteAD import (leer_cursos_ponente, leer_curso_ponente,
 # ============================================================
 
 app = Flask(__name__)
-app.secret_key = "ccpl-secret-key"
+app.secret_key = os.getenv("FLASK_SECRET_KEY", "ccpl-secret-key")
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 
