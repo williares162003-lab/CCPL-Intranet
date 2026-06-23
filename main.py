@@ -5,15 +5,19 @@ import random
 import re
 import base64
 import hashlib
-from datetime import date
+from datetime import date, datetime, timedelta
+from functools import wraps
 from io import BytesIO, StringIO
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from uuid import uuid4
 
-from flask import Flask, Response, flash, jsonify, redirect, render_template, request, session, url_for
+import pymysql
+from decimal import Decimal
+from flask import Flask, Response, flash, g, jsonify, redirect, render_template, request, session, url_for
 from werkzeug.utils import secure_filename
 
+from bd import obtenerconexion
 from loginAD import (autenticar_usuario, buscar_usuario_recuperacion,
                      registrar_codigo_recuperacion,
                      actualizar_password_con_codigo)
@@ -268,6 +272,9 @@ RUTAS_PUBLICAS = {
     "logout",
     "recuperar_contrasena",
     "restablecer_contrasena",
+    "api_token",
+    "api_auth",
+    "api_postman_collection",
     "static",
     "mercado_pago_webhook",
 }
@@ -284,6 +291,114 @@ def _panel_por_rol():
 
 def _es_peticion_api(endpoint):
     return bool(endpoint and endpoint.startswith("api_"))
+
+
+def _respuesta_api(code, message, data=None, status=200):
+    return jsonify({
+        "code": code,
+        "data": data if data is not None else {},
+        "message": message
+    }), status
+
+
+def _importar_pyjwt():
+    try:
+        import jwt
+        return jwt
+    except ImportError as exc:
+        raise RuntimeError(
+            "Falta instalar PyJWT. Ejecute: pip install PyJWT==2.8.0"
+        ) from exc
+
+
+def _generar_token_jwt(usuario):
+    jwt = _importar_pyjwt()
+    ahora = datetime.utcnow()
+    payload = {
+        "identity": usuario.get("matricula"),
+        "sub": usuario.get("matricula"),
+        "rol": usuario.get("rol"),
+        "nombre": usuario.get("nombre"),
+        "iat": ahora,
+        "exp": ahora + timedelta(hours=8),
+    }
+    token = jwt.encode(payload, app.config["SECRET_KEY"], algorithm="HS256")
+    if isinstance(token, bytes):
+        token = token.decode("utf-8")
+    return token
+
+
+def _token_desde_header():
+    cabecera = request.headers.get("Authorization", "").strip()
+    if not cabecera:
+        return ""
+    partes = cabecera.split(None, 1)
+    if len(partes) == 2 and partes[0].lower() in ["bearer", "jwt"]:
+        return partes[1].strip()
+    return cabecera
+
+
+def _usuario_desde_jwt():
+    token = _token_desde_header()
+    if not token:
+        return None, "Debe enviar el token JWT en Authorization."
+
+    jwt = _importar_pyjwt()
+    try:
+        payload = jwt.decode(
+            token,
+            app.config["SECRET_KEY"],
+            algorithms=["HS256"]
+        )
+    except jwt.ExpiredSignatureError:
+        return None, "El token JWT vencio. Genere uno nuevo."
+    except jwt.InvalidTokenError:
+        return None, "El token JWT no es valido."
+
+    usuario = {
+        "matricula": payload.get("identity") or payload.get("sub"),
+        "rol": payload.get("rol"),
+        "nombre": payload.get("nombre"),
+    }
+    if not usuario["matricula"] or not usuario["rol"]:
+        return None, "El token JWT no contiene datos de usuario validos."
+    return usuario, ""
+
+
+def _usuario_api_actual():
+    if hasattr(g, "api_identity"):
+        return g.api_identity, ""
+
+    usuario, error = _usuario_desde_jwt()
+    if usuario:
+        g.api_identity = usuario
+        return usuario, ""
+
+    if session.get("rol") == "admin":
+        profile = session.get("profile", {}) or {}
+        usuario = {
+            "matricula": profile.get("matricula", "admin"),
+            "rol": "admin",
+            "nombre": profile.get("nombre", "Administrador CCPL"),
+        }
+        g.api_identity = usuario
+        return usuario, ""
+
+    return None, error
+
+
+def jwt_required(roles=("admin",)):
+    def decorador(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            usuario, error = _usuario_api_actual()
+            if not usuario:
+                return _respuesta_api(0, error, status=401)
+            if roles and usuario.get("rol") not in roles:
+                return _respuesta_api(0, "No tiene permisos para usar esta API.", status=403)
+            return func(*args, **kwargs)
+        return wrapper
+    return decorador
 
 
 def _respuesta_no_autenticado(endpoint):
@@ -334,6 +449,14 @@ def proteger_rutas_con_session():
     ruta = request.path or ""
 
     if endpoint in RUTAS_PUBLICAS:
+        return None
+
+    if _es_peticion_api(endpoint):
+        usuario, error = _usuario_api_actual()
+        if not usuario:
+            return _respuesta_api(0, error, status=401)
+        if usuario.get("rol") != "admin":
+            return _respuesta_api(0, "Solo el administrador puede usar las APIs.", status=403)
         return None
 
     rol_requerido = _rol_requerido_por_ruta(endpoint, ruta)
@@ -4818,6 +4941,50 @@ def admin_estado_ticket(tid):
 # APIS
 # ============================================================
 
+@app.route("/auth", methods=["POST"], endpoint="api_auth")
+@app.route("/api/token", methods=["POST"], endpoint="api_token")
+def api_token():
+    try:
+        data = request.get_json(silent=True) or {}
+        username = (
+            data.get("username")
+            or data.get("matricula")
+            or data.get("usuario")
+            or ""
+        ).strip()
+        password = (data.get("password") or data.get("clave") or "").strip()
+        if not username or not password:
+            return _respuesta_api(
+                0,
+                "Ingrese usuario/matricula y password para generar el token.",
+                status=400
+            )
+
+        usuario = autenticar_usuario(username, password)
+        if not usuario:
+            return _respuesta_api(0, "Credenciales incorrectas.", status=401)
+        if usuario.get("rol") != "admin":
+            return _respuesta_api(
+                0,
+                "Solo el administrador puede generar token para las APIs.",
+                status=403
+            )
+
+        token = _generar_token_jwt(usuario)
+        return _respuesta_api(1, "Token generado correctamente.", {
+            "access_token": token,
+            "token_type": "Bearer",
+            "expires_in": 28800,
+            "usuario": {
+                "matricula": usuario.get("matricula"),
+                "nombre": usuario.get("nombre"),
+                "rol": usuario.get("rol"),
+            }
+        })
+    except Exception as e:
+        print("Error en /api/token:", repr(e))
+        return _respuesta_api(0, str(e), status=500)
+
 @app.route("/api/colegiados/buscar", endpoint="api_buscar_colegiados")
 def api_buscar_colegiados():
     try:
@@ -5068,6 +5235,1140 @@ def api_guardar_ticket():
         return jsonify({"code": 0, "data": {}, "message": "Error al insertar ticket"})
     except Exception as e:
         return jsonify({"code": 0, "data": {}, "message": "Excepcion superior: " + repr(e)})
+
+
+# ============================================================
+# APIS CRUD POR TABLA CON JWT
+# ============================================================
+
+API_COLUMNAS_CACHE = {}
+API_COLECCION_TABLAS = [
+    ("Colegiados", "especialidades_colegiado", "especialidadcolegiado", "especialidadescolegiado"),
+    ("Colegiados", "colegiados", "colegiado", "colegiados"),
+    ("Colegiados", "usuarios", "usuario", "usuarios"),
+    ("Colegiados", "recuperacion_password", "recuperacionpassword", "recuperacionespassword"),
+    ("Pagos", "cuotas", "cuota", "cuotas"),
+    ("Pagos", "medios_pago", "mediopago", "mediospago"),
+    ("Pagos", "evidencias_pago", "evidenciapago", "evidenciaspago"),
+    ("Pagos", "transacciones_pago", "transaccionpago", "transaccionespago"),
+    ("Pagos", "comprobantes_pago", "comprobantepago", "comprobantespago"),
+    ("Mercado Pago", "configuracion_mercado_pago", "configuracionmercadopago", "configuracionesmercadopago"),
+    ("Mercado Pago", "ordenes_mercado_pago", "ordenmercadopago", "ordenesmercadopago"),
+    ("Facturacion", "configuracion_facturacion", "configuracionfacturacion", "configuracionesfacturacion"),
+    ("Facturacion", "comprobantes_fiscales", "comprobantefiscal", "comprobantesfiscales"),
+    ("Facturacion", "comprobante_fiscal_detalle", "comprobantefiscaldetalle", "comprobantesfiscalesdetalle"),
+    ("Facturacion", "facturacion_sunat_logs", "facturacionsunatlog", "facturacionsunatlogs"),
+    ("Cursos", "cursos", "curso", "cursos"),
+    ("Cursos", "contenido_curso", "contenidocurso", "contenidoscurso"),
+    ("Cursos", "inscripciones_curso", "inscripcioncurso", "inscripcionescurso"),
+    ("Tramites y soporte", "tramites", "tramite", "tramites"),
+    ("Tramites y soporte", "tickets", "ticket", "tickets"),
+    ("Tramites y soporte", "notificaciones", "notificacion", "notificaciones"),
+]
+
+
+def _api_nombre_seguro(nombre):
+    if not re.fullmatch(r"[A-Za-z0-9_]+", nombre or ""):
+        raise ValueError("Nombre de tabla o columna no permitido.")
+    return f"`{nombre}`"
+
+
+def _api_info_tabla(tabla):
+    if tabla in API_COLUMNAS_CACHE:
+        return API_COLUMNAS_CACHE[tabla]
+
+    conn = obtenerconexion()
+    with conn:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT COLUMN_NAME, COLUMN_KEY, EXTRA
+                  FROM INFORMATION_SCHEMA.COLUMNS
+                 WHERE TABLE_SCHEMA = DATABASE()
+                   AND TABLE_NAME = %s
+                 ORDER BY ORDINAL_POSITION
+                """,
+                (tabla,)
+            )
+            columnas = cursor.fetchall() or []
+
+    if not columnas:
+        return None
+
+    pk = "id"
+    for columna in columnas:
+        if columna.get("COLUMN_KEY") == "PRI":
+            pk = columna["COLUMN_NAME"]
+            break
+
+    info = {
+        "tabla": tabla,
+        "pk": pk,
+        "columnas": [col["COLUMN_NAME"] for col in columnas],
+        "auto": {
+            col["COLUMN_NAME"]
+            for col in columnas
+            if "auto_increment" in (col.get("EXTRA") or "")
+        },
+    }
+    API_COLUMNAS_CACHE[tabla] = info
+    return info
+
+
+def _api_valor_json(valor):
+    if isinstance(valor, Decimal):
+        return float(valor)
+    if isinstance(valor, (datetime, date)):
+        return valor.isoformat()
+    return valor
+
+
+def _api_serializar_fila(fila):
+    return {clave: _api_valor_json(valor) for clave, valor in dict(fila).items()}
+
+
+def _api_body_json():
+    data = request.get_json(silent=True)
+    if data is None:
+        data = request.form.to_dict()
+    return data or {}
+
+
+def _api_id_registro(registro_id=None):
+    if registro_id is not None:
+        return registro_id
+    data = _api_body_json()
+    return data.get("id") or request.args.get("id")
+
+
+def _api_columnas_insertables(info, data):
+    excluidas = set(info["auto"])
+    excluidas.update([
+        "creado_en", "actualizado_en", "revisado_en", "firmado_en",
+        "anulado_en", "pagado_en", "enviado_en", "respondido_en",
+        "leido_en", "usado_en"
+    ])
+    return [col for col in info["columnas"] if col in data and col not in excluidas]
+
+
+def _api_columnas_actualizables(info, data):
+    excluidas = set(info["auto"])
+    excluidas.add(info["pk"])
+    excluidas.add("creado_en")
+    return [col for col in info["columnas"] if col in data and col not in excluidas]
+
+
+def _api_leer_tabla(tabla):
+    info = _api_info_tabla(tabla)
+    if not info:
+        return _respuesta_api(0, "La tabla solicitada no existe.", status=404)
+
+    limite = request.args.get("limit", "").strip()
+    sql = (
+        f"SELECT * FROM {_api_nombre_seguro(info['tabla'])} "
+        f"ORDER BY {_api_nombre_seguro(info['pk'])} DESC"
+    )
+    params = []
+    if limite:
+        try:
+            limite_num = max(1, min(int(limite), 500))
+            sql += " LIMIT %s"
+            params.append(limite_num)
+        except ValueError:
+            return _respuesta_api(0, "El parametro limit debe ser numerico.", status=400)
+
+    conn = obtenerconexion()
+    with conn:
+        with conn.cursor() as cursor:
+            cursor.execute(sql, params)
+            filas = cursor.fetchall() or []
+
+    return _respuesta_api(
+        1,
+        "Listado correcto.",
+        [_api_serializar_fila(fila) for fila in filas]
+    )
+
+
+def _api_leer_tabla_xid(tabla, registro_id=None):
+    info = _api_info_tabla(tabla)
+    if not info:
+        return _respuesta_api(0, "La tabla solicitada no existe.", status=404)
+
+    registro_id = _api_id_registro(registro_id)
+    if not registro_id:
+        return _respuesta_api(0, "Debe enviar el id del registro.", status=400)
+
+    sql = (
+        f"SELECT * FROM {_api_nombre_seguro(info['tabla'])} "
+        f"WHERE {_api_nombre_seguro(info['pk'])} = %s"
+    )
+    conn = obtenerconexion()
+    with conn:
+        with conn.cursor() as cursor:
+            cursor.execute(sql, (registro_id,))
+            fila = cursor.fetchone()
+
+    if not fila:
+        return _respuesta_api(0, "No se encontro el registro.", status=404)
+    return _respuesta_api(1, "Registro encontrado.", _api_serializar_fila(fila))
+
+
+def _api_guardar_tabla(tabla):
+    info = _api_info_tabla(tabla)
+    if not info:
+        return _respuesta_api(0, "La tabla solicitada no existe.", status=404)
+
+    data = _api_body_json()
+    columnas = _api_columnas_insertables(info, data)
+    if not columnas:
+        return _respuesta_api(0, "No se recibieron campos validos para guardar.", status=400)
+
+    sql_columnas = ", ".join(_api_nombre_seguro(col) for col in columnas)
+    placeholders = ", ".join(["%s"] * len(columnas))
+    sql = (
+        f"INSERT INTO {_api_nombre_seguro(info['tabla'])} "
+        f"({sql_columnas}) VALUES ({placeholders})"
+    )
+    valores = [data.get(col) for col in columnas]
+
+    try:
+        conn = obtenerconexion()
+        with conn:
+            with conn.cursor() as cursor:
+                cursor.execute(sql, valores)
+                nuevo_id = cursor.lastrowid
+            conn.commit()
+        return _respuesta_api(1, "Registro guardado correctamente.", {"id": nuevo_id})
+    except pymysql.err.IntegrityError as e:
+        return _respuesta_api(0, "Regla de integridad: " + str(e), status=400)
+    except Exception as e:
+        return _respuesta_api(0, "No se pudo guardar: " + repr(e), status=500)
+
+
+def _api_actualizar_tabla(tabla, registro_id=None):
+    info = _api_info_tabla(tabla)
+    if not info:
+        return _respuesta_api(0, "La tabla solicitada no existe.", status=404)
+
+    data = _api_body_json()
+    registro_id = _api_id_registro(registro_id)
+    if not registro_id:
+        return _respuesta_api(0, "Debe enviar el id del registro.", status=400)
+
+    columnas = _api_columnas_actualizables(info, data)
+    if not columnas:
+        return _respuesta_api(0, "No se recibieron campos validos para actualizar.", status=400)
+
+    asignaciones = ", ".join(f"{_api_nombre_seguro(col)} = %s" for col in columnas)
+    sql = (
+        f"UPDATE {_api_nombre_seguro(info['tabla'])} "
+        f"SET {asignaciones} "
+        f"WHERE {_api_nombre_seguro(info['pk'])} = %s"
+    )
+    valores = [data.get(col) for col in columnas] + [registro_id]
+
+    try:
+        conn = obtenerconexion()
+        with conn:
+            with conn.cursor() as cursor:
+                cursor.execute(sql, valores)
+                filas = cursor.rowcount
+            conn.commit()
+        return _respuesta_api(1, "Registro actualizado correctamente.", {"filas_afectadas": filas})
+    except pymysql.err.IntegrityError as e:
+        return _respuesta_api(0, "Regla de integridad: " + str(e), status=400)
+    except Exception as e:
+        return _respuesta_api(0, "No se pudo actualizar: " + repr(e), status=500)
+
+
+def _api_eliminar_tabla(tabla, registro_id=None):
+    info = _api_info_tabla(tabla)
+    if not info:
+        return _respuesta_api(0, "La tabla solicitada no existe.", status=404)
+
+    registro_id = _api_id_registro(registro_id)
+    if not registro_id:
+        return _respuesta_api(0, "Debe enviar el id del registro.", status=400)
+
+    sql = (
+        f"DELETE FROM {_api_nombre_seguro(info['tabla'])} "
+        f"WHERE {_api_nombre_seguro(info['pk'])} = %s"
+    )
+    try:
+        conn = obtenerconexion()
+        with conn:
+            with conn.cursor() as cursor:
+                cursor.execute(sql, (registro_id,))
+                filas = cursor.rowcount
+            conn.commit()
+        return _respuesta_api(1, "Registro eliminado correctamente.", {"filas_afectadas": filas})
+    except pymysql.err.IntegrityError as e:
+        return _respuesta_api(0, "No se puede eliminar porque tiene registros relacionados: " + str(e), status=400)
+    except Exception as e:
+        return _respuesta_api(0, "No se pudo eliminar: " + repr(e), status=500)
+
+
+# ============================================================
+# APIS - ESPECIALIDADES_COLEGIADO
+# ============================================================
+
+@app.route("/api_guardarespecialidadcolegiado", methods=["POST"])
+@jwt_required()
+def api_guardarespecialidadcolegiado():
+    return _api_guardar_tabla("especialidades_colegiado")
+
+
+@app.route("/api_actualizarespecialidadcolegiado", methods=["PUT", "POST"])
+@app.route("/api_actualizarespecialidadcolegiado/<int:registro_id>", methods=["PUT", "POST"])
+@jwt_required()
+def api_actualizarespecialidadcolegiado(registro_id=None):
+    return _api_actualizar_tabla("especialidades_colegiado", registro_id)
+
+
+@app.route("/api_eliminarespecialidadcolegiado", methods=["DELETE", "POST"])
+@app.route("/api_eliminarespecialidadcolegiado/<int:registro_id>", methods=["DELETE", "POST"])
+@jwt_required()
+def api_eliminarespecialidadcolegiado(registro_id=None):
+    return _api_eliminar_tabla("especialidades_colegiado", registro_id)
+
+
+@app.route("/api_leerespecialidadcolegiadoxid", methods=["GET", "POST"])
+@app.route("/api_leerespecialidadcolegiadoxid/<int:registro_id>", methods=["GET", "POST"])
+@jwt_required()
+def api_leerespecialidadcolegiadoxid(registro_id=None):
+    return _api_leer_tabla_xid("especialidades_colegiado", registro_id)
+
+
+@app.route("/api_leerespecialidadescolegiado")
+@jwt_required()
+def api_leerespecialidadescolegiado():
+    return _api_leer_tabla("especialidades_colegiado")
+
+
+# ============================================================
+# APIS - COLEGIADOS
+# ============================================================
+
+@app.route("/api_guardarcolegiado", methods=["POST"])
+@jwt_required()
+def api_guardarcolegiado():
+    return _api_guardar_tabla("colegiados")
+
+
+@app.route("/api_actualizarcolegiado", methods=["PUT", "POST"])
+@app.route("/api_actualizarcolegiado/<int:registro_id>", methods=["PUT", "POST"])
+@jwt_required()
+def api_actualizarcolegiado(registro_id=None):
+    return _api_actualizar_tabla("colegiados", registro_id)
+
+
+@app.route("/api_eliminarcolegiado", methods=["DELETE", "POST"])
+@app.route("/api_eliminarcolegiado/<int:registro_id>", methods=["DELETE", "POST"])
+@jwt_required()
+def api_eliminarcolegiado(registro_id=None):
+    return _api_eliminar_tabla("colegiados", registro_id)
+
+
+@app.route("/api_leercolegiadoxid", methods=["GET", "POST"])
+@app.route("/api_leercolegiadoxid/<int:registro_id>", methods=["GET", "POST"])
+@jwt_required()
+def api_leercolegiadoxid(registro_id=None):
+    return _api_leer_tabla_xid("colegiados", registro_id)
+
+
+@app.route("/api_leercolegiados")
+@jwt_required()
+def api_leercolegiados():
+    return _api_leer_tabla("colegiados")
+
+
+# ============================================================
+# APIS - USUARIOS
+# ============================================================
+
+@app.route("/api_guardarusuario", methods=["POST"])
+@jwt_required()
+def api_guardarusuario():
+    return _api_guardar_tabla("usuarios")
+
+
+@app.route("/api_actualizarusuario", methods=["PUT", "POST"])
+@app.route("/api_actualizarusuario/<int:registro_id>", methods=["PUT", "POST"])
+@jwt_required()
+def api_actualizarusuario(registro_id=None):
+    return _api_actualizar_tabla("usuarios", registro_id)
+
+
+@app.route("/api_eliminarusuario", methods=["DELETE", "POST"])
+@app.route("/api_eliminarusuario/<int:registro_id>", methods=["DELETE", "POST"])
+@jwt_required()
+def api_eliminarusuario(registro_id=None):
+    return _api_eliminar_tabla("usuarios", registro_id)
+
+
+@app.route("/api_leerusuarioxid", methods=["GET", "POST"])
+@app.route("/api_leerusuarioxid/<int:registro_id>", methods=["GET", "POST"])
+@jwt_required()
+def api_leerusuarioxid(registro_id=None):
+    return _api_leer_tabla_xid("usuarios", registro_id)
+
+
+@app.route("/api_leerusuarios")
+@jwt_required()
+def api_leerusuarios():
+    return _api_leer_tabla("usuarios")
+
+
+# ============================================================
+# APIS - RECUPERACION_PASSWORD
+# ============================================================
+
+@app.route("/api_guardarrecuperacionpassword", methods=["POST"])
+@jwt_required()
+def api_guardarrecuperacionpassword():
+    return _api_guardar_tabla("recuperacion_password")
+
+
+@app.route("/api_actualizarrecuperacionpassword", methods=["PUT", "POST"])
+@app.route("/api_actualizarrecuperacionpassword/<int:registro_id>", methods=["PUT", "POST"])
+@jwt_required()
+def api_actualizarrecuperacionpassword(registro_id=None):
+    return _api_actualizar_tabla("recuperacion_password", registro_id)
+
+
+@app.route("/api_eliminarrecuperacionpassword", methods=["DELETE", "POST"])
+@app.route("/api_eliminarrecuperacionpassword/<int:registro_id>", methods=["DELETE", "POST"])
+@jwt_required()
+def api_eliminarrecuperacionpassword(registro_id=None):
+    return _api_eliminar_tabla("recuperacion_password", registro_id)
+
+
+@app.route("/api_leerrecuperacionpasswordxid", methods=["GET", "POST"])
+@app.route("/api_leerrecuperacionpasswordxid/<int:registro_id>", methods=["GET", "POST"])
+@jwt_required()
+def api_leerrecuperacionpasswordxid(registro_id=None):
+    return _api_leer_tabla_xid("recuperacion_password", registro_id)
+
+
+@app.route("/api_leerrecuperacionespassword")
+@jwt_required()
+def api_leerrecuperacionespassword():
+    return _api_leer_tabla("recuperacion_password")
+
+
+# ============================================================
+# APIS - CUOTAS
+# ============================================================
+
+@app.route("/api_guardarcuota", methods=["POST"])
+@jwt_required()
+def api_guardarcuota():
+    return _api_guardar_tabla("cuotas")
+
+
+@app.route("/api_actualizarcuota", methods=["PUT", "POST"])
+@app.route("/api_actualizarcuota/<int:registro_id>", methods=["PUT", "POST"])
+@jwt_required()
+def api_actualizarcuota(registro_id=None):
+    return _api_actualizar_tabla("cuotas", registro_id)
+
+
+@app.route("/api_eliminarcuota", methods=["DELETE", "POST"])
+@app.route("/api_eliminarcuota/<int:registro_id>", methods=["DELETE", "POST"])
+@jwt_required()
+def api_eliminarcuota(registro_id=None):
+    return _api_eliminar_tabla("cuotas", registro_id)
+
+
+@app.route("/api_leercuotaxid", methods=["GET", "POST"])
+@app.route("/api_leercuotaxid/<int:registro_id>", methods=["GET", "POST"])
+@jwt_required()
+def api_leercuotaxid(registro_id=None):
+    return _api_leer_tabla_xid("cuotas", registro_id)
+
+
+@app.route("/api_leercuotas")
+@jwt_required()
+def api_leercuotas():
+    return _api_leer_tabla("cuotas")
+
+
+# ============================================================
+# APIS - MEDIOS_PAGO
+# ============================================================
+
+@app.route("/api_guardarmediopago", methods=["POST"])
+@jwt_required()
+def api_guardarmediopago():
+    return _api_guardar_tabla("medios_pago")
+
+
+@app.route("/api_actualizarmediopago", methods=["PUT", "POST"])
+@app.route("/api_actualizarmediopago/<int:registro_id>", methods=["PUT", "POST"])
+@jwt_required()
+def api_actualizarmediopago(registro_id=None):
+    return _api_actualizar_tabla("medios_pago", registro_id)
+
+
+@app.route("/api_eliminarmediopago", methods=["DELETE", "POST"])
+@app.route("/api_eliminarmediopago/<int:registro_id>", methods=["DELETE", "POST"])
+@jwt_required()
+def api_eliminarmediopago(registro_id=None):
+    return _api_eliminar_tabla("medios_pago", registro_id)
+
+
+@app.route("/api_leermediopagoxid", methods=["GET", "POST"])
+@app.route("/api_leermediopagoxid/<int:registro_id>", methods=["GET", "POST"])
+@jwt_required()
+def api_leermediopagoxid(registro_id=None):
+    return _api_leer_tabla_xid("medios_pago", registro_id)
+
+
+@app.route("/api_leermediospago")
+@jwt_required()
+def api_leermediospago():
+    return _api_leer_tabla("medios_pago")
+
+
+# ============================================================
+# APIS - EVIDENCIAS_PAGO
+# ============================================================
+
+@app.route("/api_guardarevidenciapago", methods=["POST"])
+@jwt_required()
+def api_guardarevidenciapago():
+    return _api_guardar_tabla("evidencias_pago")
+
+
+@app.route("/api_actualizarevidenciapago", methods=["PUT", "POST"])
+@app.route("/api_actualizarevidenciapago/<int:registro_id>", methods=["PUT", "POST"])
+@jwt_required()
+def api_actualizarevidenciapago(registro_id=None):
+    return _api_actualizar_tabla("evidencias_pago", registro_id)
+
+
+@app.route("/api_eliminarevidenciapago", methods=["DELETE", "POST"])
+@app.route("/api_eliminarevidenciapago/<int:registro_id>", methods=["DELETE", "POST"])
+@jwt_required()
+def api_eliminarevidenciapago(registro_id=None):
+    return _api_eliminar_tabla("evidencias_pago", registro_id)
+
+
+@app.route("/api_leerevidenciapagoxid", methods=["GET", "POST"])
+@app.route("/api_leerevidenciapagoxid/<int:registro_id>", methods=["GET", "POST"])
+@jwt_required()
+def api_leerevidenciapagoxid(registro_id=None):
+    return _api_leer_tabla_xid("evidencias_pago", registro_id)
+
+
+@app.route("/api_leerevidenciaspago")
+@jwt_required()
+def api_leerevidenciaspago():
+    return _api_leer_tabla("evidencias_pago")
+
+
+# ============================================================
+# APIS - TRANSACCIONES_PAGO
+# ============================================================
+
+@app.route("/api_guardartransaccionpago", methods=["POST"])
+@jwt_required()
+def api_guardartransaccionpago():
+    return _api_guardar_tabla("transacciones_pago")
+
+
+@app.route("/api_actualizartransaccionpago", methods=["PUT", "POST"])
+@app.route("/api_actualizartransaccionpago/<int:registro_id>", methods=["PUT", "POST"])
+@jwt_required()
+def api_actualizartransaccionpago(registro_id=None):
+    return _api_actualizar_tabla("transacciones_pago", registro_id)
+
+
+@app.route("/api_eliminartransaccionpago", methods=["DELETE", "POST"])
+@app.route("/api_eliminartransaccionpago/<int:registro_id>", methods=["DELETE", "POST"])
+@jwt_required()
+def api_eliminartransaccionpago(registro_id=None):
+    return _api_eliminar_tabla("transacciones_pago", registro_id)
+
+
+@app.route("/api_leertransaccionpagoxid", methods=["GET", "POST"])
+@app.route("/api_leertransaccionpagoxid/<int:registro_id>", methods=["GET", "POST"])
+@jwt_required()
+def api_leertransaccionpagoxid(registro_id=None):
+    return _api_leer_tabla_xid("transacciones_pago", registro_id)
+
+
+@app.route("/api_leertransaccionespago")
+@jwt_required()
+def api_leertransaccionespago():
+    return _api_leer_tabla("transacciones_pago")
+
+
+# ============================================================
+# APIS - COMPROBANTES_PAGO
+# ============================================================
+
+@app.route("/api_guardarcomprobantepago", methods=["POST"])
+@jwt_required()
+def api_guardarcomprobantepago():
+    return _api_guardar_tabla("comprobantes_pago")
+
+
+@app.route("/api_actualizarcomprobantepago", methods=["PUT", "POST"])
+@app.route("/api_actualizarcomprobantepago/<int:registro_id>", methods=["PUT", "POST"])
+@jwt_required()
+def api_actualizarcomprobantepago(registro_id=None):
+    return _api_actualizar_tabla("comprobantes_pago", registro_id)
+
+
+@app.route("/api_eliminarcomprobantepago", methods=["DELETE", "POST"])
+@app.route("/api_eliminarcomprobantepago/<int:registro_id>", methods=["DELETE", "POST"])
+@jwt_required()
+def api_eliminarcomprobantepago(registro_id=None):
+    return _api_eliminar_tabla("comprobantes_pago", registro_id)
+
+
+@app.route("/api_leercomprobantepagoxid", methods=["GET", "POST"])
+@app.route("/api_leercomprobantepagoxid/<int:registro_id>", methods=["GET", "POST"])
+@jwt_required()
+def api_leercomprobantepagoxid(registro_id=None):
+    return _api_leer_tabla_xid("comprobantes_pago", registro_id)
+
+
+@app.route("/api_leercomprobantespago")
+@jwt_required()
+def api_leercomprobantespago():
+    return _api_leer_tabla("comprobantes_pago")
+
+
+# ============================================================
+# APIS - CONFIGURACION_MERCADO_PAGO
+# ============================================================
+
+@app.route("/api_guardarconfiguracionmercadopago", methods=["POST"])
+@jwt_required()
+def api_guardarconfiguracionmercadopago():
+    return _api_guardar_tabla("configuracion_mercado_pago")
+
+
+@app.route("/api_actualizarconfiguracionmercadopago", methods=["PUT", "POST"])
+@app.route("/api_actualizarconfiguracionmercadopago/<int:registro_id>", methods=["PUT", "POST"])
+@jwt_required()
+def api_actualizarconfiguracionmercadopago(registro_id=None):
+    return _api_actualizar_tabla("configuracion_mercado_pago", registro_id)
+
+
+@app.route("/api_eliminarconfiguracionmercadopago", methods=["DELETE", "POST"])
+@app.route("/api_eliminarconfiguracionmercadopago/<int:registro_id>", methods=["DELETE", "POST"])
+@jwt_required()
+def api_eliminarconfiguracionmercadopago(registro_id=None):
+    return _api_eliminar_tabla("configuracion_mercado_pago", registro_id)
+
+
+@app.route("/api_leerconfiguracionmercadopagoxid", methods=["GET", "POST"])
+@app.route("/api_leerconfiguracionmercadopagoxid/<int:registro_id>", methods=["GET", "POST"])
+@jwt_required()
+def api_leerconfiguracionmercadopagoxid(registro_id=None):
+    return _api_leer_tabla_xid("configuracion_mercado_pago", registro_id)
+
+
+@app.route("/api_leerconfiguracionesmercadopago")
+@jwt_required()
+def api_leerconfiguracionesmercadopago():
+    return _api_leer_tabla("configuracion_mercado_pago")
+
+
+# ============================================================
+# APIS - ORDENES_MERCADO_PAGO
+# ============================================================
+
+@app.route("/api_guardarordenmercadopago", methods=["POST"])
+@jwt_required()
+def api_guardarordenmercadopago():
+    return _api_guardar_tabla("ordenes_mercado_pago")
+
+
+@app.route("/api_actualizarordenmercadopago", methods=["PUT", "POST"])
+@app.route("/api_actualizarordenmercadopago/<int:registro_id>", methods=["PUT", "POST"])
+@jwt_required()
+def api_actualizarordenmercadopago(registro_id=None):
+    return _api_actualizar_tabla("ordenes_mercado_pago", registro_id)
+
+
+@app.route("/api_eliminarordenmercadopago", methods=["DELETE", "POST"])
+@app.route("/api_eliminarordenmercadopago/<int:registro_id>", methods=["DELETE", "POST"])
+@jwt_required()
+def api_eliminarordenmercadopago(registro_id=None):
+    return _api_eliminar_tabla("ordenes_mercado_pago", registro_id)
+
+
+@app.route("/api_leerordenmercadopagoxid", methods=["GET", "POST"])
+@app.route("/api_leerordenmercadopagoxid/<int:registro_id>", methods=["GET", "POST"])
+@jwt_required()
+def api_leerordenmercadopagoxid(registro_id=None):
+    return _api_leer_tabla_xid("ordenes_mercado_pago", registro_id)
+
+
+@app.route("/api_leerordenesmercadopago")
+@jwt_required()
+def api_leerordenesmercadopago():
+    return _api_leer_tabla("ordenes_mercado_pago")
+
+
+# ============================================================
+# APIS - CONFIGURACION_FACTURACION
+# ============================================================
+
+@app.route("/api_guardarconfiguracionfacturacion", methods=["POST"])
+@jwt_required()
+def api_guardarconfiguracionfacturacion():
+    return _api_guardar_tabla("configuracion_facturacion")
+
+
+@app.route("/api_actualizarconfiguracionfacturacion", methods=["PUT", "POST"])
+@app.route("/api_actualizarconfiguracionfacturacion/<int:registro_id>", methods=["PUT", "POST"])
+@jwt_required()
+def api_actualizarconfiguracionfacturacion(registro_id=None):
+    return _api_actualizar_tabla("configuracion_facturacion", registro_id)
+
+
+@app.route("/api_eliminarconfiguracionfacturacion", methods=["DELETE", "POST"])
+@app.route("/api_eliminarconfiguracionfacturacion/<int:registro_id>", methods=["DELETE", "POST"])
+@jwt_required()
+def api_eliminarconfiguracionfacturacion(registro_id=None):
+    return _api_eliminar_tabla("configuracion_facturacion", registro_id)
+
+
+@app.route("/api_leerconfiguracionfacturacionxid", methods=["GET", "POST"])
+@app.route("/api_leerconfiguracionfacturacionxid/<int:registro_id>", methods=["GET", "POST"])
+@jwt_required()
+def api_leerconfiguracionfacturacionxid(registro_id=None):
+    return _api_leer_tabla_xid("configuracion_facturacion", registro_id)
+
+
+@app.route("/api_leerconfiguracionesfacturacion")
+@jwt_required()
+def api_leerconfiguracionesfacturacion():
+    return _api_leer_tabla("configuracion_facturacion")
+
+
+# ============================================================
+# APIS - COMPROBANTES_FISCALES
+# ============================================================
+
+@app.route("/api_guardarcomprobantefiscal", methods=["POST"])
+@jwt_required()
+def api_guardarcomprobantefiscal():
+    return _api_guardar_tabla("comprobantes_fiscales")
+
+
+@app.route("/api_actualizarcomprobantefiscal", methods=["PUT", "POST"])
+@app.route("/api_actualizarcomprobantefiscal/<int:registro_id>", methods=["PUT", "POST"])
+@jwt_required()
+def api_actualizarcomprobantefiscal(registro_id=None):
+    return _api_actualizar_tabla("comprobantes_fiscales", registro_id)
+
+
+@app.route("/api_eliminarcomprobantefiscal", methods=["DELETE", "POST"])
+@app.route("/api_eliminarcomprobantefiscal/<int:registro_id>", methods=["DELETE", "POST"])
+@jwt_required()
+def api_eliminarcomprobantefiscal(registro_id=None):
+    return _api_eliminar_tabla("comprobantes_fiscales", registro_id)
+
+
+@app.route("/api_leercomprobantefiscalxid", methods=["GET", "POST"])
+@app.route("/api_leercomprobantefiscalxid/<int:registro_id>", methods=["GET", "POST"])
+@jwt_required()
+def api_leercomprobantefiscalxid(registro_id=None):
+    return _api_leer_tabla_xid("comprobantes_fiscales", registro_id)
+
+
+@app.route("/api_leercomprobantesfiscales")
+@jwt_required()
+def api_leercomprobantesfiscales():
+    return _api_leer_tabla("comprobantes_fiscales")
+
+
+# ============================================================
+# APIS - COMPROBANTE_FISCAL_DETALLE
+# ============================================================
+
+@app.route("/api_guardarcomprobantefiscaldetalle", methods=["POST"])
+@jwt_required()
+def api_guardarcomprobantefiscaldetalle():
+    return _api_guardar_tabla("comprobante_fiscal_detalle")
+
+
+@app.route("/api_actualizarcomprobantefiscaldetalle", methods=["PUT", "POST"])
+@app.route("/api_actualizarcomprobantefiscaldetalle/<int:registro_id>", methods=["PUT", "POST"])
+@jwt_required()
+def api_actualizarcomprobantefiscaldetalle(registro_id=None):
+    return _api_actualizar_tabla("comprobante_fiscal_detalle", registro_id)
+
+
+@app.route("/api_eliminarcomprobantefiscaldetalle", methods=["DELETE", "POST"])
+@app.route("/api_eliminarcomprobantefiscaldetalle/<int:registro_id>", methods=["DELETE", "POST"])
+@jwt_required()
+def api_eliminarcomprobantefiscaldetalle(registro_id=None):
+    return _api_eliminar_tabla("comprobante_fiscal_detalle", registro_id)
+
+
+@app.route("/api_leercomprobantefiscaldetallexid", methods=["GET", "POST"])
+@app.route("/api_leercomprobantefiscaldetallexid/<int:registro_id>", methods=["GET", "POST"])
+@jwt_required()
+def api_leercomprobantefiscaldetallexid(registro_id=None):
+    return _api_leer_tabla_xid("comprobante_fiscal_detalle", registro_id)
+
+
+@app.route("/api_leercomprobantesfiscalesdetalle")
+@jwt_required()
+def api_leercomprobantesfiscalesdetalle():
+    return _api_leer_tabla("comprobante_fiscal_detalle")
+
+
+# ============================================================
+# APIS - FACTURACION_SUNAT_LOGS
+# ============================================================
+
+@app.route("/api_guardarfacturacionsunatlog", methods=["POST"])
+@jwt_required()
+def api_guardarfacturacionsunatlog():
+    return _api_guardar_tabla("facturacion_sunat_logs")
+
+
+@app.route("/api_actualizarfacturacionsunatlog", methods=["PUT", "POST"])
+@app.route("/api_actualizarfacturacionsunatlog/<int:registro_id>", methods=["PUT", "POST"])
+@jwt_required()
+def api_actualizarfacturacionsunatlog(registro_id=None):
+    return _api_actualizar_tabla("facturacion_sunat_logs", registro_id)
+
+
+@app.route("/api_eliminarfacturacionsunatlog", methods=["DELETE", "POST"])
+@app.route("/api_eliminarfacturacionsunatlog/<int:registro_id>", methods=["DELETE", "POST"])
+@jwt_required()
+def api_eliminarfacturacionsunatlog(registro_id=None):
+    return _api_eliminar_tabla("facturacion_sunat_logs", registro_id)
+
+
+@app.route("/api_leerfacturacionsunatlogxid", methods=["GET", "POST"])
+@app.route("/api_leerfacturacionsunatlogxid/<int:registro_id>", methods=["GET", "POST"])
+@jwt_required()
+def api_leerfacturacionsunatlogxid(registro_id=None):
+    return _api_leer_tabla_xid("facturacion_sunat_logs", registro_id)
+
+
+@app.route("/api_leerfacturacionsunatlogs")
+@jwt_required()
+def api_leerfacturacionsunatlogs():
+    return _api_leer_tabla("facturacion_sunat_logs")
+
+
+# ============================================================
+# APIS - CURSOS
+# ============================================================
+
+@app.route("/api_guardarcurso", methods=["POST"])
+@jwt_required()
+def api_guardarcurso():
+    return _api_guardar_tabla("cursos")
+
+
+@app.route("/api_actualizarcurso", methods=["PUT", "POST"])
+@app.route("/api_actualizarcurso/<int:registro_id>", methods=["PUT", "POST"])
+@jwt_required()
+def api_actualizarcurso(registro_id=None):
+    return _api_actualizar_tabla("cursos", registro_id)
+
+
+@app.route("/api_eliminarcurso", methods=["DELETE", "POST"])
+@app.route("/api_eliminarcurso/<int:registro_id>", methods=["DELETE", "POST"])
+@jwt_required()
+def api_eliminarcurso(registro_id=None):
+    return _api_eliminar_tabla("cursos", registro_id)
+
+
+@app.route("/api_leercursoxid", methods=["GET", "POST"])
+@app.route("/api_leercursoxid/<int:registro_id>", methods=["GET", "POST"])
+@jwt_required()
+def api_leercursoxid(registro_id=None):
+    return _api_leer_tabla_xid("cursos", registro_id)
+
+
+@app.route("/api_leercursos")
+@jwt_required()
+def api_leercursos():
+    return _api_leer_tabla("cursos")
+
+
+# ============================================================
+# APIS - CONTENIDO_CURSO
+# ============================================================
+
+@app.route("/api_guardarcontenidocurso", methods=["POST"])
+@jwt_required()
+def api_guardarcontenidocurso():
+    return _api_guardar_tabla("contenido_curso")
+
+
+@app.route("/api_actualizarcontenidocurso", methods=["PUT", "POST"])
+@app.route("/api_actualizarcontenidocurso/<int:registro_id>", methods=["PUT", "POST"])
+@jwt_required()
+def api_actualizarcontenidocurso(registro_id=None):
+    return _api_actualizar_tabla("contenido_curso", registro_id)
+
+
+@app.route("/api_eliminarcontenidocurso", methods=["DELETE", "POST"])
+@app.route("/api_eliminarcontenidocurso/<int:registro_id>", methods=["DELETE", "POST"])
+@jwt_required()
+def api_eliminarcontenidocurso(registro_id=None):
+    return _api_eliminar_tabla("contenido_curso", registro_id)
+
+
+@app.route("/api_leercontenidocursoxid", methods=["GET", "POST"])
+@app.route("/api_leercontenidocursoxid/<int:registro_id>", methods=["GET", "POST"])
+@jwt_required()
+def api_leercontenidocursoxid(registro_id=None):
+    return _api_leer_tabla_xid("contenido_curso", registro_id)
+
+
+@app.route("/api_leercontenidoscurso")
+@jwt_required()
+def api_leercontenidoscurso():
+    return _api_leer_tabla("contenido_curso")
+
+
+# ============================================================
+# APIS - INSCRIPCIONES_CURSO
+# ============================================================
+
+@app.route("/api_guardarinscripcioncurso", methods=["POST"])
+@jwt_required()
+def api_guardarinscripcioncurso():
+    return _api_guardar_tabla("inscripciones_curso")
+
+
+@app.route("/api_actualizarinscripcioncurso", methods=["PUT", "POST"])
+@app.route("/api_actualizarinscripcioncurso/<int:registro_id>", methods=["PUT", "POST"])
+@jwt_required()
+def api_actualizarinscripcioncurso(registro_id=None):
+    return _api_actualizar_tabla("inscripciones_curso", registro_id)
+
+
+@app.route("/api_eliminarinscripcioncurso", methods=["DELETE", "POST"])
+@app.route("/api_eliminarinscripcioncurso/<int:registro_id>", methods=["DELETE", "POST"])
+@jwt_required()
+def api_eliminarinscripcioncurso(registro_id=None):
+    return _api_eliminar_tabla("inscripciones_curso", registro_id)
+
+
+@app.route("/api_leerinscripcioncursoxid", methods=["GET", "POST"])
+@app.route("/api_leerinscripcioncursoxid/<int:registro_id>", methods=["GET", "POST"])
+@jwt_required()
+def api_leerinscripcioncursoxid(registro_id=None):
+    return _api_leer_tabla_xid("inscripciones_curso", registro_id)
+
+
+@app.route("/api_leerinscripcionescurso")
+@jwt_required()
+def api_leerinscripcionescurso():
+    return _api_leer_tabla("inscripciones_curso")
+
+
+# ============================================================
+# APIS - TRAMITES
+# ============================================================
+
+@app.route("/api_guardartramite", methods=["POST"])
+@jwt_required()
+def api_guardartramite():
+    return _api_guardar_tabla("tramites")
+
+
+@app.route("/api_actualizartramite", methods=["PUT", "POST"])
+@app.route("/api_actualizartramite/<int:registro_id>", methods=["PUT", "POST"])
+@jwt_required()
+def api_actualizartramite(registro_id=None):
+    return _api_actualizar_tabla("tramites", registro_id)
+
+
+@app.route("/api_eliminartramite", methods=["DELETE", "POST"])
+@app.route("/api_eliminartramite/<int:registro_id>", methods=["DELETE", "POST"])
+@jwt_required()
+def api_eliminartramite(registro_id=None):
+    return _api_eliminar_tabla("tramites", registro_id)
+
+
+@app.route("/api_leertramitexid", methods=["GET", "POST"])
+@app.route("/api_leertramitexid/<int:registro_id>", methods=["GET", "POST"])
+@jwt_required()
+def api_leertramitexid(registro_id=None):
+    return _api_leer_tabla_xid("tramites", registro_id)
+
+
+@app.route("/api_leertramites")
+@jwt_required()
+def api_leertramites():
+    return _api_leer_tabla("tramites")
+
+
+# ============================================================
+# APIS - TICKETS
+# ============================================================
+
+@app.route("/api_guardarticket", methods=["POST"])
+@jwt_required()
+def api_guardarticket():
+    return _api_guardar_tabla("tickets")
+
+
+@app.route("/api_actualizarticket", methods=["PUT", "POST"])
+@app.route("/api_actualizarticket/<int:registro_id>", methods=["PUT", "POST"])
+@jwt_required()
+def api_actualizarticket(registro_id=None):
+    return _api_actualizar_tabla("tickets", registro_id)
+
+
+@app.route("/api_eliminarticket", methods=["DELETE", "POST"])
+@app.route("/api_eliminarticket/<int:registro_id>", methods=["DELETE", "POST"])
+@jwt_required()
+def api_eliminarticket(registro_id=None):
+    return _api_eliminar_tabla("tickets", registro_id)
+
+
+@app.route("/api_leerticketxid", methods=["GET", "POST"])
+@app.route("/api_leerticketxid/<int:registro_id>", methods=["GET", "POST"])
+@jwt_required()
+def api_leerticketxid(registro_id=None):
+    return _api_leer_tabla_xid("tickets", registro_id)
+
+
+@app.route("/api_leertickets")
+@jwt_required()
+def api_leertickets():
+    return _api_leer_tabla("tickets")
+
+
+# ============================================================
+# APIS - NOTIFICACIONES
+# ============================================================
+
+@app.route("/api_guardarnotificacion", methods=["POST"])
+@jwt_required()
+def api_guardarnotificacion():
+    return _api_guardar_tabla("notificaciones")
+
+
+@app.route("/api_actualizarnotificacion", methods=["PUT", "POST"])
+@app.route("/api_actualizarnotificacion/<int:registro_id>", methods=["PUT", "POST"])
+@jwt_required()
+def api_actualizarnotificacion(registro_id=None):
+    return _api_actualizar_tabla("notificaciones", registro_id)
+
+
+@app.route("/api_eliminarnotificacion", methods=["DELETE", "POST"])
+@app.route("/api_eliminarnotificacion/<int:registro_id>", methods=["DELETE", "POST"])
+@jwt_required()
+def api_eliminarnotificacion(registro_id=None):
+    return _api_eliminar_tabla("notificaciones", registro_id)
+
+
+@app.route("/api_leernotificacionxid", methods=["GET", "POST"])
+@app.route("/api_leernotificacionxid/<int:registro_id>", methods=["GET", "POST"])
+@jwt_required()
+def api_leernotificacionxid(registro_id=None):
+    return _api_leer_tabla_xid("notificaciones", registro_id)
+
+
+@app.route("/api_leernotificaciones")
+@jwt_required()
+def api_leernotificaciones():
+    return _api_leer_tabla("notificaciones")
+
+
+@app.route("/api/postman-collection", endpoint="api_postman_collection")
+def api_postman_collection():
+    base_url = request.url_root.rstrip("/")
+    items = [
+        {
+            "name": "01 - Generar token JWT",
+            "request": {
+                "method": "POST",
+                "header": [{"key": "Content-Type", "value": "application/json"}],
+                "body": {
+                    "mode": "raw",
+                    "raw": json.dumps({
+                        "username": "admin",
+                        "password": "admin2024"
+                    }, indent=2)
+                },
+                "url": "{{base_url}}/api/token"
+            }
+        }
+    ]
+
+    carpetas = {}
+    for modulo, tabla, singular, plural in API_COLECCION_TABLAS:
+        carpetas.setdefault(modulo, {"name": modulo, "item": []})
+        carpetas[modulo]["item"].extend([
+            {
+                "name": f"api_leer{plural}",
+                "request": {
+                    "method": "GET",
+                    "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]},
+                    "url": f"{{{{base_url}}}}/api_leer{plural}"
+                }
+            },
+            {
+                "name": f"api_leer{singular}xid",
+                "request": {
+                    "method": "GET",
+                    "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]},
+                    "url": f"{{{{base_url}}}}/api_leer{singular}xid/1"
+                }
+            },
+            {
+                "name": f"api_guardar{singular}",
+                "request": {
+                    "method": "POST",
+                    "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]},
+                    "header": [{"key": "Content-Type", "value": "application/json"}],
+                    "body": {"mode": "raw", "raw": "{}"},
+                    "url": f"{{{{base_url}}}}/api_guardar{singular}"
+                }
+            },
+            {
+                "name": f"api_actualizar{singular}",
+                "request": {
+                    "method": "PUT",
+                    "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]},
+                    "header": [{"key": "Content-Type", "value": "application/json"}],
+                    "body": {"mode": "raw", "raw": "{\n  \"id\": 1\n}"},
+                    "url": f"{{{{base_url}}}}/api_actualizar{singular}/1"
+                }
+            },
+            {
+                "name": f"api_eliminar{singular}",
+                "request": {
+                    "method": "DELETE",
+                    "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]},
+                    "url": f"{{{{base_url}}}}/api_eliminar{singular}/1"
+                }
+            },
+        ])
+
+    items.extend(carpetas.values())
+    return jsonify({
+        "info": {
+            "name": "CCPL Intranet - APIs JWT",
+            "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+        },
+        "variable": [
+            {"key": "base_url", "value": base_url},
+            {"key": "token", "value": ""}
+        ],
+        "item": items
+    })
 
 
 # ============================================================
