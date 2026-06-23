@@ -4520,8 +4520,18 @@ def admin_firma_edni(tid):
         ctx["certificado"] = certificado
         ctx["pdf_url"] = url_for("admin_certificado_habilidad_pdf", tid=tid, modo="firma")
         ctx["guardar_url"] = url_for("admin_guardar_firma_edni", tid=tid)
-        ctx["firmador_estado_url"] = url_for("admin_firmador_edni_estado")
-        ctx["firmador_firma_url"] = url_for("admin_firmador_edni_firmar")
+        firmador_local_url = os.getenv(
+            "EDNI_FIRMADOR_LOCAL_URL",
+            "http://127.0.0.1:8765"
+        ).rstrip("/")
+        ctx["firmador_base_url"] = firmador_local_url
+        ctx["firmador_estado_url"] = f"{firmador_local_url}/estado"
+        ctx["firmador_firma_url"] = f"{firmador_local_url}/firmar"
+        ctx["firmador_descarga_url"] = url_for(
+            "static",
+            filename="descargas/firmador_edni_ccpl.zip"
+        )
+        ctx["driver_reniec_url"] = "https://identidad.reniec.gob.pe/dni-electronico"
         return render_template("admin/admin_firma_edni.html", **ctx)
     except Exception as e:
         print("Error en /admin/tramites/firma-edni:", repr(e))

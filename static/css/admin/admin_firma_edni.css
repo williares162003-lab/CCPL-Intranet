@@ -96,6 +96,69 @@
   font-size: 20px;
 }
 
+.firma-instalacion {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #dbeafe;
+  border-radius: 8px;
+  background: #f8fbff;
+}
+
+.firma-instalacion > div {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+}
+
+.firma-paso {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  color: var(--azul-profundo);
+  font-weight: 900;
+  border: 1px solid #bfdbfe;
+  border-radius: 999px;
+  background: #ffffff;
+}
+
+.firma-instalacion strong {
+  color: var(--azul-profundo);
+  font-size: 13px;
+}
+
+.firma-instalacion p {
+  margin: 3px 0 0;
+  color: var(--texto);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.firma-instalacion a {
+  display: inline-flex;
+  width: fit-content;
+  margin-top: 6px;
+  color: var(--azul-profundo);
+  font-size: 12px;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.firma-instalacion a:hover {
+  text-decoration: underline;
+}
+
+.firma-url-local {
+  padding-top: 8px;
+  border-top: 1px solid #e4edf7;
+}
+
+.firma-url-local strong {
+  font-family: Consolas, "Courier New", monospace;
+}
+
 .firma-label {
   color: var(--texto-claro);
   font-size: 11px;

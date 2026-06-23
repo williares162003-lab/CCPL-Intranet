@@ -48,6 +48,14 @@ document.addEventListener("DOMContentLoaded", () => {
     return mensaje || "No se pudo completar la firma eDNI.";
   };
 
+  const mensajeConexionFirmador = (error) => {
+    const texto = String(error?.message || "").toLowerCase();
+    if (texto.includes("failed to fetch") || texto.includes("networkerror")) {
+      return "No se pudo conectar con el firmador local. Ejecute iniciar_firmador_edni.bat en esta computadora y vuelva a verificar.";
+    }
+    return error?.message || "Revise la instalacion del firmador eDNI antes de continuar.";
+  };
+
   const setEstado = (tipo, titulo, detalle, icono) => {
     estado.className = `edni-estado ${tipo}`;
     estado.innerHTML = `
@@ -173,7 +181,7 @@ document.addEventListener("DOMContentLoaded", () => {
       );
       btnFirmar.disabled = !tieneCertificadoFirma;
     } catch (error) {
-      setEstado("error", "Modulo de firma no disponible", error.message || "Revise la instalacion del firmador eDNI antes de continuar.", "error");
+      setEstado("error", "Modulo de firma no disponible", mensajeConexionFirmador(error), "error");
     }
   };
 
@@ -229,7 +237,7 @@ document.addEventListener("DOMContentLoaded", () => {
         window.location.href = guardarData.redirect;
       }
     } catch (error) {
-      setEstado("error", "Firma no completada", error.message || "No se pudo completar la firma eDNI.", "error");
+      setEstado("error", "Firma no completada", mensajeConexionFirmador(error), "error");
       btnFirmar.disabled = false;
     }
   };

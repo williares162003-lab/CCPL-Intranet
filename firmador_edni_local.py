@@ -14,6 +14,16 @@ app = Flask(__name__)
 
 
 BASE_DIR = Path(__file__).resolve().parent
+FIRMADOR_HOST = os.environ.get("EDNI_FIRMADOR_HOST", "127.0.0.1")
+FIRMADOR_PORT = int(os.environ.get("EDNI_FIRMADOR_PORT", "8765"))
+ORIGENES_PERMITIDOS = [
+    origen.strip()
+    for origen in os.environ.get(
+        "EDNI_CORS_ORIGINS",
+        "http://127.0.0.1:5000,http://localhost:5000,https://trabajodaweb.pythonanywhere.com"
+    ).split(",")
+    if origen.strip()
+]
 OPENSC_CONF_LOCAL = BASE_DIR / "opensc-dnie-peru.conf"
 if OPENSC_CONF_LOCAL.exists() and not os.environ.get("OPENSC_CONF"):
     os.environ["OPENSC_CONF"] = str(OPENSC_CONF_LOCAL)
@@ -28,6 +38,25 @@ PKCS11_CANDIDATOS = [
     r"C:\Windows\System32\opensc-pkcs11.dll",
 ]
 TOKEN_LABEL_FIRMA = os.environ.get("EDNI_TOKEN_LABEL", "PKI Application (Signature PIN)")
+
+
+def _origen_permitido(origen):
+    if not origen:
+        return False
+    if origen in ORIGENES_PERMITIDOS:
+        return True
+    return origen.startswith("http://127.0.0.1:") or origen.startswith("http://localhost:")
+
+
+@app.after_request
+def agregar_cors_local(response):
+    origen = request.headers.get("Origin", "")
+    if _origen_permitido(origen):
+        response.headers["Access-Control-Allow-Origin"] = origen
+        response.headers["Vary"] = "Origin"
+        response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+        response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+    return response
 
 
 def buscar_pkcs11():
@@ -492,7 +521,7 @@ def firmar():
 if __name__ == "__main__":
     preparar_salida_oculta()
     try:
-        app.run(host="127.0.0.1", port=8787, debug=False)
+        app.run(host=FIRMADOR_HOST, port=FIRMADOR_PORT, debug=False)
     except Exception:
         (BASE_DIR / "firmador_edni_error.log").write_text(
             traceback.format_exc(),

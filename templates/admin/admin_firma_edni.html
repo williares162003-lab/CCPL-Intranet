@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block extra_head %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/admin/admin_firma_edni.css') }}?v=3">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin/admin_firma_edni.css') }}?v=4">
 {% endblock %}
 
 {% block content %}
@@ -74,6 +74,32 @@
         </div>
       </div>
 
+      <div class="firma-instalacion">
+        <div>
+          <span class="firma-paso">1</span>
+          <div>
+            <strong>Instalar driver RENIEC</strong>
+            <p>El driver permite que Windows lea el DNIe y sus certificados.</p>
+            <a href="{{ driver_reniec_url }}" target="_blank" rel="noopener">
+              Abrir pagina oficial
+            </a>
+          </div>
+        </div>
+        <div>
+          <span class="firma-paso">2</span>
+          <div>
+            <strong>Descargar firmador CCPL</strong>
+            <p>Descomprima el ZIP, ejecute el instalador y luego inicie el firmador.</p>
+            <a href="{{ firmador_descarga_url }}">
+              Descargar firmador local
+            </a>
+          </div>
+        </div>
+        <p class="firma-url-local">
+          El firmador debe quedar abierto en <strong>{{ firmador_base_url }}</strong>.
+        </p>
+      </div>
+
       <div id="edni-estado" class="edni-estado pendiente" aria-live="polite">
         <span class="material-symbols-outlined">radio_button_unchecked</span>
         <div>
@@ -118,5 +144,5 @@
 {% endblock %}
 
 {% block extra_scripts %}
-<script src="{{ url_for('static', filename='js/admin/admin_firma_edni.js') }}?v=11"></script>
+<script src="{{ url_for('static', filename='js/admin/admin_firma_edni.js') }}?v=12"></script>
 {% endblock %}
