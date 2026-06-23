@@ -1,0 +1,163 @@
+@page {
+  size: A4 portrait;
+  margin: 0;
+}
+
+* {
+  box-sizing: border-box;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+body {
+  margin: 0;
+  background: #e8edf3;
+  color: #111827;
+  font-family: "Times New Roman", Times, serif;
+}
+
+.certificado-toolbar {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.boton-volver,
+.boton-imprimir {
+  min-height: 40px;
+  border: 0;
+  border-radius: 8px;
+  padding: 0 18px;
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.boton-volver {
+  display: inline-flex;
+  align-items: center;
+  color: #0b3f78;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+}
+
+.boton-imprimir {
+  display: inline-flex;
+  align-items: center;
+  color: #ffffff;
+  background: #0b3f78;
+}
+
+.certificado-hoja {
+  position: relative;
+  width: 210mm;
+  height: 297mm;
+  min-height: 297mm;
+  margin: 0 auto 24px;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.18);
+}
+
+.certificado-base {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.certificado-overlay {
+  position: absolute;
+  z-index: 1;
+}
+
+.certificado-numero-chip {
+  top: 50.1mm;
+  right: 21.6mm;
+  width: 35.3mm;
+  min-height: 7.1mm;
+  display: grid;
+  place-items: center;
+  color: #ffffff;
+  background: #153b74;
+  border-radius: 1.5mm;
+  font-size: 15pt;
+  font-weight: 800;
+  letter-spacing: .03em;
+}
+
+.certificado-identidad {
+  left: 31.5mm;
+  top: 130.1mm;
+  width: 147mm;
+  text-align: center;
+  color: #111111;
+}
+
+.certificado-identidad p,
+.certificado-identidad span {
+  display: block;
+  margin: 0;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.certificado-identidad p {
+  font-size: 16pt;
+}
+
+.certificado-identidad span {
+  margin-top: 5.8mm;
+  font-size: 15.5pt;
+}
+
+.certificado-fecha {
+  top: 188.5mm;
+  right: 30mm;
+  width: 78mm;
+  margin: 0;
+  color: #111111;
+  text-align: right;
+  font-size: 15pt;
+  line-height: 1.2;
+}
+
+.certificado-vigencia-real {
+  left: 31mm;
+  top: 247.2mm;
+  width: 77.5mm;
+  min-height: 6.5mm;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: 0 2mm;
+  color: #ffffff;
+  background: #153b74;
+  border-radius: 1.3mm;
+  text-align: center;
+  font-size: 11.5pt;
+  line-height: 1.1;
+}
+
+@media print {
+  body {
+    background: #ffffff;
+  }
+
+  .certificado-toolbar {
+    display: none;
+  }
+
+  .certificado-hoja {
+    width: 210mm;
+    height: 297mm;
+    min-height: 297mm;
+    margin: 0;
+    box-shadow: none;
+  }
+}

@@ -1,0 +1,766 @@
+{% extends "base.html" %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin/admin_reportes.css') }}?v=3">
+{% endblock %}
+
+{% block content %}
+<div class="pagina reportes-admin">
+
+  <div class="encabezado-pagina">
+    <div>
+      <p class="etiqueta-seccion">Administracion</p>
+      <h2 class="titulo-pagina">Reportes del sistema</h2>
+      <p class="texto-apoyo">Consulta financiera, avance de cursos y situacion de colegiados.</p>
+    </div>
+    <div class="acciones-reportes no-print">
+      {% if reporte_activo != "menu" %}
+      <a href="{{ url_for('admin_reportes_exportar', **request.args.to_dict()) }}" class="boton boton-primario">
+        <span class="material-symbols-outlined">download</span> Exportar CSV
+      </a>
+      {% endif %}
+      <button type="button" onclick="window.print()" class="boton boton-secundario">
+        <span class="material-symbols-outlined">print</span> Imprimir
+      </button>
+    </div>
+  </div>
+
+  <section class="selector-reportes no-print">
+    <a href="{{ url_for('admin_reportes', reporte='financiero') }}"
+       class="selector-card {% if reporte_activo == 'financiero' %}activo{% endif %}">
+      <span class="material-symbols-outlined">payments</span>
+      <div>
+        <strong>Financiero</strong>
+        <p>Cuotas, pagos, deuda y vencimientos.</p>
+      </div>
+    </a>
+    <a href="{{ url_for('admin_reportes', reporte='cursos') }}"
+       class="selector-card {% if reporte_activo == 'cursos' %}activo{% endif %}">
+      <span class="material-symbols-outlined">school</span>
+      <div>
+        <strong>Cursos</strong>
+        <p>Inscritos, progreso, pagos y certificados.</p>
+      </div>
+    </a>
+    <a href="{{ url_for('admin_reportes', reporte='colegiados') }}"
+       class="selector-card {% if reporte_activo == 'colegiados' %}activo{% endif %}">
+      <span class="material-symbols-outlined">group</span>
+      <div>
+        <strong>Colegiados</strong>
+        <p>Vigencia, deuda y actividad academica.</p>
+      </div>
+    </a>
+  </section>
+
+  {% if reporte_activo == "menu" %}
+  <section class="reporte-menu-vacio">
+    <span class="material-symbols-outlined">query_stats</span>
+    <h3>Seleccione un reporte</h3>
+    <p>Use las opciones superiores para abrir el reporte que necesita consultar o imprimir.</p>
+  </section>
+  {% endif %}
+
+  {% if reporte_activo != "menu" %}
+  <form method="GET" class="reporte-filtros no-print">
+    <input type="hidden" name="reporte" value="{{ reporte_activo }}" />
+    <div class="filtro-campo filtro-busqueda">
+      <label class="etiqueta-campo">Buscar</label>
+      <input name="q" type="search" value="{{ busqueda }}"
+             placeholder="Nombre, matricula o concepto"
+             class="campo-formulario" />
+    </div>
+    {% if reporte_activo == "financiero" %}
+    <div class="filtro-campo">
+      <label class="etiqueta-campo">Tipo</label>
+      <select name="tipo" class="campo-formulario">
+        <option value="">Todos</option>
+        <option value="mensual" {% if tipo == "mensual" %}selected{% endif %}>Mensual</option>
+        <option value="curso" {% if tipo == "curso" %}selected{% endif %}>Curso</option>
+        <option value="otro" {% if tipo == "otro" %}selected{% endif %}>Otro</option>
+      </select>
+    </div>
+    <div class="filtro-campo">
+      <label class="etiqueta-campo">Estado</label>
+      <select name="estado" class="campo-formulario">
+        <option value="">Todos</option>
+        <option value="Pendiente" {% if estado == "Pendiente" %}selected{% endif %}>Pendiente</option>
+        <option value="Pagado" {% if estado == "Pagado" %}selected{% endif %}>Pagado</option>
+        <option value="Vencida" {% if estado == "Vencida" %}selected{% endif %}>Vencida</option>
+      </select>
+    </div>
+    {% endif %}
+    {% if reporte_activo == "cursos" %}
+    <div class="filtro-campo">
+      <label class="etiqueta-campo">Curso</label>
+      <select name="estado_curso" class="campo-formulario">
+        <option value="">Todos</option>
+        <option value="Activo" {% if estado_curso == "Activo" %}selected{% endif %}>Activo</option>
+        <option value="Inactivo" {% if estado_curso == "Inactivo" %}selected{% endif %}>Inactivo</option>
+      </select>
+    </div>
+    {% endif %}
+    {% if reporte_activo == "colegiados" %}
+    <div class="filtro-campo">
+      <label class="etiqueta-campo">Colegiado</label>
+      <select name="estado_colegiado" class="campo-formulario">
+        <option value="">Todos</option>
+        <option value="Vigente" {% if estado_colegiado == "Vigente" %}selected{% endif %}>Vigente</option>
+        <option value="Inactivo" {% if estado_colegiado == "Inactivo" %}selected{% endif %}>Inactivo</option>
+      </select>
+    </div>
+    {% endif %}
+    {% if reporte_activo == "financiero" %}
+    <div class="filtro-campo">
+      <label class="etiqueta-campo">Desde</label>
+      <input name="fecha_desde" type="date" value="{{ fecha_desde }}" class="campo-formulario" />
+    </div>
+    <div class="filtro-campo">
+      <label class="etiqueta-campo">Hasta</label>
+      <input name="fecha_hasta" type="date" value="{{ fecha_hasta }}" class="campo-formulario" />
+    </div>
+    <div class="filtro-campo filtro-cantidad">
+      <label class="etiqueta-campo">Ver</label>
+      <select name="por_pagina" class="campo-formulario">
+        <option value="10" {% if por_pagina == 10 %}selected{% endif %}>10</option>
+        <option value="25" {% if por_pagina == 25 %}selected{% endif %}>25</option>
+        <option value="50" {% if por_pagina == 50 %}selected{% endif %}>50</option>
+        <option value="100" {% if por_pagina == 100 %}selected{% endif %}>100</option>
+      </select>
+    </div>
+    {% endif %}
+    <button type="submit" class="boton boton-primario">
+      <span class="material-symbols-outlined">filter_list</span> Filtrar
+    </button>
+    {% if busqueda or tipo or estado or estado_curso or estado_colegiado or fecha_desde or fecha_hasta or por_pagina != 25 %}
+    <a href="{{ url_for('admin_reportes', reporte=reporte_activo) }}" class="boton boton-secundario">Limpiar</a>
+    {% endif %}
+  </form>
+  {% endif %}
+
+  {% if reporte_activo == "financiero" %}
+  <section id="reporte-financiero" class="reporte-resumen-grid">
+    <article class="reporte-card">
+      <div class="reporte-card-top">
+        <span class="material-symbols-outlined">summarize</span>
+        <p>Total generado</p>
+      </div>
+      <strong>S/ {{ "%.2f"|format(resumen.total_general or 0) }}</strong>
+      <span>{{ resumen.total_registros or 0 }} registros</span>
+    </article>
+
+    <article class="reporte-card pagado">
+      <div class="reporte-card-top">
+        <span class="material-symbols-outlined">check_circle</span>
+        <p>Total pagado</p>
+      </div>
+      <strong>S/ {{ "%.2f"|format(resumen.total_pagado or 0) }}</strong>
+      <span>{{ resumen.cuotas_pagadas or 0 }} cuotas pagadas</span>
+    </article>
+
+    <article class="reporte-card pendiente">
+      <div class="reporte-card-top">
+        <span class="material-symbols-outlined">pending_actions</span>
+        <p>Total pendiente</p>
+      </div>
+      <strong>S/ {{ "%.2f"|format(resumen.total_pendiente or 0) }}</strong>
+      <span>{{ resumen.cuotas_pendientes or 0 }} cuotas pendientes</span>
+    </article>
+
+    <article class="reporte-card vencido">
+      <div class="reporte-card-top">
+        <span class="material-symbols-outlined">warning</span>
+        <p>Deuda vencida</p>
+      </div>
+      <strong>S/ {{ "%.2f"|format(resumen.deuda_vencida or 0) }}</strong>
+      <span>{{ resumen.cuotas_vencidas or 0 }} cuotas vencidas</span>
+    </article>
+  </section>
+
+  <section class="reporte-paneles">
+    <article class="panel-reporte panel-financiero">
+      <div class="panel-header">
+        <div>
+          <p class="etiqueta-seccion">Evolucion</p>
+          <h3>Pagos vs pendientes por mes</h3>
+        </div>
+        <div class="leyenda-reporte">
+          <span class="pagado">Pagado</span>
+          <span class="pendiente">Pendiente</span>
+        </div>
+      </div>
+      {% if por_mes %}
+      <div class="reporte-barras">
+        {% for item in por_mes %}
+        <div class="barra-mes">
+          <div class="barra-columna">
+            <span class="barra barra-pagado"
+                  style="height: {{ item.pagado_pct }}%"
+                  title="Pagado S/ {{ '%.2f'|format(item.pagado or 0) }}"></span>
+            <span class="barra barra-pendiente"
+                  style="height: {{ item.pendiente_pct }}%"
+                  title="Pendiente S/ {{ '%.2f'|format(item.pendiente or 0) }}"></span>
+          </div>
+          <p>{{ item.etiqueta.split()[0][:3] }}</p>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="mensaje-vacio compacto">No hay datos mensuales para el filtro actual.</p>
+      {% endif %}
+    </article>
+
+    <article class="panel-reporte">
+      <div class="panel-header">
+        <div>
+          <p class="etiqueta-seccion">Distribucion</p>
+          <h3>Por tipo de cuota</h3>
+        </div>
+      </div>
+      {% if por_tipo %}
+      <div class="lista-metricas">
+        {% for item in por_tipo %}
+        <div class="metrica-linea">
+          <div>
+            <strong>{{ item.label }}</strong>
+            <span>{{ item.total }} registros</span>
+          </div>
+          <p>S/ {{ "%.2f"|format(item.monto or 0) }}</p>
+          <div class="progreso-linea"><span style="width: {{ item.pct }}%"></span></div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="mensaje-vacio compacto">Sin datos por tipo.</p>
+      {% endif %}
+    </article>
+
+    <article class="panel-reporte">
+      <div class="panel-header">
+        <div>
+          <p class="etiqueta-seccion">Estado</p>
+          <h3>Cumplimiento</h3>
+        </div>
+      </div>
+      <div class="cumplimiento-box">
+        <div class="gauge-reporte" style="--valor: {{ resumen.cumplimiento_pct }};">
+          <div>
+            <strong>{{ resumen.cumplimiento_pct }}%</strong>
+            <span>pagado</span>
+          </div>
+        </div>
+        <p>{{ resumen.pendiente_pct }}% pendiente por cobrar</p>
+      </div>
+      {% if por_estado %}
+      <div class="estado-lista">
+        {% for item in por_estado %}
+        <div>
+          <span>{{ item.estado_reporte }}</span>
+          <strong>S/ {{ "%.2f"|format(item.monto or 0) }}</strong>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </article>
+  </section>
+
+  <section class="reporte-paneles compacto">
+    <article class="panel-reporte">
+      <div class="panel-header">
+        <div>
+          <p class="etiqueta-seccion">Contable</p>
+          <h3>Pagos por metodo</h3>
+        </div>
+      </div>
+      {% if reporte_contable.por_metodo %}
+      <div class="lista-metricas">
+        {% for item in reporte_contable.por_metodo %}
+        <div class="metrica-linea">
+          <div>
+            <strong>{{ item.metodo }}</strong>
+            <span>{{ item.total }} operacion(es)</span>
+          </div>
+          <p>S/ {{ "%.2f"|format(item.monto or 0) }}</p>
+          <div class="progreso-linea"><span style="width: 100%"></span></div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="mensaje-vacio compacto">Sin pagos registrados por metodo.</p>
+      {% endif %}
+    </article>
+
+    <article class="panel-reporte">
+      <div class="panel-header">
+        <div>
+          <p class="etiqueta-seccion">Origen</p>
+          <h3>Pasarela vs evidencia</h3>
+        </div>
+      </div>
+      <div class="estado-lista">
+        {% for item in reporte_contable.por_origen %}
+        <div>
+          <span>{{ item.origen }}<br><small>{{ item.total }} pago(s)</small></span>
+          <strong>S/ {{ "%.2f"|format(item.monto or 0) }}</strong>
+        </div>
+        {% else %}
+        <p class="mensaje-vacio compacto">Sin origenes de pago para mostrar.</p>
+        {% endfor %}
+      </div>
+    </article>
+
+    <article class="panel-reporte">
+      <div class="panel-header">
+        <div>
+          <p class="etiqueta-seccion">Comprobantes</p>
+          <h3>Emitidos y anulados</h3>
+        </div>
+      </div>
+      <div class="estado-lista">
+        {% for item in reporte_contable.comprobantes_estado %}
+        <div>
+          <span>{{ item.estado }}<br><small>{{ item.total }} comprobante(s)</small></span>
+          <strong>S/ {{ "%.2f"|format(item.monto or 0) }}</strong>
+        </div>
+        {% else %}
+        <p class="mensaje-vacio compacto">Sin comprobantes registrados.</p>
+        {% endfor %}
+      </div>
+    </article>
+
+    <article class="panel-reporte">
+      <div class="panel-header">
+        <div>
+          <p class="etiqueta-seccion">Recaudacion</p>
+          <h3>Pagos confirmados por mes</h3>
+        </div>
+      </div>
+      {% if reporte_contable.por_mes %}
+      <div class="reporte-barras mini">
+        {% for item in reporte_contable.por_mes %}
+        <div class="barra-mes">
+          <div class="barra-columna">
+            <span class="barra barra-pagado"
+                  style="height: {{ item.monto_pct }}%"
+                  title="Recaudado S/ {{ '%.2f'|format(item.monto or 0) }}"></span>
+          </div>
+          <p>{{ item.etiqueta.split()[0][:3] }}</p>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="mensaje-vacio compacto">Sin pagos confirmados por mes.</p>
+      {% endif %}
+    </article>
+  </section>
+  {% endif %}
+
+  {% if reporte_activo == "cursos" %}
+  <section id="reporte-cursos" class="reporte-modulo">
+    {% set cursos_res = reporte_cursos.resumen %}
+    <div class="modulo-header">
+      <div>
+        <p class="etiqueta-seccion">Cursos</p>
+        <h3>Reporte de cursos e inscripciones</h3>
+      </div>
+      <a href="{{ url_for('admin_cursos') }}" class="boton boton-secundario no-print">
+        <span class="material-symbols-outlined">school</span> Ver cursos
+      </a>
+    </div>
+
+    <div class="reporte-resumen-grid">
+      <article class="reporte-card">
+        <div class="reporte-card-top">
+          <span class="material-symbols-outlined">school</span>
+          <p>Cursos</p>
+        </div>
+        <strong>{{ cursos_res.total_cursos or 0 }}</strong>
+        <span>{{ cursos_res.activos or 0 }} activos</span>
+      </article>
+      <article class="reporte-card pagado">
+        <div class="reporte-card-top">
+          <span class="material-symbols-outlined">groups</span>
+          <p>Ocupacion</p>
+        </div>
+        <strong>{{ cursos_res.ocupacion_pct or 0 }}%</strong>
+        <span>{{ cursos_res.inscritos_total or 0 }} inscritos / {{ cursos_res.cupos_total or 0 }} cupos</span>
+      </article>
+      <article class="reporte-card pendiente">
+        <div class="reporte-card-top">
+          <span class="material-symbols-outlined">payments</span>
+          <p>Recaudado</p>
+        </div>
+        <strong>S/ {{ "%.2f"|format(cursos_res.ingreso_pagado or 0) }}</strong>
+        <span>{{ cursos_res.recaudacion_pct or 0 }}% del ingreso programado</span>
+      </article>
+      <article class="reporte-card">
+        <div class="reporte-card-top">
+          <span class="material-symbols-outlined">verified</span>
+          <p>Certificados</p>
+        </div>
+        <strong>{{ cursos_res.certificados_emitidos or 0 }}</strong>
+        <span>{{ "%.1f"|format(cursos_res.progreso_promedio or 0) }}% progreso promedio</span>
+      </article>
+    </div>
+
+    <div class="reporte-paneles compacto">
+      <article class="panel-reporte">
+        <div class="panel-header">
+          <div>
+            <p class="etiqueta-seccion">Categorias</p>
+            <h3>Inscritos por categoria</h3>
+          </div>
+        </div>
+        {% if reporte_cursos.por_categoria %}
+        <div class="lista-metricas">
+          {% for item in reporte_cursos.por_categoria %}
+          <div class="metrica-linea">
+            <div>
+              <strong>{{ item.categoria }}</strong>
+              <span>{{ item.total }} cursos | {{ item.inscritos }} inscritos</span>
+            </div>
+            <p>S/ {{ "%.2f"|format(item.ingreso_pagado or 0) }}</p>
+            <div class="progreso-linea"><span style="width: {{ item.pct }}%"></span></div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="mensaje-vacio compacto">Sin cursos para el filtro actual.</p>
+        {% endif %}
+      </article>
+
+      <article class="panel-reporte">
+        <div class="panel-header">
+          <div>
+            <p class="etiqueta-seccion">Ponentes</p>
+            <h3>Carga por ponente</h3>
+          </div>
+        </div>
+        <div class="estado-lista">
+          {% for item in reporte_cursos.por_ponente %}
+          <div>
+            <span>{{ item.ponente or "Por definir" }}<br><small>{{ item.total }} cursos | {{ item.inscritos }} inscritos</small></span>
+            <strong>{{ "%.1f"|format(item.progreso_promedio or 0) }}%</strong>
+          </div>
+          {% else %}
+          <p class="mensaje-vacio compacto">Sin ponentes para mostrar.</p>
+          {% endfor %}
+        </div>
+      </article>
+
+      <article class="panel-reporte">
+        <div class="panel-header">
+          <div>
+            <p class="etiqueta-seccion">Avance</p>
+            <h3>Control academico</h3>
+          </div>
+        </div>
+        <div class="doble-indicador">
+          <div>
+            <strong>{{ cursos_res.pagos_pendientes or 0 }}</strong>
+            <span>pagos pendientes</span>
+          </div>
+          <div>
+            <strong>{{ cursos_res.recaudacion_pct or 0 }}%</strong>
+            <span>recaudacion</span>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <section class="tarjeta-tabla">
+      <div class="tabla-toolbar">
+        <p>Ultimos {{ reporte_cursos.detalle|length }} cursos segun filtro</p>
+        <p>Inscritos, pagos, certificados y progreso</p>
+      </div>
+      <div class="tabla-responsive">
+        <table class="tabla-datos tabla-reportes">
+          <thead>
+            <tr>
+              <th>Curso</th>
+              <th>Ponente</th>
+              <th class="centro">Inscritos</th>
+              <th class="centro">Progreso</th>
+              <th class="centro">Pagos</th>
+              <th class="derecha">Ingresos</th>
+              <th class="centro">Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for curso in reporte_cursos.detalle %}
+            <tr>
+              <td>
+                <p class="texto-principal">{{ curso.titulo }}</p>
+                <p class="texto-pequeno">{{ curso.categoria }} | S/ {{ "%.2f"|format(curso.monto or 0) }}</p>
+              </td>
+              <td class="texto-secundario">{{ curso.ponente or "-" }}</td>
+              <td class="centro">
+                <p class="texto-principal">{{ curso.inscritos or 0 }}/{{ curso.cupos or 0 }}</p>
+                <p class="texto-pequeno">{{ curso.ocupacion_pct or 0 }}% ocupacion</p>
+              </td>
+              <td class="centro texto-principal">{{ "%.1f"|format(curso.progreso_promedio or 0) }}%</td>
+              <td class="centro">
+                <p class="texto-principal">{{ curso.pagados or 0 }} pagados</p>
+                <p class="texto-pequeno">{{ curso.pendientes or 0 }} pendientes</p>
+              </td>
+              <td class="derecha">
+                <p class="texto-principal">S/ {{ "%.2f"|format(curso.ingreso_pagado or 0) }}</p>
+                <p class="texto-pequeno">Prog. S/ {{ "%.2f"|format(curso.ingreso_programado or 0) }}</p>
+              </td>
+              <td class="centro">
+                <span class="estado-badge {% if curso.estado == 'Activo' %}estado-pagado{% else %}estado-neutro{% endif %}">
+                  {{ curso.estado }}
+                </span>
+              </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7" class="centro fila-vacia">No hay cursos para mostrar.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </section>
+  {% endif %}
+
+  {% if reporte_activo == "colegiados" %}
+  <section id="reporte-colegiados" class="reporte-modulo">
+    {% set colegiados_res = reporte_colegiados.resumen %}
+    <div class="modulo-header">
+      <div>
+        <p class="etiqueta-seccion">Colegiados</p>
+        <h3>Reporte de colegiados y deuda</h3>
+      </div>
+      <a href="{{ url_for('admin_colegiados') }}" class="boton boton-secundario no-print">
+        <span class="material-symbols-outlined">group</span> Ver colegiados
+      </a>
+    </div>
+
+    <div class="reporte-resumen-grid">
+      <article class="reporte-card">
+        <div class="reporte-card-top">
+          <span class="material-symbols-outlined">group</span>
+          <p>Colegiados</p>
+        </div>
+        <strong>{{ colegiados_res.total_colegiados or 0 }}</strong>
+        <span>{{ colegiados_res.vigentes or 0 }} vigentes</span>
+      </article>
+      <article class="reporte-card pagado">
+        <div class="reporte-card-top">
+          <span class="material-symbols-outlined">verified_user</span>
+          <p>Vigencia</p>
+        </div>
+        <strong>{{ colegiados_res.vigentes_pct or 0 }}%</strong>
+        <span>{{ colegiados_res.inactivos or 0 }} inactivos</span>
+      </article>
+      <article class="reporte-card pendiente">
+        <div class="reporte-card-top">
+          <span class="material-symbols-outlined">receipt_long</span>
+          <p>Con deuda</p>
+        </div>
+        <strong>{{ colegiados_res.con_deuda or 0 }}</strong>
+        <span>{{ colegiados_res.sin_deuda or 0 }} sin deuda</span>
+      </article>
+      <article class="reporte-card vencido">
+        <div class="reporte-card-top">
+          <span class="material-symbols-outlined">payments</span>
+          <p>Deuda total</p>
+        </div>
+        <strong>S/ {{ "%.2f"|format(colegiados_res.deuda_total or 0) }}</strong>
+        <span>{{ colegiados_res.cuotas_pendientes or 0 }} cuotas pendientes</span>
+      </article>
+    </div>
+
+    <div class="reporte-paneles compacto">
+      <article class="panel-reporte">
+        <div class="panel-header">
+          <div>
+            <p class="etiqueta-seccion">Estados</p>
+            <h3>Distribucion de colegiados</h3>
+          </div>
+        </div>
+        <div class="lista-metricas">
+          {% for item in reporte_colegiados.por_estado %}
+          <div class="metrica-linea">
+            <div>
+              <strong>{{ item.estado }}</strong>
+              <span>{{ item.total }} colegiados</span>
+            </div>
+            <p>{{ item.pct }}%</p>
+            <div class="progreso-linea"><span style="width: {{ item.pct }}%"></span></div>
+          </div>
+          {% else %}
+          <p class="mensaje-vacio compacto">Sin estados para mostrar.</p>
+          {% endfor %}
+        </div>
+      </article>
+
+      <article class="panel-reporte">
+        <div class="panel-header">
+          <div>
+            <p class="etiqueta-seccion">Seguimiento</p>
+            <h3>Colegiados con mayor deuda</h3>
+          </div>
+        </div>
+        <div class="estado-lista">
+          {% for item in reporte_colegiados.top_deudores %}
+          <div>
+            <span>{{ item.nombre }}<br><small>{{ item.matricula }} | {{ item.cuotas_pendientes }} cuotas</small></span>
+            <strong>S/ {{ "%.2f"|format(item.deuda_pendiente or 0) }}</strong>
+          </div>
+          {% else %}
+          <p class="mensaje-vacio compacto">No hay deuda pendiente.</p>
+          {% endfor %}
+        </div>
+      </article>
+
+      <article class="panel-reporte">
+        <div class="panel-header">
+          <div>
+            <p class="etiqueta-seccion">Actividad</p>
+            <h3>Cursos y certificados</h3>
+          </div>
+        </div>
+        <div class="doble-indicador">
+          <div>
+            <strong>{{ colegiados_res.cursos_inscritos or 0 }}</strong>
+            <span>inscripciones</span>
+          </div>
+          <div>
+            <strong>{{ colegiados_res.certificados_emitidos or 0 }}</strong>
+            <span>certificados</span>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <section class="tarjeta-tabla">
+      <div class="tabla-toolbar">
+        <p>Ultimos {{ reporte_colegiados.detalle|length }} colegiados segun filtro</p>
+        <p>Deuda, cursos y certificados</p>
+      </div>
+      <div class="tabla-responsive">
+        <table class="tabla-datos tabla-reportes">
+          <thead>
+            <tr>
+              <th>Colegiado</th>
+              <th>Especialidad</th>
+              <th class="centro">Estado</th>
+              <th class="derecha">Deuda</th>
+              <th class="centro">Cuotas</th>
+              <th class="centro">Cursos</th>
+              <th class="centro">Certificados</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for c in reporte_colegiados.detalle %}
+            <tr>
+              <td>
+                <p class="texto-principal">{{ c.nombre }}</p>
+                <p class="texto-pequeno texto-mono">{{ c.matricula }}</p>
+              </td>
+              <td class="texto-secundario">{{ c.especialidad }}</td>
+              <td class="centro">
+                <span class="estado-badge {% if c.estado == 'Vigente' %}estado-vigente{% else %}estado-neutro{% endif %}">
+                  {{ c.estado }}
+                </span>
+              </td>
+              <td class="derecha texto-principal">S/ {{ "%.2f"|format(c.deuda_pendiente or 0) }}</td>
+              <td class="centro">
+                <p class="texto-principal">{{ c.cuotas_pendientes or 0 }}</p>
+                <p class="texto-pequeno">{{ c.cuotas_vencidas or 0 }} vencidas</p>
+              </td>
+              <td class="centro texto-principal">{{ c.cursos_inscritos or 0 }}</td>
+              <td class="centro texto-principal">{{ c.certificados_emitidos or 0 }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7" class="centro fila-vacia">No hay colegiados para mostrar.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </section>
+  {% endif %}
+
+  {% if reporte_activo == "financiero" %}
+  <section class="tarjeta-tabla">
+    <div class="tabla-toolbar">
+      <p>
+        Mostrando {{ paginacion.desde }} - {{ paginacion.hasta }}
+        de {{ paginacion.total }} movimientos
+      </p>
+      <p>Pagina {{ paginacion.pagina }} de {{ paginacion.total_paginas }}</p>
+    </div>
+    <div class="tabla-responsive">
+      <table class="tabla-datos tabla-reportes">
+        <thead>
+          <tr>
+            <th>Colegiado</th>
+            <th>Fecha</th>
+            <th>Tipo</th>
+            <th>Concepto</th>
+            <th>Periodo / vence</th>
+            <th class="derecha">Monto (S/)</th>
+            <th class="centro">Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for q in detalle %}
+          <tr>
+            <td>
+              <p class="texto-principal">{{ q.nombre }}</p>
+              <p class="texto-pequeno texto-mono">{{ q.matricula }}</p>
+            </td>
+            <td class="texto-secundario">{{ q.fecha }}</td>
+            <td>
+              <span class="tipo-badge tipo-{{ q.tipo or 'otro' }}">
+                {% if q.tipo == "mensual" %}Mensual{% elif q.tipo == "curso" %}Curso{% else %}Otro{% endif %}
+              </span>
+            </td>
+            <td class="texto-secundario">
+              {{ q.concepto }}
+              {% if q.curso_titulo %}
+              <p class="texto-pequeno">Curso: {{ q.curso_titulo }}</p>
+              {% endif %}
+            </td>
+            <td>
+              <p class="texto-principal">{{ q.periodo_label or "-" }}</p>
+              <p class="texto-pequeno">Vence: {{ q.fecha_vencimiento or "-" }}</p>
+            </td>
+            <td class="derecha texto-principal">{{ "%.2f"|format(q.monto or 0) }}</td>
+            <td class="centro">
+              <span class="estado-badge {% if q.estado_reporte == 'Pagado' %}estado-pagado{% elif q.estado_reporte == 'Vencida' %}estado-alerta{% else %}estado-pendiente{% endif %}">
+                {{ q.estado_reporte }}
+              </span>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="7" class="centro fila-vacia">No hay movimientos para mostrar.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if paginacion.total_paginas > 1 %}
+    <nav class="paginacion no-print" aria-label="Paginacion de reportes">
+      <a class="paginacion-link {% if paginacion.pagina == 1 %}disabled{% endif %}"
+         href="{{ url_for('admin_reportes', q=busqueda, tipo=tipo, estado=estado, estado_curso=estado_curso, estado_colegiado=estado_colegiado, fecha_desde=fecha_desde, fecha_hasta=fecha_hasta, por_pagina=por_pagina, pagina=paginacion.pagina - 1) }}">
+        Anterior
+      </a>
+      {% for n in range(paginacion.inicio, paginacion.fin + 1) %}
+      <a class="paginacion-numero {% if n == paginacion.pagina %}activo{% endif %}"
+         href="{{ url_for('admin_reportes', q=busqueda, tipo=tipo, estado=estado, estado_curso=estado_curso, estado_colegiado=estado_colegiado, fecha_desde=fecha_desde, fecha_hasta=fecha_hasta, por_pagina=por_pagina, pagina=n) }}">
+        {{ n }}
+      </a>
+      {% endfor %}
+      <a class="paginacion-link {% if paginacion.pagina == paginacion.total_paginas %}disabled{% endif %}"
+         href="{{ url_for('admin_reportes', q=busqueda, tipo=tipo, estado=estado, estado_curso=estado_curso, estado_colegiado=estado_colegiado, fecha_desde=fecha_desde, fecha_hasta=fecha_hasta, por_pagina=por_pagina, pagina=paginacion.pagina + 1) }}">
+        Siguiente
+      </a>
+    </nav>
+    {% endif %}
+  </section>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ponente/ponente.css') }}?v=6">
+{% endblock %}
+
+{% block content %}
+<div class="pagina espaciado">
+  <section class="encabezado-pagina">
+    <div>
+      <p class="etiqueta-seccion">Ponente</p>
+      <h2 class="titulo-pagina">Seguimiento academico</h2>
+      <p class="texto-apoyo">Control de inscritos, progreso, pagos y certificados por curso.</p>
+    </div>
+    <a href="{{ url_for('ponente_dashboard') }}" class="boton boton-secundario">
+      <span class="material-symbols-outlined">arrow_back</span> Panel
+    </a>
+  </section>
+
+  <div class="resumen-grid ponente-resumen">
+    <article class="resumen-card">
+      <p class="resumen-label">Inscritos</p>
+      <p class="resumen-valor">{{ resumen_seguimiento.total_inscritos or 0 }}</p>
+    </article>
+    <article class="resumen-card pendiente">
+      <p class="resumen-label">Pagos pendientes</p>
+      <p class="resumen-valor">{{ resumen_seguimiento.pagos_pendientes or 0 }}</p>
+    </article>
+    <article class="resumen-card">
+      <p class="resumen-label">Bajo progreso</p>
+      <p class="resumen-valor">{{ resumen_seguimiento.bajo_progreso or 0 }}</p>
+    </article>
+    <article class="resumen-card pagado">
+      <p class="resumen-label">Finalizados</p>
+      <p class="resumen-valor">{{ resumen_seguimiento.finalizados or 0 }}</p>
+    </article>
+  </div>
+
+  <form method="GET" class="seguimiento-filtros">
+    <div class="filtro-campo">
+      <label class="etiqueta-campo">Curso</label>
+      <select name="curso_id" class="campo-formulario">
+        <option value="">Todos los cursos</option>
+        {% for curso in cursos %}
+        <option value="{{ curso.id }}" {% if filtro_curso_id|int == curso.id %}selected{% endif %}>
+          {{ curso.titulo }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="filtro-campo">
+      <label class="etiqueta-campo">Pago</label>
+      <select name="estado_pago" class="campo-formulario">
+        <option value="">Todos</option>
+        <option value="Pendiente" {% if filtro_estado_pago == 'Pendiente' %}selected{% endif %}>Pendiente</option>
+        <option value="Pagado" {% if filtro_estado_pago == 'Pagado' %}selected{% endif %}>Pagado</option>
+      </select>
+    </div>
+    <div class="filtro-campo">
+      <label class="etiqueta-campo">Progreso</label>
+      <select name="progreso" class="campo-formulario">
+        <option value="">Todos</option>
+        <option value="bajo" {% if filtro_progreso == 'bajo' %}selected{% endif %}>Bajo</option>
+        <option value="en_proceso" {% if filtro_progreso == 'en_proceso' %}selected{% endif %}>En proceso</option>
+        <option value="finalizado" {% if filtro_progreso == 'finalizado' %}selected{% endif %}>Finalizado</option>
+      </select>
+    </div>
+    <div class="filtro-campo filtro-busqueda">
+      <label class="etiqueta-campo">Buscar</label>
+      <input name="q" value="{{ busqueda }}" class="campo-formulario" placeholder="Colegiado, matricula o curso">
+    </div>
+    <div class="filtro-campo filtro-cantidad">
+      <label class="etiqueta-campo">Mostrar</label>
+      <select name="por_pagina" class="campo-formulario">
+        <option value="10" {% if por_pagina == 10 %}selected{% endif %}>10</option>
+        <option value="20" {% if por_pagina == 20 %}selected{% endif %}>20</option>
+        <option value="50" {% if por_pagina == 50 %}selected{% endif %}>50</option>
+      </select>
+    </div>
+    <button type="submit" class="boton boton-primario">
+      <span class="material-symbols-outlined">filter_list</span> Filtrar
+    </button>
+    <a href="{{ url_for('ponente_seguimiento') }}" class="boton boton-secundario">
+      <span class="material-symbols-outlined">restart_alt</span> Limpiar
+    </a>
+  </form>
+
+  <section class="tarjeta">
+    <div class="tarjeta-encabezado fila-separada">
+      <div>
+        <p class="etiqueta-seccion">Inscritos</p>
+        <h3 class="titulo-panel">Resultado del seguimiento</h3>
+      </div>
+      <p class="texto-secundario">{{ total_registros }} registro(s)</p>
+    </div>
+
+    <div class="tabla-responsive">
+      <table class="tabla-datos tabla-seguimiento-ponente">
+        <thead>
+          <tr>
+            <th>Colegiado</th>
+            <th>Curso</th>
+            <th class="centro">Progreso</th>
+            <th class="centro">Materiales</th>
+            <th class="centro">Pago</th>
+            <th class="centro">Certificado</th>
+            <th>Actualizar</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in seguimiento %}
+          <tr>
+            <td>
+              <p class="texto-principal">{{ item.nombre }}</p>
+              <p class="texto-pequeno texto-mono">{{ item.matricula }}</p>
+            </td>
+            <td>
+              <p class="texto-principal">{{ item.curso_titulo }}</p>
+              <p class="texto-pequeno">{{ item.categoria }}</p>
+              <a href="{{ url_for('ponente_curso', curso_id=item.curso_id) }}" class="boton-link">Ver curso</a>
+            </td>
+            <td class="centro">
+              <p class="texto-principal">{{ item.progreso }}%</p>
+              <div class="barra-progreso tabla-progreso">
+                <div class="barra-progreso-valor {% if item.progreso >= 100 %}barra-verde{% else %}barra-azul{% endif %}" data-progress-bar data-progress="{{ item.progreso }}"></div>
+              </div>
+            </td>
+            <td class="centro">
+              <p class="texto-principal">{{ item.total_materiales or 0 }}</p>
+              <p class="texto-pequeno">publicado(s)</p>
+            </td>
+            <td class="centro">
+              <span class="estado-badge {% if item.estado_pago == 'Pagado' %}estado-pagado{% else %}estado-pendiente{% endif %}">
+                {{ item.estado_pago }}
+              </span>
+            </td>
+            <td class="centro">
+              {% if item.certificado %}
+              <span class="estado-badge estado-pagado">Emitido</span>
+              {% else %}
+              <span class="estado-badge estado-neutro">Pendiente</span>
+              {% endif %}
+            </td>
+            <td>
+              <form action="{{ url_for('ponente_actualizar_progreso', inscripcion_id=item.inscripcion_id) }}" method="POST" class="seguimiento-form" data-confirm="Desea actualizar el progreso del colegiado?">
+                <input type="hidden" name="curso_id" value="{{ item.curso_id }}">
+                <input type="hidden" name="origen" value="seguimiento">
+                <input name="progreso" type="number" min="0" max="100" value="{{ item.progreso }}" class="campo-formulario" required>
+                <button type="submit" class="boton-mini boton-primario">Guardar</button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="7" class="centro texto-pequeno fila-vacia">No hay inscritos con el filtro actual.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="paginacion">
+      <a class="boton-mini boton-secundario {% if pagina <= 1 %}boton-deshabilitado{% endif %}"
+         href="{{ url_for('ponente_seguimiento', curso_id=filtro_curso_id, estado_pago=filtro_estado_pago, progreso=filtro_progreso, q=busqueda, por_pagina=por_pagina, pagina=pagina-1) }}">
+        Anterior
+      </a>
+      <span class="texto-secundario">Pagina {{ pagina }} de {{ total_paginas }}</span>
+      <a class="boton-mini boton-secundario {% if pagina >= total_paginas %}boton-deshabilitado{% endif %}"
+         href="{{ url_for('ponente_seguimiento', curso_id=filtro_curso_id, estado_pago=filtro_estado_pago, progreso=filtro_progreso, q=busqueda, por_pagina=por_pagina, pagina=pagina+1) }}">
+        Siguiente
+      </a>
+    </div>
+  </section>
+</div>
+{% endblock %}

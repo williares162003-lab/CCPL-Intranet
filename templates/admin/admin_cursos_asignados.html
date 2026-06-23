@@ -1,0 +1,347 @@
+{% extends "base.html" %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin/admin_cuotas.css') }}?v=4">
+{% endblock %}
+
+{% block content %}
+<div class="pagina">
+
+  <div class="encabezado-pagina">
+    <div>
+      <p class="etiqueta-seccion">Administracion</p>
+      <h2 class="titulo-pagina">Cursos asignados</h2>
+    </div>
+    <div class="acciones-tabla">
+      <a href="{{ url_for('admin_cursos') }}" class="boton boton-secundario">
+        <span class="material-symbols-outlined">school</span> Catalogo
+      </a>
+      <button type="button" onclick="abrirModalNuevaInscripcion()" class="boton boton-primario">
+        <span class="material-symbols-outlined">person_add</span> Nueva inscripcion
+      </button>
+    </div>
+  </div>
+
+  <form method="GET" class="filtro-formulario">
+    <div class="filtro-campo">
+      <label class="etiqueta-campo">Buscar</label>
+      <input name="q" type="search" value="{{ busqueda }}"
+             placeholder="Nombre, matricula o curso"
+             class="campo-formulario" />
+    </div>
+    <div class="filtro-campo filtro-campo-cantidad">
+      <label class="etiqueta-campo">Ver</label>
+      <select name="por_pagina" class="campo-formulario">
+        <option value="10" {% if por_pagina == 10 %}selected{% endif %}>10</option>
+        <option value="25" {% if por_pagina == 25 %}selected{% endif %}>25</option>
+        <option value="50" {% if por_pagina == 50 %}selected{% endif %}>50</option>
+      </select>
+    </div>
+    <button type="submit" class="boton boton-oscuro">
+      <span class="material-symbols-outlined">filter_list</span> Filtrar
+    </button>
+    {% if busqueda or por_pagina != 25 %}
+    <a href="{{ url_for('admin_cursos_asignados') }}" class="boton boton-secundario">Limpiar</a>
+    {% endif %}
+  </form>
+
+  <div class="resumen-grid">
+    <article class="resumen-card">
+      <p class="resumen-label">Asignaciones</p>
+      <p class="resumen-valor">{{ resumen_inscripciones.total or 0 }}</p>
+    </article>
+    <article class="resumen-card pagado">
+      <p class="resumen-label">Pagados</p>
+      <p class="resumen-valor">{{ resumen_inscripciones.total_pagados or 0 }}</p>
+    </article>
+    <article class="resumen-card pendiente">
+      <p class="resumen-label">Pendientes</p>
+      <p class="resumen-valor">{{ resumen_inscripciones.total_pendientes or 0 }}</p>
+    </article>
+    <article class="resumen-card">
+      <p class="resumen-label">Certificados</p>
+      <p class="resumen-valor">{{ resumen_inscripciones.total_certificados or 0 }}</p>
+    </article>
+  </div>
+
+  <section class="tarjeta-tabla">
+    <div class="tabla-toolbar">
+      <p>
+        Mostrando {{ paginacion.desde }} - {{ paginacion.hasta }}
+        de {{ paginacion.total }} asignaciones
+      </p>
+      <p>Pagina {{ paginacion.pagina }} de {{ paginacion.total_paginas }}</p>
+    </div>
+    <div class="tabla-responsive">
+      <table class="tabla-datos">
+        <thead>
+          <tr>
+            <th>Colegiado</th>
+            <th>Curso</th>
+            <th>Categoria</th>
+            <th class="derecha">Monto</th>
+            <th class="centro">Progreso</th>
+            <th class="centro">Pago</th>
+            <th class="centro">Certificado</th>
+            <th>Fecha</th>
+            <th class="centro">Accion</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for inscripcion in inscripciones %}
+          <tr>
+            <td>
+              <p class="texto-principal">{{ inscripcion.nombre }}</p>
+              <p class="texto-pequeno texto-mono">{{ inscripcion.matricula }}</p>
+            </td>
+            <td>
+              <p class="texto-secundario">{{ inscripcion.titulo }}</p>
+              <p class="texto-pequeno">Cupos: {{ inscripcion.inscritos or 0 }}/{{ inscripcion.cupos or 0 }}</p>
+            </td>
+            <td class="texto-secundario">{{ inscripcion.categoria }}</td>
+            <td class="derecha texto-principal">S/ {{ "%.2f"|format(inscripcion.monto or 0) }}</td>
+            <td class="centro">{{ inscripcion.progreso }}%</td>
+            <td class="centro">
+              <span class="estado-badge {% if inscripcion.estado_pago == 'Pagado' %}estado-pagado{% else %}estado-pendiente{% endif %}">
+                {{ inscripcion.estado_pago }}
+              </span>
+            </td>
+            <td class="centro">
+              <div class="acciones-tabla">
+                {% if inscripcion.certificado %}
+                <span class="estado-badge estado-pagado">Registrado</span>
+                {% if inscripcion.certificado_existe %}
+                <a href="{{ url_for('static', filename=inscripcion.certificado) }}" target="_blank" rel="noopener" class="boton-link">
+                  Ver archivo
+                </a>
+                {% elif inscripcion.certificado.startswith('uploads/') %}
+                <p class="texto-pequeno">Archivo no disponible</p>
+                {% else %}
+                <p class="texto-pequeno">{{ inscripcion.certificado }}</p>
+                {% endif %}
+                {% else %}
+                <span class="estado-badge estado-neutro">Pendiente</span>
+                {% endif %}
+                {% if not inscripcion.certificado_habilitado %}
+                <p class="texto-pequeno">
+                  {% if inscripcion.estado_pago != 'Pagado' %}
+                  Falta pago.
+                  {% elif (inscripcion.progreso or 0) < 100 %}
+                  Falta progreso 100%.
+                  {% endif %}
+                </p>
+                {% endif %}
+                <button
+                  type="button"
+                  class="boton-mini boton-secundario"
+                  data-upload-certificado
+                  data-id="{{ inscripcion.id }}"
+                  data-nombre="{{ inscripcion.nombre }}"
+                  data-matricula="{{ inscripcion.matricula }}"
+                  data-titulo="{{ inscripcion.titulo }}"
+                  data-certificado="{{ inscripcion.certificado or '' }}"
+                  data-progreso="{{ inscripcion.progreso }}"
+                  data-estado-pago="{{ inscripcion.estado_pago }}"
+                  {% if not inscripcion.certificado_habilitado %}disabled{% endif %}>
+                  Registrar
+                </button>
+              </div>
+            </td>
+            <td class="texto-secundario">{{ inscripcion.fecha_evento or '-' }}</td>
+            <td class="centro">
+              <div class="acciones-tabla">
+              <button
+                type="button"
+                class="boton-mini boton-secundario"
+                data-edit-asignacion
+                data-id="{{ inscripcion.id }}"
+                data-nombre="{{ inscripcion.nombre }}"
+                data-matricula="{{ inscripcion.matricula }}"
+                data-titulo="{{ inscripcion.titulo }}"
+                data-estado-pago="{{ inscripcion.estado_pago }}">
+                Pago
+              </button>
+              </div>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="9" class="centro texto-pequeno">Sin colegiados asignados a cursos.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if paginacion.total_paginas > 1 %}
+    <nav class="paginacion" aria-label="Paginacion de asignaciones">
+      <a class="paginacion-link {% if paginacion.pagina == 1 %}disabled{% endif %}"
+         href="{{ url_for('admin_cursos_asignados', q=busqueda, por_pagina=por_pagina, pagina=paginacion.pagina - 1) }}">
+        Anterior
+      </a>
+      {% for n in range(paginacion.inicio, paginacion.fin + 1) %}
+      <a class="paginacion-numero {% if n == paginacion.pagina %}activo{% endif %}"
+         href="{{ url_for('admin_cursos_asignados', q=busqueda, por_pagina=por_pagina, pagina=n) }}">
+        {{ n }}
+      </a>
+      {% endfor %}
+      <a class="paginacion-link {% if paginacion.pagina == paginacion.total_paginas %}disabled{% endif %}"
+         href="{{ url_for('admin_cursos_asignados', q=busqueda, por_pagina=por_pagina, pagina=paginacion.pagina + 1) }}">
+        Siguiente
+      </a>
+    </nav>
+    {% endif %}
+  </section>
+</div>
+
+<div id="modal-nueva-inscripcion" class="modal-fondo hidden">
+  <div class="modal-caja">
+    <div class="modal-barra"></div>
+    <div class="modal-cuerpo">
+      <div class="modal-header">
+        <div>
+          <p class="modal-subtitulo">Cursos asignados</p>
+          <h3 class="modal-titulo">Nueva inscripcion</h3>
+        </div>
+        <button onclick="cerrarModalNuevaInscripcion()" class="boton-cerrar">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <form action="{{ url_for('admin_nueva_inscripcion_curso') }}" method="POST" class="formulario" data-nueva-inscripcion-form data-confirm="Desea registrar esta inscripcion?">
+        <div class="buscador-colegiado" data-colegiado-picker>
+          <label class="etiqueta-campo">Colegiado *</label>
+          <input type="search"
+                 class="campo-formulario"
+                 placeholder="Escriba nombre o matricula"
+                 autocomplete="off"
+                 data-colegiado-input />
+          <input type="hidden" name="matricula" data-colegiado-hidden />
+          <div class="resultados-colegiado hidden" data-colegiado-results></div>
+          <p class="texto-pequeno ayuda-busqueda" data-colegiado-seleccion>
+            Escriba al menos 2 caracteres y seleccione un colegiado.
+          </p>
+        </div>
+
+        <div>
+          <label class="etiqueta-campo">Curso *</label>
+          <select name="curso_id" required class="campo-formulario">
+            <option value="">Seleccione un curso</option>
+            {% for curso in cursos %}
+            <option value="{{ curso.id }}" {% if (curso.inscritos or 0) >= (curso.cupos or 0) %}disabled{% endif %}>
+              {{ curso.titulo }} - S/ {{ "%.2f"|format(curso.monto or 0) }} - Cupos: {{ curso.inscritos or 0 }}/{{ curso.cupos or 0 }}{% if (curso.inscritos or 0) >= (curso.cupos or 0) %} - Sin cupos{% endif %}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div>
+          <label class="etiqueta-campo">Estado de pago *</label>
+          <select name="estado_pago" required class="campo-formulario">
+            <option value="Pendiente">Pendiente</option>
+            <option value="Pagado">Pagado</option>
+          </select>
+        </div>
+
+        <div class="acciones-formulario">
+          <button type="button" onclick="cerrarModalNuevaInscripcion()" class="boton boton-secundario">Cancelar</button>
+          <button type="submit" class="boton boton-primario">
+            <span class="material-symbols-outlined">save</span> Registrar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div id="modal-subir-certificado" class="modal-fondo hidden">
+  <div class="modal-caja">
+    <div class="modal-barra"></div>
+    <div class="modal-cuerpo">
+      <div class="modal-header">
+        <div>
+          <p class="modal-subtitulo">Certificados</p>
+          <h3 class="modal-titulo">Registrar certificado</h3>
+        </div>
+        <button onclick="cerrarModalSubirCertificado()" class="boton-cerrar">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <form id="form-subir-certificado" method="POST" enctype="multipart/form-data" class="formulario" data-certificado-form data-confirm="Desea registrar este certificado?">
+        <div>
+          <label class="etiqueta-campo">Colegiado</label>
+          <p id="certificado-colegiado" class="texto-principal"></p>
+          <p id="certificado-matricula" class="texto-pequeno texto-mono"></p>
+        </div>
+
+        <div>
+          <label class="etiqueta-campo">Curso</label>
+          <p id="certificado-curso" class="texto-secundario"></p>
+          <p id="certificado-regla" class="texto-pequeno"></p>
+        </div>
+
+        <div>
+          <label class="etiqueta-campo">Archivo del certificado *</label>
+          <input id="certificado-archivo" name="certificado_archivo" type="file" required accept=".pdf,.jpg,.jpeg,.png,.webp" class="campo-formulario" />
+          <p id="certificado-actual" class="texto-pequeno"></p>
+        </div>
+
+        <div class="acciones-formulario">
+          <button type="button" onclick="cerrarModalSubirCertificado()" class="boton boton-secundario">Cancelar</button>
+          <button type="submit" class="boton boton-primario">
+            <span class="material-symbols-outlined">upload_file</span> Subir
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div id="modal-editar-asignacion" class="modal-fondo hidden">
+  <div class="modal-caja">
+    <div class="modal-barra"></div>
+    <div class="modal-cuerpo">
+      <div class="modal-header">
+        <div>
+          <p class="modal-subtitulo">Cursos asignados</p>
+          <h3 class="modal-titulo">Actualizar pago</h3>
+        </div>
+        <button onclick="cerrarModalEditarAsignacion()" class="boton-cerrar">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <form id="form-editar-asignacion" method="POST" class="formulario" data-asignacion-form data-confirm="Desea actualizar el estado de pago?">
+        <div>
+          <label class="etiqueta-campo">Colegiado</label>
+          <p id="edit-asignacion-colegiado" class="texto-principal"></p>
+          <p id="edit-asignacion-matricula" class="texto-pequeno texto-mono"></p>
+        </div>
+
+        <div>
+          <label class="etiqueta-campo">Curso</label>
+          <p id="edit-asignacion-curso" class="texto-secundario"></p>
+        </div>
+
+        <div>
+          <label class="etiqueta-campo">Estado de pago *</label>
+          <select id="edit-estado-pago" name="estado_pago" required class="campo-formulario">
+            <option value="Pendiente">Pendiente</option>
+            <option value="Pagado">Pagado</option>
+          </select>
+        </div>
+
+        <div class="acciones-formulario">
+          <button type="button" onclick="cerrarModalEditarAsignacion()" class="boton boton-secundario">Cancelar</button>
+          <button type="submit" class="boton boton-primario">
+            <span class="material-symbols-outlined">save</span> Guardar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/admin/admin_cursos_asignados.js') }}?v=7"></script>
+{% endblock %}

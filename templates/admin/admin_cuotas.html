@@ -1,0 +1,458 @@
+{% extends "base.html" %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin/admin_cuotas.css') }}?v=5">
+{% endblock %}
+
+{% block content %}
+<div class="pagina">
+
+  <div class="encabezado-pagina">
+    <div>
+      <p class="etiqueta-seccion">Administracion</p>
+      <h2 class="titulo-pagina">Cuotas y pagos</h2>
+    </div>
+    <button onclick="abrirModalNueva()" class="boton boton-primario">
+      <span class="material-symbols-outlined">add_card</span> Registrar cuota
+    </button>
+  </div>
+
+  <section class="procesamiento-grid">
+    <article class="proceso-card">
+      <div class="proceso-header">
+        <span class="material-symbols-outlined">calendar_month</span>
+        <div>
+          <p class="proceso-label">Cuotas mensuales</p>
+          <h3>Procesar siguiente periodo</h3>
+        </div>
+      </div>
+
+      <div class="proceso-datos">
+        <div>
+          <span>Ultimo periodo</span>
+          <strong>{{ resumen_mensual.ultimo_label or "Sin periodos" }}</strong>
+        </div>
+        <div>
+          <span>Siguiente</span>
+          <strong>{{ resumen_mensual.siguiente_label or "-" }}</strong>
+        </div>
+        <div>
+          <span>Colegiados vigentes</span>
+          <strong>{{ resumen_mensual.colegiados_vigentes or 0 }}</strong>
+        </div>
+      </div>
+
+      <form action="{{ url_for('admin_procesar_cuotas_mensuales') }}"
+            method="POST"
+            class="proceso-form"
+            data-confirm="Desea generar las cuotas mensuales del siguiente periodo?">
+        <label class="etiqueta-campo">Monto mensual (S/)</label>
+        <div class="proceso-accion">
+          <input name="monto_mensual" type="number" step="0.01" min="0.01"
+                 value="80.00" required class="campo-formulario" />
+          <button type="submit" class="boton boton-primario"
+                  {% if not resumen_mensual.puede_procesar %}disabled{% endif %}>
+            <span class="material-symbols-outlined">play_arrow</span> Procesar
+          </button>
+        </div>
+      </form>
+      <p class="nota-proceso">{{ resumen_mensual.mensaje or "Use este proceso para generar el periodo mensual pendiente." }}</p>
+    </article>
+
+    <article class="proceso-card">
+      <div class="proceso-header">
+        <span class="material-symbols-outlined">event_available</span>
+        <div>
+          <p class="proceso-label">Pago anual</p>
+          <h3>Registrar anticipado</h3>
+        </div>
+      </div>
+
+      <div class="proceso-datos">
+        <div>
+          <span>Campana</span>
+          <strong>{{ pago_anual.ventana_label or "-" }}</strong>
+        </div>
+        <div>
+          <span>Descuento</span>
+          <strong>{{ "%.0f"|format(pago_anual.descuento or 0) }}%</strong>
+        </div>
+        <div>
+          <span>Total con descuento</span>
+          <strong>S/ {{ "%.2f"|format(pago_anual.monto_total or 0) }}</strong>
+        </div>
+      </div>
+
+      <form action="{{ url_for('admin_registrar_pago_anual') }}"
+            method="POST"
+            class="proceso-form proceso-form-anual"
+            data-pago-anual-form
+            data-confirm="Desea registrar el pago anual anticipado para este colegiado?">
+        <input type="hidden" name="anio" value="{{ pago_anual.anio or '' }}">
+        <div class="buscador-colegiado" data-colegiado-picker>
+          <label class="etiqueta-campo">Colegiado *</label>
+          <input type="search"
+                 class="campo-formulario"
+                 placeholder="Escriba nombre o matricula"
+                 autocomplete="off"
+                 data-colegiado-input />
+          <input type="hidden" name="matricula" data-colegiado-hidden />
+          <div class="resultados-colegiado hidden" data-colegiado-results></div>
+          <p class="texto-pequeno ayuda-busqueda" data-colegiado-seleccion>
+            Escriba al menos 2 caracteres y seleccione un colegiado.
+          </p>
+        </div>
+        <div class="proceso-campos">
+          <div>
+            <label class="etiqueta-campo">Monto mensual (S/)</label>
+            <input name="monto_mensual" type="number" step="0.01" min="0.01"
+                   value="{{ "%.2f"|format(pago_anual.monto_mensual or 80) }}"
+                   required class="campo-formulario" />
+          </div>
+          <div>
+            <label class="etiqueta-campo">Descuento anual (%)</label>
+            <input name="descuento_anual" type="number" step="0.01" min="0" max="50"
+                   value="{{ "%.2f"|format(pago_anual.descuento or 10) }}"
+                   required class="campo-formulario" />
+          </div>
+        </div>
+        <button type="submit" class="boton boton-primario boton-full"
+                {% if not pago_anual.habilitado %}disabled{% endif %}>
+          <span class="material-symbols-outlined">paid</span> Registrar pago anual
+        </button>
+      </form>
+      <p class="nota-proceso">{{ pago_anual.mensaje or "Registra enero a diciembre como pagado para un colegiado." }}</p>
+    </article>
+
+    <article class="proceso-card">
+      <div class="proceso-header">
+        <span class="material-symbols-outlined">payments</span>
+        <div>
+          <p class="proceso-label">Pago adelantado</p>
+          <h3>Pagar varios meses</h3>
+        </div>
+      </div>
+
+      <div class="proceso-datos">
+        <div>
+          <span>Anio</span>
+          <strong>{{ pago_adelantado.anio or "-" }}</strong>
+        </div>
+        <div>
+          <span>Mes inicial</span>
+          <strong>{{ pago_adelantado.mes_inicio or "-" }}</strong>
+        </div>
+        <div>
+          <span>Monto base</span>
+          <strong>S/ {{ "%.2f"|format(pago_adelantado.monto_mensual or 0) }}</strong>
+        </div>
+      </div>
+
+      <form action="{{ url_for('admin_registrar_pago_adelantado') }}"
+            method="POST"
+            class="proceso-form proceso-form-adelantado"
+            data-pago-adelantado-form
+            data-confirm="Desea registrar el pago adelantado de cuotas?">
+        <div class="buscador-colegiado" data-colegiado-picker>
+          <label class="etiqueta-campo">Colegiado *</label>
+          <input type="search"
+                 class="campo-formulario"
+                 placeholder="Escriba nombre o matricula"
+                 autocomplete="off"
+                 data-colegiado-input />
+          <input type="hidden" name="matricula" data-colegiado-hidden />
+          <div class="resultados-colegiado hidden" data-colegiado-results></div>
+          <p class="texto-pequeno ayuda-busqueda" data-colegiado-seleccion>
+            Escriba al menos 2 caracteres y seleccione un colegiado.
+          </p>
+        </div>
+        <div class="proceso-campos">
+          <div>
+            <label class="etiqueta-campo">Anio</label>
+            <input name="anio" type="number" min="2024" max="2035"
+                   value="{{ pago_adelantado.anio or '' }}"
+                   required class="campo-formulario" />
+          </div>
+          <div>
+            <label class="etiqueta-campo">Mes inicial</label>
+            <select name="mes_inicio" required class="campo-formulario">
+              <option value="1" {% if pago_adelantado.mes_inicio == 1 %}selected{% endif %}>Enero</option>
+              <option value="2" {% if pago_adelantado.mes_inicio == 2 %}selected{% endif %}>Febrero</option>
+              <option value="3" {% if pago_adelantado.mes_inicio == 3 %}selected{% endif %}>Marzo</option>
+              <option value="4" {% if pago_adelantado.mes_inicio == 4 %}selected{% endif %}>Abril</option>
+              <option value="5" {% if pago_adelantado.mes_inicio == 5 %}selected{% endif %}>Mayo</option>
+              <option value="6" {% if pago_adelantado.mes_inicio == 6 %}selected{% endif %}>Junio</option>
+              <option value="7" {% if pago_adelantado.mes_inicio == 7 %}selected{% endif %}>Julio</option>
+              <option value="8" {% if pago_adelantado.mes_inicio == 8 %}selected{% endif %}>Agosto</option>
+              <option value="9" {% if pago_adelantado.mes_inicio == 9 %}selected{% endif %}>Septiembre</option>
+              <option value="10" {% if pago_adelantado.mes_inicio == 10 %}selected{% endif %}>Octubre</option>
+              <option value="11" {% if pago_adelantado.mes_inicio == 11 %}selected{% endif %}>Noviembre</option>
+              <option value="12" {% if pago_adelantado.mes_inicio == 12 %}selected{% endif %}>Diciembre</option>
+            </select>
+          </div>
+          <div>
+            <label class="etiqueta-campo">Cantidad de meses</label>
+            <input name="cantidad_meses" type="number" min="1" max="12"
+                   value="{{ pago_adelantado.cantidad_meses or 1 }}"
+                   required class="campo-formulario" />
+          </div>
+          <div>
+            <label class="etiqueta-campo">Monto mensual (S/)</label>
+            <input name="monto_mensual" type="number" step="0.01" min="0.01"
+                   value="{{ "%.2f"|format(pago_adelantado.monto_mensual or 80) }}"
+                   required class="campo-formulario" />
+          </div>
+        </div>
+        <p class="proceso-total">Total estimado: <strong data-total-adelantado>S/ 0.00</strong></p>
+        <button type="submit" class="boton boton-primario boton-full">
+          <span class="material-symbols-outlined">task_alt</span> Registrar pago adelantado
+        </button>
+      </form>
+      <p class="nota-proceso">{{ pago_adelantado.mensaje or "Use este proceso cuando el colegiado pague meses por adelantado." }}</p>
+    </article>
+
+    <article class="proceso-card">
+      <div class="proceso-header">
+        <span class="material-symbols-outlined">school</span>
+        <div>
+          <p class="proceso-label">Cuotas por cursos</p>
+          <h3>Sincronizar inscripciones</h3>
+        </div>
+      </div>
+      <p class="proceso-texto">
+        Genera las cuotas de curso que falten y actualiza las que ya existen segun la inscripcion.
+      </p>
+      <form action="{{ url_for('admin_procesar_cuotas_cursos') }}"
+            method="POST"
+            data-confirm="Desea procesar las cuotas de cursos segun las inscripciones?">
+        <button type="submit" class="boton boton-oscuro boton-full">
+          <span class="material-symbols-outlined">sync</span> Procesar cuotas de cursos
+        </button>
+      </form>
+    </article>
+  </section>
+
+  <form method="GET" class="filtro-formulario">
+    <div class="filtro-campo">
+      <label class="etiqueta-campo">Buscar</label>
+      <input name="q" type="search" value="{{ busqueda }}"
+             placeholder="Nombre, matricula o concepto"
+             class="campo-formulario" />
+    </div>
+    <div class="filtro-campo filtro-campo-tipo">
+      <label class="etiqueta-campo">Tipo de cuota</label>
+      <select name="tipo" class="campo-formulario">
+        <option value="">Todas</option>
+        <option value="mensual" {% if tipo == "mensual" %}selected{% endif %}>Mensual</option>
+        <option value="curso" {% if tipo == "curso" %}selected{% endif %}>Curso</option>
+        <option value="otro" {% if tipo == "otro" %}selected{% endif %}>Otro</option>
+      </select>
+    </div>
+    <div class="filtro-campo filtro-campo-cantidad">
+      <label class="etiqueta-campo">Ver</label>
+      <select name="por_pagina" class="campo-formulario">
+        <option value="10" {% if por_pagina == 10 %}selected{% endif %}>10</option>
+        <option value="25" {% if por_pagina == 25 %}selected{% endif %}>25</option>
+        <option value="50" {% if por_pagina == 50 %}selected{% endif %}>50</option>
+      </select>
+    </div>
+    <button type="submit" class="boton boton-oscuro">
+      <span class="material-symbols-outlined">filter_list</span> Filtrar
+    </button>
+    {% if busqueda or tipo or por_pagina != 25 %}
+    <a href="{{ url_for('admin_cuotas') }}" class="boton boton-secundario">Limpiar</a>
+    {% endif %}
+  </form>
+
+  <div class="resumen-grid">
+    <article class="resumen-card pendiente">
+      <p class="resumen-label">Total pendiente</p>
+      <p class="resumen-valor">S/ {{ "%.2f"|format(resumen_cuotas.total_pendiente or 0) }}</p>
+    </article>
+    <article class="resumen-card pagado">
+      <p class="resumen-label">Total cobrado</p>
+      <p class="resumen-valor">S/ {{ "%.2f"|format(resumen_cuotas.total_pagado or 0) }}</p>
+    </article>
+    <article class="resumen-card">
+      <p class="resumen-label">Registros</p>
+      <p class="resumen-valor">{{ resumen_cuotas.total or 0 }}</p>
+    </article>
+  </div>
+
+  <section class="tarjeta-tabla">
+    <div class="tabla-toolbar">
+      <p>
+        Mostrando {{ paginacion.desde }} - {{ paginacion.hasta }}
+        de {{ paginacion.total }} cuotas
+      </p>
+      <p>Pagina {{ paginacion.pagina }} de {{ paginacion.total_paginas }}</p>
+    </div>
+    <div class="tabla-responsive">
+      <table class="tabla-datos tabla-cuotas">
+        <thead>
+          <tr>
+            <th>Colegiado</th>
+            <th>Fecha</th>
+            <th>Tipo</th>
+            <th>Concepto</th>
+            <th>Periodo / vence</th>
+            <th class="derecha">Monto (S/)</th>
+            <th class="centro">Estado</th>
+            <th class="centro">Accion</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for q in cuotas %}
+          <tr>
+            <td>
+              <p class="texto-principal">{{ q.nombre }}</p>
+              <p class="texto-pequeno texto-mono">{{ q.matricula }}</p>
+            </td>
+            <td class="texto-secundario">{{ q.fecha }}</td>
+            <td>
+              <span class="tipo-badge tipo-{{ q.tipo or 'otro' }}">
+                {% if q.tipo == "mensual" %}Mensual{% elif q.tipo == "curso" %}Curso{% else %}Otro{% endif %}
+              </span>
+            </td>
+            <td class="texto-secundario">{{ q.concepto }}</td>
+            <td>
+              <p class="texto-principal">{{ q.periodo_label or "-" }}</p>
+              <p class="texto-pequeno">Vence: {{ q.fecha_vencimiento or "-" }}</p>
+            </td>
+            <td class="derecha texto-principal">{{ "%.2f"|format(q.monto) }}</td>
+            <td class="centro">
+              <span class="estado-badge {% if q.estado == 'Pagado' %}estado-pagado{% elif q.vencida %}estado-vencida{% else %}estado-pendiente{% endif %}">
+                {% if q.vencida %}Vencida{% else %}{{ q.estado }}{% endif %}
+              </span>
+            </td>
+            <td class="centro">
+              <div class="acciones-tabla">
+                <a href="{{ url_for('admin_historial_cuota', qid=q.id) }}"
+                   class="boton boton-secundario">
+                  <span class="material-symbols-outlined">history</span> Historial
+                </a>
+                {% if q.estado == 'Pendiente' %}
+                <form action="{{ url_for('admin_pagar_cuota', qid=q.id) }}" method="POST" data-confirm="Desea marcar esta cuota como pagada?">
+                  <button type="submit" class="boton boton-primario">
+                    <span class="material-symbols-outlined">check_circle</span> Marcar pagado
+                  </button>
+                </form>
+                {% endif %}
+                <form action="{{ url_for('admin_eliminar_cuota', qid=q.id) }}" method="POST" data-confirm="Desea eliminar esta cuota?">
+                  <button type="submit" class="boton boton-peligro">
+                    <span class="material-symbols-outlined">delete</span> Eliminar
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="8" class="centro texto-pequeno">Sin cuotas registradas.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if paginacion.total_paginas > 1 %}
+    <nav class="paginacion" aria-label="Paginacion de cuotas">
+      <a class="paginacion-link {% if paginacion.pagina == 1 %}disabled{% endif %}"
+         href="{{ url_for('admin_cuotas', q=busqueda, tipo=tipo, por_pagina=por_pagina, pagina=paginacion.pagina - 1) }}">
+        Anterior
+      </a>
+      {% for n in range(paginacion.inicio, paginacion.fin + 1) %}
+      <a class="paginacion-numero {% if n == paginacion.pagina %}activo{% endif %}"
+         href="{{ url_for('admin_cuotas', q=busqueda, tipo=tipo, por_pagina=por_pagina, pagina=n) }}">
+        {{ n }}
+      </a>
+      {% endfor %}
+      <a class="paginacion-link {% if paginacion.pagina == paginacion.total_paginas %}disabled{% endif %}"
+         href="{{ url_for('admin_cuotas', q=busqueda, tipo=tipo, por_pagina=por_pagina, pagina=paginacion.pagina + 1) }}">
+        Siguiente
+      </a>
+    </nav>
+    {% endif %}
+  </section>
+</div>
+
+<div id="modal-nueva" class="modal-fondo hidden">
+  <div class="modal-caja">
+    <div class="modal-barra"></div>
+    <div class="modal-cuerpo">
+      <div class="modal-header">
+        <div>
+          <p class="modal-subtitulo">Finanzas</p>
+          <h3 class="modal-titulo">Registrar cuota</h3>
+        </div>
+        <button onclick="cerrarModalNueva()" class="boton-cerrar">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <form action="{{ url_for('admin_nueva_cuota') }}" method="POST" class="formulario" data-confirm="Desea registrar esta cuota?">
+        <div class="buscador-colegiado" data-colegiado-picker>
+          <label class="etiqueta-campo">Colegiado *</label>
+          <input type="search"
+                 class="campo-formulario"
+                 placeholder="Escriba nombre o matricula"
+                 autocomplete="off"
+                 data-colegiado-input />
+          <input type="hidden" name="matricula" data-colegiado-hidden />
+          <div class="resultados-colegiado hidden" data-colegiado-results></div>
+          <p class="texto-pequeno ayuda-busqueda" data-colegiado-seleccion>
+            Escriba al menos 2 caracteres y seleccione un colegiado.
+          </p>
+        </div>
+
+        <div class="form-grid">
+          <div>
+            <label class="etiqueta-campo">Fecha *</label>
+            <input name="fecha" type="date" required class="campo-formulario" />
+          </div>
+          <div>
+            <label class="etiqueta-campo">Vencimiento</label>
+            <input name="fecha_vencimiento" type="date" class="campo-formulario" />
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div>
+            <label class="etiqueta-campo">Monto (S/) *</label>
+            <input name="monto" type="number" step="0.01" min="0.01" required placeholder="0.00" class="campo-formulario" />
+          </div>
+          <div>
+            <label class="etiqueta-campo">Tipo</label>
+            <select name="tipo" class="campo-formulario">
+              <option value="otro">Otro</option>
+              <option value="mensual">Mensual</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="etiqueta-campo">Concepto *</label>
+          <input name="concepto" type="text" required placeholder="Ej: Cuota ordinaria - enero 2026" class="campo-formulario" />
+        </div>
+
+        <div>
+          <label class="etiqueta-campo">Estado</label>
+          <select name="estado" class="campo-formulario">
+            <option value="Pendiente">Pendiente</option>
+            <option value="Pagado">Pagado</option>
+          </select>
+        </div>
+
+        <div class="acciones-formulario">
+          <button type="button" onclick="cerrarModalNueva()" class="boton boton-secundario">Cancelar</button>
+          <button type="submit" class="boton boton-primario">
+            <span class="material-symbols-outlined">save</span> Registrar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/admin/admin_cuotas.js') }}?v=4"></script>
+{% endblock %}

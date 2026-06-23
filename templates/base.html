@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ page_title }} | CCPL</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}?v=4">
+
+  {% block extra_head %}{% endblock %}
+</head>
+
+<body>
+  <div class="app-shell">
+
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-row">
+          <div class="brand-icon">
+            <img
+              src="{{ url_for('static', filename='imagenes/escudo-ccpl.png') }}"
+              alt="Colegio de Contadores Publicos de Lambayeque"
+              class="brand-logo-img">
+          </div>
+          <div class="brand-copy">
+            <p class="brand-title">CCPL</p>
+            <p class="brand-subtitle">Gestión profesional</p>
+          </div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        {% for item in nav_items %}
+        <a href="{{ url_for(item.endpoint) }}"
+           class="nav-link {% if active_page == item.endpoint %}activo{% endif %}">
+          <span class="material-symbols-outlined">{{ item.icon }}</span>
+          <span>{{ item.label }}</span>
+        </a>
+        {% endfor %}
+      </nav>
+
+      <div class="sidebar-help">
+        <div class="help-box">
+          <p class="help-title">Ayuda técnica</p>
+          <p class="help-text">Soporte por WhatsApp para problemas de acceso, pagos o cursos.</p>
+        </div>
+      </div>
+    </aside>
+
+    <main class="contenido">
+      <header class="barra-superior">
+        <div class="barra-contenido">
+          <div class="header-title-group">
+            <p class="header-kicker">Colegio de Contadores Publicos de Lambayeque</p>
+            <h1 class="header-title">{{ page_title }}</h1>
+          </div>
+
+          <div class="header-actions">
+            <button id="btn-notificaciones"
+              type="button"
+              class="icon-button"
+              title="Notificaciones">
+              <span class="material-symbols-outlined">notifications</span>
+              <span id="notif-badge"
+                class="badge-notificacion {% if not unread_count or unread_count <= 0 %}hidden{% endif %}">
+                {{ '9+' if unread_count and unread_count > 9 else (unread_count or 0) }}
+              </span>
+            </button>
+
+            <div class="usuario-header">
+              <div>
+                <p class="usuario-nombre">{{ profile.nombre }}</p>
+                <p class="usuario-matricula">Matrícula: {{ profile.matricula }}</p>
+              </div>
+            </div>
+
+            <a href="{{ url_for('logout') }}" title="Cerrar sesión"
+              class="icon-button logout-button">
+              <span class="material-symbols-outlined">logout</span>
+            </a>
+          </div>
+        </div>
+      </header>
+
+      {% if page_subtitle %}
+      <div class="subtitulo-wrapper">
+        <p class="subtitulo-pagina">{{ page_subtitle }}</p>
+      </div>
+      {% endif %}
+
+      <div class="mensajes-wrapper">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="mensajes-lista">
+              {% for category, message in messages %}
+                <div class="alerta {% if category == 'success' %}alerta-success{% elif category == 'warning' %}alerta-warning{% else %}alerta-error{% endif %}">
+                  <span class="material-symbols-outlined icon-fill">
+                    {% if category == 'success' %}check_circle{% elif category == 'warning' %}warning{% else %}error{% endif %}
+                  </span>
+                  {{ message }}
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+      </div>
+
+      <div class="contenido-pagina">
+        {% block content %}{% endblock %}
+      </div>
+    </main>
+  </div>
+
+  <div id="notif-panel" class="notif-panel hidden">
+
+    <div class="notif-panel-header">
+      <div class="notificacion-titulo">
+        <span class="material-symbols-outlined icon-fill">notifications</span>
+        <span>Notificaciones</span>
+        <span id="panel-badge"
+          class="panel-contador {% if not unread_count or unread_count <= 0 %}hidden{% endif %}">
+          {{ unread_count or 0 }}
+        </span>
+      </div>
+      <button id="btn-cerrar-notificaciones"
+        type="button"
+        class="boton-cerrar">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <ul class="lista-panel">
+      {% if notifs_recientes %}
+        {% for n in notifs_recientes %}
+        <li>
+          <a href="{{ url_for('ponente_notificaciones') if is_ponente else url_for('notificaciones') }}" class="notif-link">
+            {% if n.tipo == 'cuota' %}
+            <div class="notif-mini-icon notif-cuota">
+              <span class="material-symbols-outlined icon-fill">payments</span>
+            </div>
+            {% elif n.tipo == 'curso' %}
+            <div class="notif-mini-icon notif-curso">
+              <span class="material-symbols-outlined icon-fill">school</span>
+            </div>
+            {% elif n.tipo == 'ticket' %}
+            <div class="notif-mini-icon notif-ticket">
+              <span class="material-symbols-outlined icon-fill">support_agent</span>
+            </div>
+            {% else %}
+            <div class="notif-mini-icon notif-sistema">
+              <span class="material-symbols-outlined icon-fill">info</span>
+            </div>
+            {% endif %}
+            <div class="notif-texto">
+              <p class="notif-titulo">{{ n.titulo }}</p>
+              <p class="notif-fecha">{{ n.creado_en or '' }}</p>
+            </div>
+            <span class="punto-dorado"></span>
+          </a>
+        </li>
+        {% endfor %}
+      {% else %}
+        <li class="panel-vacio">
+          <div class="icono-vacio">
+            <span class="material-symbols-outlined">notifications_off</span>
+          </div>
+          <p class="texto-secundario">Sin notificaciones nuevas</p>
+        </li>
+      {% endif %}
+    </ul>
+
+    <div class="panel-footer">
+      <a href="{{ url_for('ponente_dashboard') if is_ponente else url_for('notificaciones') }}"
+        class="boton boton-primario boton-ancho">
+        {% if is_ponente %}Ver avisos del ponente{% else %}Ver todas las notificaciones{% endif %}
+        <span class="material-symbols-outlined">arrow_forward</span>
+      </a>
+    </div>
+  </div>
+
+  <div id="notif-backdrop" class="notif-backdrop hidden"></div>
+  <script src="{{ url_for('static', filename='js/app.js') }}?v=3"></script>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

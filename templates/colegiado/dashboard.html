@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/colegiado/dashboard.css') }}?v=2">
+{% endblock %}
+
+{% block content %}
+<div class="pagina espaciado">
+  <section class="encabezado-con-panel">
+    <div>
+      <p class="etiqueta-seccion">Panel principal</p>
+      <h2 class="titulo-pagina">Bienvenido, {{ profile.nombre }}</h2>
+      <p class="texto-apoyo">Panel central de gestion institucional, financiera y academica.</p>
+    </div>
+    <div class="fecha-card">
+      <p class="dato-label">Fecha de consulta</p>
+      <div class="fecha-linea">
+        <span class="material-symbols-outlined">schedule</span>
+        <span>{{ today }}</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="grid-tres">
+    <article class="resumen-card resumen-verde">
+      <p class="resumen-label">Estado de colegiatura</p>
+      <h3 class="resumen-valor">{{ status }}</h3>
+      <p class="resumen-texto">Habilitado con registro vigente.</p>
+    </article>
+    <article class="resumen-card resumen-principal">
+      <p class="resumen-label">Saldo pendiente total</p>
+      <h3 class="resumen-valor">{{ saldo_pendiente }}</h3>
+      <a href="{{ url_for('estado_cuenta') }}" class="boton boton-dorado">
+        Pagar ahora <span class="material-symbols-outlined">payments</span>
+      </a>
+    </article>
+    <article class="resumen-card">
+      <p class="resumen-label">Ultimo pago registrado</p>
+      <h3 class="resumen-valor">{{ ultimo_pago }}</h3>
+      <p class="resumen-texto">{{ cuotas_pendientes }} cuota(s) pendiente(s).</p>
+    </article>
+    <article class="resumen-card">
+      <p class="resumen-label">Cursos inscritos</p>
+      <h3 class="resumen-valor">{{ cursos_inscritos }}</h3>
+      <p class="resumen-texto">Promedio academico {{ promedio_cursos }}%.</p>
+    </article>
+    <article class="resumen-card pendiente">
+      <p class="resumen-label">Materiales disponibles</p>
+      <h3 class="resumen-valor">{{ materiales_disponibles }}</h3>
+      <p class="resumen-texto">Archivos y enlaces publicados.</p>
+    </article>
+    <article class="resumen-card pagado">
+      <p class="resumen-label">Certificados</p>
+      <h3 class="resumen-valor">{{ certificados_disponibles }}</h3>
+      <p class="resumen-texto">Disponibles para descargar.</p>
+    </article>
+  </section>
+
+  <section class="colegiado-panel-grid">
+    <article class="panel-card">
+      <div class="fila-separada">
+        <div>
+          <p class="etiqueta-seccion">Cursos</p>
+          <h3 class="titulo-panel">Mis cursos recientes</h3>
+        </div>
+        <a href="{{ url_for('educacion_continua') }}" class="boton-link">Ver todos</a>
+      </div>
+      <div class="dashboard-lista">
+        {% for curso in dashboard_courses %}
+        <a href="{{ url_for('colegiado_aula_curso', inscripcion_id=curso.inscripcion_id) }}" class="curso-mini">
+          <div>
+            <p class="texto-principal">{{ curso.titulo }}</p>
+            <p class="texto-pequeno">{{ curso.categoria }} | Pago {{ curso.estado_pago }}</p>
+          </div>
+          <div class="curso-mini-progreso">
+            <strong>{{ curso.progreso }}%</strong>
+            <span>{{ curso.materiales }} material(es)</span>
+          </div>
+        </a>
+        {% else %}
+        <p class="texto-secundario">Aun no tienes cursos inscritos.</p>
+        {% endfor %}
+      </div>
+    </article>
+
+    <article class="panel-card">
+      <div class="fila-separada">
+        <div>
+          <p class="etiqueta-seccion">Aula</p>
+          <h3 class="titulo-panel">Materiales de apoyo</h3>
+        </div>
+        <a href="{{ url_for('educacion_continua') }}" class="boton-link">Ir al aula</a>
+      </div>
+      <div class="dashboard-lista">
+        <a href="{{ url_for('educacion_continua') }}" class="material-mini">
+          <span class="material-symbols-outlined">folder_open</span>
+          <div>
+            <p class="texto-principal">Revisar materiales publicados</p>
+            <p class="texto-pequeno">{{ materiales_disponibles }} material(es) disponible(s) en tus cursos.</p>
+          </div>
+        </a>
+      </div>
+    </article>
+  </section>
+
+  <section>
+    <h3 class="titulo-seccion">Accesos rapidos</h3>
+    <div class="grid-tres">
+      {% for card in dashboard_cards %}
+      {% if card.endpoint is defined and card.endpoint %}
+      <a href="{{ url_for(card.endpoint) }}" class="acceso-card">
+        <span class="material-symbols-outlined">{{ card.icon }}</span>
+        <h4>{{ card.title }}</h4>
+        <p>{{ card.description }}</p>
+      </a>
+      {% else %}
+      <article class="acceso-card">
+        <span class="material-symbols-outlined">{{ card.icon }}</span>
+        <h4>{{ card.title }}</h4>
+        <p>{{ card.description }}</p>
+      </article>
+      {% endif %}
+      {% endfor %}
+    </div>
+  </section>
+</div>
+{% endblock %}

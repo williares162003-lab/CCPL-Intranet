@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin/admin_cuotas.css') }}?v=6">
+{% endblock %}
+
+{% block content %}
+<div class="pagina">
+  <div class="encabezado-pagina">
+    <div>
+      <p class="etiqueta-seccion">Facturacion</p>
+      <h2 class="titulo-pagina">Comprobantes fiscales</h2>
+      <p class="texto-apoyo">Bandeja preparada para enviar comprobantes electronicos a SUNAT.</p>
+    </div>
+    <div class="fila-wrap no-print">
+      <a href="{{ url_for('admin_facturacion_configuracion') }}" class="boton boton-secundario">
+        <span class="material-symbols-outlined">settings</span> Configurar SUNAT
+      </a>
+      <a href="{{ url_for('admin_pagos_demo') }}" class="boton boton-secundario">
+        <span class="material-symbols-outlined">point_of_sale</span> Pagos
+      </a>
+      <button type="button" onclick="window.print()" class="boton boton-primario">
+        <span class="material-symbols-outlined">print</span> Imprimir
+      </button>
+    </div>
+  </div>
+
+  <div class="resumen-grid pagos-demo-resumen">
+    <article class="resumen-card">
+      <p class="resumen-label">Fiscales emitidos</p>
+      <p class="resumen-valor">{{ resumen_facturacion.total or 0 }}</p>
+    </article>
+    <article class="resumen-card pendiente">
+      <p class="resumen-label">Pendientes SUNAT</p>
+      <p class="resumen-valor">{{ resumen_facturacion.pendientes or 0 }}</p>
+    </article>
+    <article class="resumen-card pagado">
+      <p class="resumen-label">Aceptados</p>
+      <p class="resumen-valor">{{ resumen_facturacion.aceptados or 0 }}</p>
+    </article>
+    <article class="resumen-card">
+      <p class="resumen-label">Modo SUNAT</p>
+      <p class="resumen-valor compacto">SUNAT_BETA</p>
+    </article>
+  </div>
+
+  <section class="procesamiento-grid pagos-demo-grid">
+    <article class="proceso-card">
+      <div class="proceso-header">
+        <span class="material-symbols-outlined">receipt_long</span>
+        <div>
+          <p class="proceso-label">Conexion</p>
+          <h3>SUNAT_BETA</h3>
+        </div>
+      </div>
+      <p class="proceso-texto">
+        Primero se emite el comprobante fiscal desde un comprobante interno. Al enviar,
+        el sistema genera XML UBL, firma el documento y comunica el ZIP a SUNAT beta.
+      </p>
+    </article>
+
+    <article class="proceso-card">
+      <div class="proceso-header">
+        <span class="material-symbols-outlined">verified</span>
+        <div>
+          <p class="proceso-label">Reglas</p>
+          <h3>Control de integridad</h3>
+        </div>
+      </div>
+      <p class="proceso-texto">
+        No se duplica fiscal para un mismo pago. La factura exige RUC de 11
+        digitos y toda anulacion requiere motivo y usuario administrativo.
+      </p>
+    </article>
+  </section>
+
+  <form method="GET" class="filtro-formulario no-print">
+    <div class="filtro-campo">
+      <label class="etiqueta-campo">Buscar</label>
+      <input name="q" type="search" value="{{ busqueda }}"
+             placeholder="Nombre, matricula, concepto, numero o ticket"
+             class="campo-formulario" />
+    </div>
+    <div class="filtro-campo filtro-campo-tipo">
+      <label class="etiqueta-campo">Estado</label>
+      <select name="estado" class="campo-formulario">
+        <option value="">Todos</option>
+        <option value="Pendiente" {% if estado == "Pendiente" %}selected{% endif %}>Pendiente</option>
+        <option value="Aceptado" {% if estado == "Aceptado" %}selected{% endif %}>Aceptado</option>
+        <option value="Rechazado" {% if estado == "Rechazado" %}selected{% endif %}>Rechazado</option>
+        <option value="Anulado" {% if estado == "Anulado" %}selected{% endif %}>Anulado</option>
+      </select>
+    </div>
+    <div class="filtro-campo filtro-campo-cantidad">
+      <label class="etiqueta-campo">Ver</label>
+      <select name="por_pagina" class="campo-formulario">
+        <option value="10" {% if por_pagina == 10 %}selected{% endif %}>10</option>
+        <option value="25" {% if por_pagina == 25 %}selected{% endif %}>25</option>
+        <option value="50" {% if por_pagina == 50 %}selected{% endif %}>50</option>
+      </select>
+    </div>
+    <button type="submit" class="boton boton-oscuro">
+      <span class="material-symbols-outlined">filter_list</span> Filtrar
+    </button>
+    {% if busqueda or estado or por_pagina != 25 %}
+    <a href="{{ url_for('admin_facturacion') }}" class="boton boton-secundario">Limpiar</a>
+    {% endif %}
+  </form>
+
+  <section class="tarjeta-tabla">
+    <div class="tabla-toolbar">
+      <p>
+        Mostrando {{ paginacion.desde }} - {{ paginacion.hasta }}
+        de {{ paginacion.total }} comprobantes fiscales
+      </p>
+      <p>Pagina {{ paginacion.pagina }} de {{ paginacion.total_paginas }}</p>
+    </div>
+    <div class="tabla-responsive">
+      <table class="tabla-datos">
+        <thead>
+          <tr>
+            <th>Fiscal</th>
+            <th>Colegiado</th>
+            <th>Concepto</th>
+            <th class="derecha">Total</th>
+            <th class="centro">Estado</th>
+            <th>SUNAT</th>
+            <th class="centro">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in comprobantes %}
+          <tr>
+            <td>
+              <a href="{{ url_for('admin_comprobante_fiscal', fiscal_id=c.id) }}"
+                 class="texto-mono">
+                {{ c.serie }}-{{ "%08d"|format(c.numero or 0) }}
+              </a>
+              <p class="texto-pequeno">{{ c.tipo_comprobante }} | {{ c.fecha_emision }}</p>
+            </td>
+            <td>
+              <p class="texto-principal">{{ c.cliente_nombre }}</p>
+              <p class="texto-pequeno texto-mono">{{ c.matricula }}</p>
+              <p class="texto-pequeno">{{ c.numero_documento_cliente }}</p>
+            </td>
+            <td>{{ c.concepto }}</td>
+            <td class="derecha texto-principal">S/ {{ "%.2f"|format(c.total or 0) }}</td>
+            <td class="centro">
+              <span class="estado-badge {% if c.estado == 'Anulado' %}estado-inactivo{% elif c.estado == 'Aceptado' %}estado-pagado{% elif c.estado == 'Rechazado' %}estado-vencida{% else %}estado-pendiente{% endif %}">
+                {{ c.estado }}
+              </span>
+            </td>
+            <td>
+              <p class="texto-pequeno texto-mono">{{ c.ticket_sunat or 'Sin ticket' }}</p>
+              <p class="texto-pequeno">{{ c.cdr_estado or 'Pendiente de envio' }}</p>
+            </td>
+            <td class="centro">
+              <div class="acciones-tabla">
+                <a href="{{ url_for('admin_comprobante_fiscal', fiscal_id=c.id) }}"
+                   class="boton boton-secundario">
+                  <span class="material-symbols-outlined">visibility</span> Ver
+                </a>
+                {% if c.estado in ['Pendiente', 'Rechazado'] %}
+                <form action="{{ url_for('admin_enviar_comprobante_fiscal', fiscal_id=c.id) }}"
+                      method="POST"
+                      data-confirm="Desea enviar este comprobante a SUNAT beta?">
+                  <button type="submit" class="boton boton-primario">
+                    <span class="material-symbols-outlined">send</span> Enviar SUNAT
+                  </button>
+                </form>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="7" class="centro texto-pequeno">Sin comprobantes fiscales registrados.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if paginacion.total_paginas > 1 %}
+    <nav class="paginacion" aria-label="Paginacion de facturacion">
+      <a class="paginacion-link {% if paginacion.pagina == 1 %}disabled{% endif %}"
+         href="{{ url_for('admin_facturacion', q=busqueda, estado=estado, por_pagina=por_pagina, pagina=paginacion.pagina - 1) }}">
+        Anterior
+      </a>
+      {% for n in range(paginacion.inicio, paginacion.fin + 1) %}
+      <a class="paginacion-numero {% if n == paginacion.pagina %}activo{% endif %}"
+         href="{{ url_for('admin_facturacion', q=busqueda, estado=estado, por_pagina=por_pagina, pagina=n) }}">
+        {{ n }}
+      </a>
+      {% endfor %}
+      <a class="paginacion-link {% if paginacion.pagina == paginacion.total_paginas %}disabled{% endif %}"
+         href="{{ url_for('admin_facturacion', q=busqueda, estado=estado, por_pagina=por_pagina, pagina=paginacion.pagina + 1) }}">
+        Siguiente
+      </a>
+    </nav>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

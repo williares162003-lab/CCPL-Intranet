@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin/admin_cuotas.css') }}?v=5">
+{% endblock %}
+
+{% block content %}
+<div class="pagina espaciado">
+  <div class="encabezado-pagina">
+    <div>
+      <p class="etiqueta-seccion">Auditoria financiera</p>
+      <h2 class="titulo-pagina">Historial de cuota</h2>
+      <p class="texto-apoyo">Revision completa de cuota, evidencias, transacciones y comprobantes.</p>
+    </div>
+    <a href="{{ url_for('admin_cuotas') }}" class="boton boton-secundario">
+      <span class="material-symbols-outlined">arrow_back</span> Volver a cuotas
+    </a>
+  </div>
+
+  <section class="resumen-grid">
+    <article class="resumen-card">
+      <p class="resumen-label">Colegiado</p>
+      <p class="resumen-valor compacto">{{ cuota.nombre }}</p>
+      <span class="texto-mono">{{ cuota.matricula }}</span>
+    </article>
+    <article class="resumen-card">
+      <p class="resumen-label">Concepto</p>
+      <p class="resumen-valor compacto">{{ cuota.concepto }}</p>
+      <span>{{ cuota.tipo }} {{ periodo_label or '' }}</span>
+    </article>
+    <article class="resumen-card {% if cuota.estado == 'Pagado' %}pagado{% else %}pendiente{% endif %}">
+      <p class="resumen-label">Estado</p>
+      <p class="resumen-valor compacto">{{ cuota.estado }}</p>
+      <span>Fecha pago: {{ cuota.fecha_pago or '-' }}</span>
+    </article>
+    <article class="resumen-card">
+      <p class="resumen-label">Monto</p>
+      <p class="resumen-valor">S/ {{ "%.2f"|format(cuota.monto or 0) }}</p>
+      <span>Vence: {{ cuota.fecha_vencimiento or '-' }}</span>
+    </article>
+  </section>
+
+  <section class="tarjeta-tabla">
+    <div class="tarjeta-encabezado">
+      <div>
+        <h3 class="titulo-seccion sin-margen">Evidencias</h3>
+        <p class="texto-secundario">Voucher, revision y usuario administrativo responsable.</p>
+      </div>
+    </div>
+    <div class="tabla-responsive">
+      <table class="tabla-datos">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Operacion</th>
+            <th class="derecha">Monto</th>
+            <th class="centro">Estado</th>
+            <th>Revision</th>
+            <th class="centro">Archivo</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ev in evidencias %}
+          <tr>
+            <td>{{ ev.fecha_pago }}</td>
+            <td>
+              <p class="texto-mono">{{ ev.numero_operacion }}</p>
+              <p class="texto-pequeno">{{ ev.comentario or '-' }}</p>
+            </td>
+            <td class="derecha texto-principal">S/ {{ "%.2f"|format(ev.monto or 0) }}</td>
+            <td class="centro">
+              <span class="estado-badge {% if ev.estado == 'Aprobado' %}estado-pagado{% elif ev.estado == 'Rechazado' %}estado-inactivo{% else %}estado-pendiente{% endif %}">
+                {{ 'Anulado' if ev.estado == 'Rechazado' else ev.estado }}
+              </span>
+            </td>
+            <td>
+              {% if ev.revisado_por_nombre %}
+              <p class="texto-principal">{{ ev.accion_revision }}</p>
+              <p class="texto-pequeno">{{ ev.revisado_por_nombre }} | {{ ev.revisado_por_matricula }}</p>
+              <p class="texto-pequeno">{{ ev.revisado_en }}</p>
+              <p class="texto-pequeno">{{ ev.detalle_revision }}</p>
+              {% else %}
+              <span class="texto-pequeno">Pendiente de revision</span>
+              {% endif %}
+            </td>
+            <td class="centro">
+              {% if ev.archivo %}
+              <a href="{{ url_for('static', filename=ev.archivo) }}" target="_blank" rel="noopener" class="boton-link">Ver</a>
+              {% else %}
+              <span class="texto-pequeno">-</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="6" class="centro texto-pequeno">Sin evidencias registradas.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="tarjeta-tabla">
+    <div class="tarjeta-encabezado">
+      <div>
+        <h3 class="titulo-seccion sin-margen">Transacciones</h3>
+        <p class="texto-secundario">Origen del pago y respuesta de pasarela/revision.</p>
+      </div>
+    </div>
+    <div class="tabla-responsive">
+      <table class="tabla-datos">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Proveedor</th>
+            <th>Metodo</th>
+            <th>Codigo</th>
+            <th class="derecha">Monto</th>
+            <th class="centro">Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for tr in transacciones %}
+          <tr>
+            <td>{{ tr.pagado_en or tr.creado_en }}</td>
+            <td>{{ tr.proveedor }}</td>
+            <td>
+              {{ tr.metodo }}
+              {% if tr.evidencia_id %}
+              <p class="texto-pequeno">Evidencia #{{ tr.evidencia_id }}</p>
+              {% endif %}
+            </td>
+            <td>
+              <p class="texto-mono">{{ tr.codigo_transaccion }}</p>
+              <p class="texto-pequeno">{{ tr.codigo_autorizacion }}</p>
+            </td>
+            <td class="derecha texto-principal">S/ {{ "%.2f"|format(tr.monto or 0) }}</td>
+            <td class="centro">
+              <span class="estado-badge {% if tr.estado == 'Aprobado' %}estado-pagado{% else %}estado-pendiente{% endif %}">
+                {{ tr.estado }}
+              </span>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="6" class="centro texto-pequeno">Sin transacciones registradas.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="tarjeta-tabla">
+    <div class="tarjeta-encabezado">
+      <div>
+        <h3 class="titulo-seccion sin-margen">Comprobantes</h3>
+        <p class="texto-secundario">Documento interno emitido o anulado.</p>
+      </div>
+    </div>
+    <div class="tabla-responsive">
+      <table class="tabla-datos">
+        <thead>
+          <tr>
+            <th>Comprobante</th>
+            <th>Fecha</th>
+            <th class="derecha">Total</th>
+            <th class="centro">Estado</th>
+            <th>Anulacion</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for cp in comprobantes %}
+          <tr>
+            <td>
+              <a href="{{ url_for('admin_comprobante_pago_demo', comprobante_id=cp.id) }}" class="texto-mono">
+                {{ cp.serie }}-{{ "%08d"|format(cp.numero or 0) }}
+              </a>
+              {% if cp.evidencia_id %}
+              <p class="texto-pequeno">Evidencia #{{ cp.evidencia_id }}</p>
+              {% endif %}
+            </td>
+            <td>{{ cp.fecha_emision }}</td>
+            <td class="derecha texto-principal">S/ {{ "%.2f"|format(cp.total or 0) }}</td>
+            <td class="centro">
+              <span class="estado-badge {% if cp.estado == 'Anulado' %}estado-inactivo{% else %}estado-pagado{% endif %}">
+                {{ cp.estado }}
+              </span>
+            </td>
+            <td>
+              {% if cp.estado == 'Anulado' %}
+              <p class="texto-principal">{{ cp.anulado_por_nombre }}</p>
+              <p class="texto-pequeno">{{ cp.anulado_por_matricula }} | {{ cp.anulado_en }}</p>
+              <p class="texto-pequeno">{{ cp.motivo_anulacion }}</p>
+              {% else %}
+              <span class="texto-pequeno">Vigente</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="5" class="centro texto-pequeno">Sin comprobantes generados.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+{% endblock %}

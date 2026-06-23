@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/aula_virtual.css') }}?v=6">
+{% endblock %}
+
+{% block content %}
+<div class="pagina aula-page">
+  <section class="aula-hero">
+    <div>
+      <p class="aula-breadcrumb">Educacion continua > Mis cursos > Aula</p>
+      <p class="etiqueta-seccion">{{ curso.categoria }}</p>
+      <h2>{{ curso.titulo }}</h2>
+      <p>{{ curso.descripcion or 'Contenido del curso publicado por el ponente.' }}</p>
+      <div class="aula-meta">
+        <span>{{ curso.modalidad or '-' }}</span>
+        <span>{{ curso.duracion_horas or 0 }} horas</span>
+        <span>{{ curso.fecha_evento or 'Fecha por definir' }}</span>
+        <span>Ponente: {{ curso.ponente or '-' }}</span>
+      </div>
+    </div>
+    <div class="aula-status">
+      <p class="dato-label">Progreso</p>
+      <strong>{{ curso.progreso or 0 }}%</strong>
+      <div class="barra-progreso">
+        <div class="barra-progreso-valor {% if curso.progreso == 100 %}barra-verde{% else %}barra-azul{% endif %}" data-progress-bar data-progress="{{ curso.progreso or 0 }}"></div>
+      </div>
+      <span class="estado-badge {% if curso.estado_pago == 'Pagado' %}estado-pagado{% else %}estado-pendiente{% endif %}">
+        Pago {{ curso.estado_pago }}
+      </span>
+    </div>
+  </section>
+
+  <section class="aula-resumen-grid">
+    <article class="aula-resumen-item">
+      <span class="material-symbols-outlined">folder_open</span>
+      <div>
+        <p class="dato-label">Materiales</p>
+        <strong>{{ resumen_aula.total_materiales }}</strong>
+        <p class="texto-pequeno">{{ resumen_aula.estado_materiales }}</p>
+      </div>
+    </article>
+    <article class="aula-resumen-item">
+      <span class="material-symbols-outlined">monitoring</span>
+      <div>
+        <p class="dato-label">Avance</p>
+        <strong>{{ curso.progreso or 0 }}%</strong>
+        <p class="texto-pequeno">Actualizado por el ponente.</p>
+      </div>
+    </article>
+    <article class="aula-resumen-item">
+      <span class="material-symbols-outlined">payments</span>
+      <div>
+        <p class="dato-label">Pago</p>
+        <strong>{{ curso.estado_pago }}</strong>
+        <p class="texto-pequeno">Estado financiero del curso.</p>
+      </div>
+    </article>
+    <article class="aula-resumen-item">
+      <span class="material-symbols-outlined">workspace_premium</span>
+      <div>
+        <p class="dato-label">Certificado</p>
+        <strong>{% if puede_certificado %}Listo{% else %}Pendiente{% endif %}</strong>
+        <p class="texto-pequeno">{{ resumen_aula.estado_certificado }}</p>
+      </div>
+    </article>
+  </section>
+
+  <nav class="aula-tabs" aria-label="Navegacion del curso">
+    <a href="#general-curso">General</a>
+    <a href="#materiales-curso">Materiales</a>
+  </nav>
+
+  <section class="aula-layout">
+    <main class="aula-contenido">
+      <section id="general-curso" class="aula-seccion aula-general">
+        <div class="aula-seccion-header">
+          <p class="etiqueta-seccion">General</p>
+          <h3>Vista general del curso</h3>
+          <p>{{ curso.descripcion or 'Contenido del curso publicado por el ponente.' }}</p>
+        </div>
+        <div class="aula-bloque aula-general-grid">
+          <article class="aula-mini-dato">
+            <span class="material-symbols-outlined">person</span>
+            <div>
+              <p class="dato-label">Ponente</p>
+              <strong>{{ curso.ponente or '-' }}</strong>
+            </div>
+          </article>
+          <article class="aula-mini-dato">
+            <span class="material-symbols-outlined">schedule</span>
+            <div>
+              <p class="dato-label">Duracion</p>
+              <strong>{{ curso.duracion_horas or 0 }} horas</strong>
+            </div>
+          </article>
+          <article class="aula-mini-dato">
+            <span class="material-symbols-outlined">event</span>
+            <div>
+              <p class="dato-label">Periodo</p>
+              <strong>{{ curso.fecha_evento or 'Fecha por definir' }}</strong>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="materiales-curso" class="aula-seccion">
+        <div class="aula-seccion-header">
+          <p class="etiqueta-seccion">Materiales</p>
+          <h3>Material de apoyo</h3>
+          <p>Archivos o enlaces publicados por el ponente para la charla o capacitacion.</p>
+        </div>
+
+        <div class="aula-bloque">
+          <div class="aula-bloque-title">
+            <span class="material-symbols-outlined">folder_open</span>
+            <h4>Materiales publicados</h4>
+          </div>
+          {% for material in materiales %}
+          <article class="aula-item">
+            <span class="material-symbols-outlined">description</span>
+            <div>
+              <p class="texto-principal">{{ material.titulo }}</p>
+              <p class="texto-secundario">{{ material.descripcion }}</p>
+              <div class="fila-wrap">
+                {% if material.enlace %}
+                <a href="{{ material.enlace }}" target="_blank" rel="noopener" class="boton-link">Abrir enlace</a>
+                {% endif %}
+                {% if material.archivo and material.archivo_existe %}
+                <a href="{{ url_for('static', filename=material.archivo) }}" target="_blank" rel="noopener" class="boton-link">Descargar archivo</a>
+                {% elif material.archivo %}
+                <span class="texto-pequeno">Archivo no disponible</span>
+                {% endif %}
+              </div>
+            </div>
+          </article>
+          {% else %}
+          <p class="texto-secundario">Aun no hay materiales publicados para este curso.</p>
+          {% endfor %}
+        </div>
+      </section>
+    </main>
+
+    <aside class="aula-sidebar aula-sidebar-derecha">
+      <a href="{{ url_for('educacion_continua') }}" class="boton boton-secundario boton-ancho">
+        <span class="material-symbols-outlined">arrow_back</span> Mis cursos
+      </a>
+
+      <div class="aula-panel aula-panel-progreso">
+        <p class="etiqueta-seccion">Mi avance</p>
+        <strong>{{ curso.progreso or 0 }}%</strong>
+        <div class="barra-progreso">
+          <div class="barra-progreso-valor {% if curso.progreso == 100 %}barra-verde{% else %}barra-azul{% endif %}" data-progress-bar data-progress="{{ curso.progreso or 0 }}"></div>
+        </div>
+        <span class="estado-badge {% if curso.estado_pago == 'Pagado' %}estado-pagado{% else %}estado-pendiente{% endif %}">
+          Pago {{ curso.estado_pago }}
+        </span>
+      </div>
+
+      <div class="aula-nav">
+        <p class="etiqueta-seccion">Navegacion</p>
+        <a href="#general-curso">General del curso</a>
+        <a href="#materiales-curso">Materiales</a>
+      </div>
+
+      <div class="aula-panel">
+        <p class="etiqueta-seccion">Certificado</p>
+        {% if puede_certificado %}
+        <a href="{{ url_for('colegiado_certificado_curso', inscripcion_id=curso.inscripcion_id) }}" class="boton boton-primario boton-ancho">
+          <span class="material-symbols-outlined">workspace_premium</span> Ver certificado
+        </a>
+        {% elif curso.progreso == 100 %}
+        <p class="texto-secundario">Certificado pendiente de registro.</p>
+        {% else %}
+        <p class="texto-secundario">El certificado se habilita cuando el curso esta completo, pagado y registrado por administracion.</p>
+        {% endif %}
+      </div>
+    </aside>
+  </section>
+</div>
+{% endblock %}

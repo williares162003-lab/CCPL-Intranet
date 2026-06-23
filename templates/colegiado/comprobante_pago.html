@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/colegiado/estado_cuenta.css') }}?v=2">
+{% endblock %}
+
+{% block content %}
+<div class="pagina espaciado">
+  <section class="encabezado-con-panel no-print">
+    <div>
+      <p class="etiqueta-seccion">Finanzas</p>
+      <h2 class="titulo-pagina">Comprobante de pago</h2>
+      <p class="texto-apoyo">Documento interno generado por pagos registrados en el sistema.</p>
+    </div>
+    <div class="fila-wrap">
+      <a href="{{ url_for(volver_endpoint or 'estado_cuenta') }}" class="boton boton-secundario">
+        <span class="material-symbols-outlined">arrow_back</span> {{ volver_label or 'Estado de cuenta' }}
+      </a>
+      <button type="button" onclick="window.print()" class="boton boton-primario">
+        <span class="material-symbols-outlined">print</span> Imprimir
+      </button>
+    </div>
+  </section>
+
+  <article class="comprobante-documento">
+    <header class="comprobante-header">
+      <div>
+        <p class="comprobante-kicker">Colegio de Contadores Publicos de Lambayeque</p>
+        <h2>{{ comprobante.tipo_comprobante }}</h2>
+        <p class="texto-secundario">Gestion profesional CCPL</p>
+      </div>
+      <div class="comprobante-numero">
+        <span>{{ numero_comprobante }}</span>
+        <small>Emitido: {{ comprobante.fecha_emision }}</small>
+      </div>
+    </header>
+
+    <section class="comprobante-grid">
+      <div>
+        <p class="resumen-label">Colegiado</p>
+        <h3>{{ comprobante.nombre }}</h3>
+        <p>Matricula: {{ comprobante.matricula }}</p>
+        <p>DNI: {{ comprobante.documento }}</p>
+      </div>
+      <div>
+        <p class="resumen-label">Pago</p>
+        <h3>{{ comprobante.metodo }}</h3>
+        <p>Transaccion: {{ comprobante.codigo_transaccion }}</p>
+        <p>Autorizacion: {{ comprobante.codigo_autorizacion }}</p>
+      </div>
+    </section>
+
+    <section class="comprobante-detalle">
+      <table class="tabla-datos">
+        <thead>
+          <tr>
+            <th>Concepto</th>
+            <th class="derecha">Subtotal</th>
+            <th class="derecha">IGV</th>
+            <th class="derecha">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{ comprobante.concepto }}</td>
+            <td class="derecha">S/ {{ "%.2f"|format(comprobante.subtotal or 0) }}</td>
+            <td class="derecha">S/ {{ "%.2f"|format(comprobante.igv or 0) }}</td>
+            <td class="derecha texto-principal">S/ {{ "%.2f"|format(comprobante.total or 0) }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <footer class="comprobante-footer">
+      <div>
+        <p class="resumen-label">Estado</p>
+        <span class="estado-badge {% if comprobante.estado == 'Anulado' %}estado-inactivo{% else %}estado-pagado{% endif %}">
+          {{ comprobante.estado }}
+        </span>
+      </div>
+      <div>
+        <p class="resumen-label">Codigo de seguridad</p>
+        <p class="texto-mono">{{ comprobante.codigo_hash }}</p>
+      </div>
+    </footer>
+
+    {% if comprobante.estado == 'Anulado' %}
+    <section class="comprobante-detalle">
+      <div class="pasarela-aviso">
+        <span class="material-symbols-outlined">block</span>
+        <div>
+          <p class="texto-principal">Comprobante anulado</p>
+          <p class="texto-secundario">
+            {{ comprobante.motivo_anulacion or 'Anulado por administracion.' }}
+          </p>
+          <p class="texto-pequeno">
+            {{ comprobante.anulado_por_nombre or '-' }}
+            | {{ comprobante.anulado_por_matricula or '-' }}
+            | {{ comprobante.anulado_en or '' }}
+          </p>
+        </div>
+      </div>
+    </section>
+    {% endif %}
+  </article>
+</div>
+{% endblock %}

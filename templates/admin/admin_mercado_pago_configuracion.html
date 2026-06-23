@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin/admin_cuotas.css') }}?v=6">
+{% endblock %}
+
+{% block content %}
+<div class="pagina">
+  <div class="encabezado-pagina">
+    <div>
+      <p class="etiqueta-seccion">Pagos</p>
+      <h2 class="titulo-pagina">Configuracion Mercado Pago</h2>
+      <p class="texto-apoyo">Credenciales para pagos en linea de cuotas mensuales, cursos y pagos adelantados.</p>
+    </div>
+    <div class="fila-wrap no-print">
+      <a href="{{ url_for('admin_pagos_demo') }}" class="boton boton-secundario">
+        <span class="material-symbols-outlined">arrow_back</span> Pagos
+      </a>
+    </div>
+  </div>
+
+  <section class="procesamiento-grid pagos-demo-grid">
+    <article class="proceso-card">
+      <div class="proceso-header">
+        <span class="material-symbols-outlined">credit_card</span>
+        <div>
+          <p class="proceso-label">Canal en linea</p>
+          <h3>{{ "Activo" if config.habilitado else "Pendiente" }}</h3>
+        </div>
+      </div>
+      <p class="proceso-texto">
+        El colegiado sera enviado al Checkout de Mercado Pago. Cuando el pago
+        retorna aprobado, el sistema marca la cuota como pagada y genera su comprobante.
+      </p>
+    </article>
+
+    <article class="proceso-card">
+      <div class="proceso-header">
+        <span class="material-symbols-outlined">security</span>
+        <div>
+          <p class="proceso-label">Credenciales</p>
+          <h3>{{ config.modo or "TEST" }}</h3>
+        </div>
+      </div>
+      <p class="proceso-texto">
+        Access Token: {{ "configurado" if config.access_token_configurado else "sin configurar" }}.
+        Public Key: {{ "configurada" if config.public_key_configurada else "opcional" }}.
+        Origen: {{ config.origen_token or "Base de datos" }}.
+      </p>
+    </article>
+  </section>
+
+  <form method="POST" class="tarjeta-tabla proceso-form"
+        data-confirm="Desea guardar la configuracion de Mercado Pago?">
+    <div class="tabla-toolbar">
+      <p>Datos de conexion</p>
+      <p>{{ "Canal habilitado" if config.habilitado else "Canal deshabilitado o sin token" }}</p>
+    </div>
+
+    <div class="config-grid">
+      <div class="filtro-campo">
+        <label class="etiqueta-campo">Estado</label>
+        <select name="activo" class="campo-formulario">
+          <option value="1" {% if config.activo|int == 1 %}selected{% endif %}>Activo</option>
+          <option value="0" {% if config.activo|int == 0 %}selected{% endif %}>Inactivo</option>
+        </select>
+      </div>
+
+      <div class="filtro-campo">
+        <label class="etiqueta-campo">Modo</label>
+        <select name="modo" class="campo-formulario">
+          <option value="TEST" {% if (config.modo or "TEST") == "TEST" %}selected{% endif %}>TEST</option>
+          <option value="PRODUCCION" {% if config.modo == "PRODUCCION" %}selected{% endif %}>PRODUCCION</option>
+        </select>
+      </div>
+
+      <div class="filtro-campo config-span">
+        <label class="etiqueta-campo">Access Token</label>
+        <input name="access_token" type="password" class="campo-formulario"
+               placeholder="{% if config.access_token_configurado %}Guardado, dejar vacio para conservar{% else %}TEST-... o APP_USR-...{% endif %}">
+        <p class="texto-pequeno">
+          Es la clave privada que permite crear preferencias y consultar pagos. No se vuelve a mostrar por seguridad.
+        </p>
+      </div>
+
+      <div class="filtro-campo config-span">
+        <label class="etiqueta-campo">Public Key</label>
+        <input name="public_key" class="campo-formulario"
+               placeholder="{% if config.public_key_configurada %}Guardada, dejar vacio para conservar{% else %}TEST-... o APP_USR-...{% endif %}">
+        <p class="texto-pequeno">
+          Se guarda como referencia para cuando se use Checkout integrado. El flujo actual de redireccion usa principalmente el Access Token.
+        </p>
+      </div>
+    </div>
+
+    <div class="tabla-toolbar config-separador">
+      <p>Como probar</p>
+      <p>
+        En modo TEST usa credenciales de prueba. En PRODUCCION usa credenciales reales del colegio.
+        Luego el colegiado entra a Pagos y presiona Mercado Pago en una cuota pendiente.
+      </p>
+    </div>
+
+    <div class="config-acciones no-print">
+      <a href="{{ url_for('admin_pagos_demo') }}" class="boton boton-secundario">Cancelar</a>
+      <button type="submit" class="boton boton-primario">
+        <span class="material-symbols-outlined">save</span> Guardar configuracion
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}

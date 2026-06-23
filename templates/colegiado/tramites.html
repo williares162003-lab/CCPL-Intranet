@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/colegiado/tramites.css') }}?v=1">
+{% endblock %}
+
+{% block content %}
+<div class="pagina espaciado">
+  <section class="encabezado-con-panel">
+    <div>
+      <p class="etiqueta-seccion">Mesa de partes</p>
+      <h2 class="titulo-pagina">Tramites</h2>
+      <p class="texto-apoyo">Solicita certificados, constancias, baja, traslado a otro colegio u otros tramites administrativos. El documento emitido sera subido por administracion.</p>
+    </div>
+    <div class="fecha-card">
+      <p class="dato-label">Fecha de solicitud</p>
+      <div class="fecha-linea">
+        <span class="material-symbols-outlined">event_note</span>
+        <span>{{ today }}</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="layout-dos-columnas">
+    <div class="columna-4">
+      <section class="tarjeta tarjeta-amplia">
+        <div class="titulo-con-icono">
+          <span class="material-symbols-outlined">rule</span>
+          <h3>Antes de solicitar</h3>
+        </div>
+        <ul class="lista-requisitos">
+          <li>
+            <span class="material-symbols-outlined correcto">check_circle</span>
+            <span>El certificado de habilidad requiere no tener cuotas pendientes.</span>
+          </li>
+          <li>
+            <span class="material-symbols-outlined correcto">check_circle</span>
+            <span>La baja y el traslado tambien seran validados contra deuda pendiente.</span>
+          </li>
+          <li>
+            <span class="material-symbols-outlined pendiente">circle</span>
+            <span>Para baja o traslado debes adjuntar el documento sustentatorio.</span>
+          </li>
+        </ul>
+        <div class="aviso-tramite">
+          <div class="aviso-titulo">
+            <span class="material-symbols-outlined">info</span>
+            <span>Proceso</span>
+          </div>
+          <p>El colegiado registra el tramite, administracion lo revisa y, si corresponde, sube el PDF o imagen emitida.</p>
+        </div>
+      </section>
+    </div>
+
+    <div class="columna-8 espaciado">
+      <section class="tarjeta tarjeta-amplia">
+        <div class="titulo-con-icono">
+          <span class="material-symbols-outlined">assignment_add</span>
+          <h3>Nuevo tramite</h3>
+        </div>
+
+        <form class="formulario formulario-tramite" method="POST" enctype="multipart/form-data" data-confirm="Desea enviar este tramite?">
+          <div class="form-grid">
+            <div>
+              <label class="etiqueta-campo">Tipo de tramite *</label>
+              <select class="campo-formulario" name="tipo_tramite" required>
+                <option disabled selected value="">Seleccione un tramite</option>
+                {% for tipo in tipos_tramite %}
+                <option value="{{ tipo.codigo }}" data-requiere-sustento="{{ 1 if tipo.requiere_sustento else 0 }}">{{ tipo.nombre }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div>
+              <label class="etiqueta-campo">Asunto *</label>
+              <input class="campo-formulario" name="asunto" type="text" maxlength="150" placeholder="Ej: Certificado de habilidad para licitacion" required>
+            </div>
+          </div>
+
+          <div>
+            <label class="etiqueta-campo">Descripcion *</label>
+            <textarea class="campo-formulario" name="descripcion" rows="4" minlength="10" placeholder="Indique para que necesita el tramite y cualquier detalle importante." required></textarea>
+          </div>
+
+          <div class="documentos-carga" id="bloque-documento">
+            <div class="titulo-con-icono">
+              <span class="material-symbols-outlined">upload_file</span>
+              <h3 id="titulo-documento">Sustento opcional</h3>
+            </div>
+            <label class="upload-box">
+              <span class="material-symbols-outlined">cloud_upload</span>
+              <strong>Seleccione un archivo</strong>
+              <small id="ayuda-documento">PDF o imagen, si el tramite lo requiere</small>
+              <input id="file-input" name="documento" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp">
+            </label>
+            <p id="file-name" class="texto-pequeno"></p>
+          </div>
+
+          <div class="acciones-formulario">
+            <button class="boton boton-secundario" type="reset">Limpiar</button>
+            <button class="boton boton-primario" type="submit">
+              <span class="material-symbols-outlined">send</span>
+              Enviar tramite
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <section class="tarjeta-tabla">
+        <div class="tarjeta-encabezado">
+          <h3 class="titulo-seccion sin-margen">
+            <span class="material-symbols-outlined">history</span>
+            Historial de tramites
+          </h3>
+          <p class="texto-secundario">{{ tramites_previos|length }} tramite(s) registrado(s).</p>
+        </div>
+        <div class="tabla-responsive">
+          <table class="tabla-datos">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Tipo</th>
+                <th>Asunto</th>
+                <th>Estado</th>
+                <th>Documento</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for tramite in tramites_previos %}
+              <tr>
+                <td>{{ tramite.fecha_solicitud }}</td>
+                <td>{{ tramite.tipo_nombre }}</td>
+                <td>
+                  <p class="texto-principal">{{ tramite.asunto }}</p>
+                  <p class="texto-pequeno">{{ tramite.detalle_revision or tramite.descripcion }}</p>
+                </td>
+                <td>
+                  <span class="estado-badge {% if tramite.estado == 'Aprobado' %}estado-aprobado{% elif tramite.estado == 'Rechazado' %}estado-rechazado{% elif tramite.estado[:2] == 'En' %}estado-revision{% else %}estado-neutro{% endif %}">
+                    {{ tramite.estado }}
+                  </span>
+                </td>
+                <td>
+                  <div class="documento-acciones">
+                  {% if tramite.archivo_solicitud and tramite.archivo_solicitud_existe %}
+                  <a href="{{ url_for('static', filename=tramite.archivo_solicitud) }}" target="_blank" rel="noopener" class="boton-link">
+                    Sustento enviado
+                  </a>
+                  {% elif tramite.archivo_solicitud %}
+                  <span class="texto-pequeno">Sustento registrado no disponible</span>
+                  {% endif %}
+                  {% if tramite.archivo_respuesta and tramite.archivo_respuesta_existe %}
+                  <a href="{{ url_for('static', filename=tramite.archivo_respuesta) }}" target="_blank" rel="noopener" class="boton-link">
+                    Descargar certificado firmado
+                  </a>
+                  <a href="{{ url_for('validar_firma_tramite', tid=tramite.id) }}" class="boton-link">
+                    Validar firma
+                  </a>
+                  {% elif tramite.archivo_respuesta %}
+                  <span class="texto-pequeno">Archivo registrado no disponible</span>
+                  {% else %}
+                    {% if tramite.tipo_tramite == 'certificado_habilidad' and tramite.estado[:2] == 'En' %}
+                    <span class="estado-documento estado-documento-proceso">Certificado en revision</span>
+                    {% elif tramite.tipo_tramite == 'certificado_habilidad' and tramite.estado == 'Pendiente' %}
+                    <span class="estado-documento estado-documento-pendiente">Certificado pendiente</span>
+                    {% elif tramite.estado == 'Rechazado' %}
+                    <span class="estado-documento estado-documento-rechazado">Sin documento emitido</span>
+                    {% else %}
+                    <span class="texto-pequeno">Sin emitido</span>
+                    {% endif %}
+                  {% endif %}
+                  </div>
+                </td>
+              </tr>
+              {% else %}
+              <tr><td colspan="5" class="centro texto-pequeno fila-vacia">Aun no registraste tramites.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </section>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/colegiado/tramites.js') }}?v=1"></script>
+{% endblock %}

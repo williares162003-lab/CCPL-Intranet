@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/colegiado/perfil_soporte.css') }}?v=2">
+{% endblock %}
+
+{% block content %}
+<div class="pagina layout-dos-columnas">
+
+  <div class="columna-8 espaciado-medio">
+    <section class="tarjeta">
+      <div class="fila-separada">
+        <div>
+          <p class="etiqueta-seccion">Datos personales</p>
+          <h2 class="titulo-panel">Perfil del colegiado</h2>
+        </div>
+        <button id="btn-editar" onclick="toggleEditForm()" class="boton boton-secundario">
+          <span class="material-symbols-outlined">edit</span> Editar datos
+        </button>
+      </div>
+
+      <div id="vista-perfil" class="perfil-grid">
+        <div>
+          <p class="dato-label">Nombre completo</p>
+          <p class="dato-valor">{{ profile.nombre }}</p>
+        </div>
+        <div>
+          <p class="dato-label">DNI</p>
+          <p class="dato-valor">{{ profile.documento }}</p>
+        </div>
+        <div>
+          <p class="dato-label">Número de colegiatura</p>
+          <p class="dato-valor">{{ profile.matricula }}</p>
+        </div>
+        <div>
+          <p class="dato-label">Especialidad</p>
+          <p class="dato-valor">{{ profile.especialidad }}</p>
+        </div>
+        <div>
+          <p class="dato-label">Correo electrónico</p>
+          <p class="dato-valor">{{ profile.correo }}</p>
+        </div>
+        <div>
+          <p class="dato-label">Teléfono</p>
+          <p class="dato-valor">{{ profile.telefono }}</p>
+        </div>
+      </div>
+
+      <form id="form-editar" action="{{ url_for('perfil_actualizar') }}" method="POST" class="formulario hidden formulario-perfil" data-confirm="Desea guardar los cambios del perfil?">
+        <div class="form-grid">
+          <div>
+            <label class="etiqueta-campo">Correo electrónico</label>
+            <input name="correo" type="email" value="{{ profile.correo }}" class="campo-formulario" />
+          </div>
+          <div>
+            <label class="etiqueta-campo">Teléfono</label>
+            <input name="telefono" type="text" value="{{ profile.telefono }}" class="campo-formulario" />
+          </div>
+          <div class="campo-completo">
+            <label class="etiqueta-campo">Especialidad</label>
+            <input name="especialidad" type="text" value="{{ profile.especialidad }}" class="campo-formulario" />
+          </div>
+        </div>
+        <div class="acciones-formulario">
+          <button type="button" onclick="toggleEditForm()" class="boton boton-secundario">Cancelar</button>
+          <button type="submit" class="boton boton-primario">
+            <span class="material-symbols-outlined">save</span> Guardar cambios
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <section class="tarjeta">
+      <p class="etiqueta-seccion">Preferencias</p>
+      <div class="preferencias-lista">
+        <div class="preferencia-item">
+          <div>
+            <p class="preferencia-titulo">Notificaciones por correo</p>
+            <p class="texto-secundario">Alertas de pagos, cursos y comunicados institucionales.</p>
+          </div>
+          <button onclick="toggleSwitch(this)" data-key="notificaciones" data-active="true" class="switch activo">
+            <span></span>
+          </button>
+        </div>
+
+        <div class="preferencia-item">
+          <div>
+            <p class="preferencia-titulo">Seguridad en dos pasos</p>
+            <p class="texto-secundario">Capa extra de protección al acceso del portal.</p>
+          </div>
+          <button onclick="toggleSwitch(this)" data-key="2fa" data-active="false" class="switch">
+            <span></span>
+          </button>
+        </div>
+
+        <div class="preferencia-item sin-borde">
+          <div>
+            <p class="preferencia-titulo">Visibilidad en directorio</p>
+            <p class="texto-secundario">Permitir que empresas busquen tu perfil profesional.</p>
+          </div>
+          <button onclick="toggleSwitch(this)" data-key="directorio" data-active="true" class="switch activo">
+            <span></span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="tarjeta">
+      <div class="fila-separada">
+        <div>
+          <p class="etiqueta-seccion">Soporte</p>
+          <h2 class="titulo-panel">Mis tickets</h2>
+        </div>
+        <button onclick="abrirTicket()" class="boton boton-primario">
+          <span class="material-symbols-outlined">confirmation_number</span> Nuevo ticket
+        </button>
+      </div>
+
+      <div class="tickets-lista">
+        {% for t in tickets %}
+        <article class="ticket-card">
+          <div class="ticket-card-header">
+            <div>
+              <p class="texto-pequeno texto-mono">#{{ t.id }} - {{ t.categoria }}</p>
+              <h3>{{ t.asunto }}</h3>
+            </div>
+            <span class="estado-badge {% if t.estado == 'Cerrado' %}estado-cerrado{% elif t.estado[:2] == 'En' %}estado-revision{% else %}estado-abierto{% endif %}">
+              {{ 'En Revision' if t.estado == 'En atencion' else t.estado }}
+            </span>
+          </div>
+          <p class="ticket-descripcion">{{ t.descripcion }}</p>
+          {% if t.respuesta_admin %}
+          <div class="ticket-respuesta">
+            <p class="dato-label">Respuesta de soporte</p>
+            <p>{{ t.respuesta_admin }}</p>
+            {% if t.respondido_en %}
+            <small>{{ t.respondido_en }}</small>
+            {% endif %}
+          </div>
+          {% else %}
+          <p class="texto-pequeno">Soporte aun no registra respuesta.</p>
+          {% endif %}
+        </article>
+        {% else %}
+        <div class="estado-vacio-simple">
+          <span class="material-symbols-outlined">support_agent</span>
+          <p>No tienes tickets registrados.</p>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+  </div>
+
+  <aside class="columna-4 espaciado-medio">
+    <section class="tarjeta">
+      <div class="soporte-titulo">
+        <span class="material-symbols-outlined">contact_support</span>
+        <h3>Centro de soporte</h3>
+      </div>
+      <div class="soporte-acciones">
+        <a class="boton boton-whatsapp boton-ancho" href="https://wa.me/51917452643" target="_blank" rel="noreferrer">
+          <span class="material-symbols-outlined">chat</span> WhatsApp institucional
+        </a>
+        <button onclick="abrirTicket()" class="boton boton-primario boton-ancho">
+          <span class="material-symbols-outlined">confirmation_number</span> Generar incidencia técnica
+        </button>
+      </div>
+
+      <div class="documentos-box">
+        <p class="dato-label">Documentación</p>
+        <div class="documentos-lista">
+          {% for doc in support_documents %}
+          <a href="{{ url_for('descargar_doc', nombre=doc.name) }}" class="documento-link">
+            <div>
+              <p class="texto-principal">{{ doc.name }}</p>
+              <p class="texto-pequeno">{{ doc.size }}</p>
+            </div>
+            <span class="material-symbols-outlined">download</span>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+
+    <section class="sede-card">
+      <div class="sede-imagen"></div>
+      <div class="sede-cuerpo">
+        <p class="etiqueta-seccion">Sede institucional</p>
+        <h3>CCPL Lambayeque</h3>
+        <p>Portal de apoyo para colegiados, pagos y capacitación.</p>
+      </div>
+    </section>
+  </aside>
+</div>
+
+<div id="modal-ticket" class="modal-fondo hidden">
+  <div class="modal-caja">
+    <div class="modal-barra"></div>
+    <div class="modal-cuerpo">
+      <div class="modal-header">
+        <div>
+          <p class="modal-subtitulo">Soporte técnico</p>
+          <h3 class="modal-titulo">Nueva incidencia</h3>
+        </div>
+        <button onclick="cerrarTicket()" class="boton-cerrar">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <form action="{{ url_for('soporte_ticket') }}" method="POST" class="formulario" data-confirm="Desea enviar esta incidencia?">
+        <div>
+          <label class="etiqueta-campo">Categoría</label>
+          <select name="categoria" class="campo-formulario">
+            <option value="acceso">Problema de acceso</option>
+            <option value="pago">Consulta de pago</option>
+            <option value="curso">Cursos y capacitación</option>
+            <option value="constancia">Constancia de habilidad</option>
+            <option value="otro">Otro</option>
+          </select>
+        </div>
+        <div>
+          <label class="etiqueta-campo">Asunto *</label>
+          <input name="asunto" type="text" placeholder="Describa brevemente el problema" class="campo-formulario" required />
+        </div>
+        <div>
+          <label class="etiqueta-campo">Descripción *</label>
+          <textarea name="descripcion" rows="4" placeholder="Explique en detalle su consulta o problema..." class="campo-formulario" required></textarea>
+        </div>
+        <div class="acciones-formulario">
+          <button type="button" onclick="cerrarTicket()" class="boton boton-secundario">Cancelar</button>
+          <button type="submit" class="boton boton-primario">
+            <span class="material-symbols-outlined">send</span> Enviar incidencia
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/colegiado/perfil_soporte.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,152 @@
+.barra-filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 7px 14px;
+  color: var(--texto-suave);
+  background: var(--blanco);
+  border: 1px solid var(--borde);
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.filter-pill .material-symbols-outlined {
+  font-size: 18px;
+}
+
+.contador-filtro {
+  margin-left: auto;
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.lista-notificaciones {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.lista-notificaciones li + li {
+  border-top: 1px solid var(--borde-claro);
+}
+
+.notif-row:hover {
+  background: #f1f5f9;
+  box-shadow: inset 3px 0 0 var(--azul);
+}
+
+.notif-row.unread {
+  background: #eff6ff;
+}
+
+.notif-contenido {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px 24px;
+}
+
+.notif-icon-wrap {
+  flex: 0 0 auto;
+  margin-top: 2px;
+}
+
+.notif-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+}
+
+.notif-cuerpo {
+  flex: 1;
+  min-width: 0;
+}
+
+.notif-cabecera {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.notif-estado {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #94a3b8;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.unread-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--dorado);
+  border-radius: 999px;
+}
+
+.notif-mensaje {
+  margin: 6px 0 0;
+  color: var(--texto-claro);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.notif-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.estado-vacio-notif {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px;
+  text-align: center;
+}
+
+.estado-vacio-notif.show {
+  display: flex;
+}
+
+.estado-vacio-notif p {
+  margin: 0;
+  color: var(--texto-suave);
+  font-weight: 800;
+}
+
+.estado-vacio-notif small {
+  margin-top: 6px;
+  color: #94a3b8;
+}
+
+.resumen-notificaciones {
+  margin: 0;
+  padding-bottom: 8px;
+  color: #94a3b8;
+  font-size: 12px;
+  text-align: center;
+}
+
+#btn-mark-all:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}

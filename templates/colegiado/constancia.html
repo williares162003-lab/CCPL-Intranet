@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/colegiado/constancia.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="pagina-estrecha espaciado-medio">
+
+  <div class="fila-separada no-print">
+    <div>
+      <p class="etiqueta-seccion">Documentos oficiales</p>
+      <h2 class="titulo-panel">Constancia de habilidad</h2>
+    </div>
+    <div class="fila-wrap">
+      <button onclick="window.print()" class="boton boton-secundario">
+        <span class="material-symbols-outlined">print</span> Imprimir
+      </button>
+      <button onclick="window.print()" class="boton boton-primario">
+        <span class="material-symbols-outlined">picture_as_pdf</span> Descargar PDF
+      </button>
+    </div>
+  </div>
+
+  <div class="constancia-doc">
+    <div class="franja-superior"></div>
+
+    <div class="constancia-cuerpo">
+      <div class="constancia-header">
+        <div class="constancia-logo">
+          <span class="material-symbols-outlined icon-fill">account_balance</span>
+        </div>
+        <p class="etiqueta-seccion">República del Perú</p>
+        <h1>Colegio de Contadores Públicos</h1>
+        <h2>de Lambayeque</h2>
+        <p>Junta de Decanos de Colegios de Contadores Públicos del Perú</p>
+      </div>
+
+      <div class="documento-titulo">
+        <h2>Constancia de habilidad</h2>
+        <div></div>
+      </div>
+
+      <div class="documento-texto">
+        <p>
+          El <strong>Decano del Colegio de Contadores Públicos de Lambayeque</strong>, en ejercicio de sus
+          atribuciones conferidas por la Ley N. 28951 y el Estatuto Institucional vigente,
+        </p>
+        <p class="certifica">CERTIFICA:</p>
+        <p>
+          Que el(la) Contador(a) Público(a) <strong>{{ profile.nombre }}</strong>,
+          identificado(a) con DNI N. <strong>{{ profile.documento }}</strong>,
+          se encuentra <strong class="texto-ok">HABILITADO(A)</strong> en el Registro del Colegio
+          de Contadores Públicos de Lambayeque con Matrícula N.
+          <strong>{{ profile.matricula }}</strong>,
+          habiendo cumplido con todos los requisitos establecidos en el Estatuto y Reglamentos vigentes.
+        </p>
+        <p>
+          La presente constancia acredita que dicho(a) profesional está <strong>en pleno ejercicio de sus
+          derechos y obligaciones</strong> como colegiado(a) activo(a), con especialidad en
+          <strong>{{ profile.especialidad }}</strong>.
+        </p>
+      </div>
+
+      <div class="datos-documento">
+        <div>
+          <p class="dato-label">Fecha de emisión</p>
+          <p>{{ today }}</p>
+        </div>
+        <div>
+          <p class="dato-label">Vigencia hasta</p>
+          <p>{{ profile.vigencia }}</p>
+        </div>
+        <div>
+          <p class="dato-label">Matrícula</p>
+          <p>{{ profile.matricula }}</p>
+        </div>
+        <div>
+          <p class="dato-label">Estado</p>
+          <p class="texto-ok">Habilitado</p>
+        </div>
+      </div>
+
+      <div class="firmas">
+        <div>
+          <div>
+            <p>Decano del CCPL</p>
+            <small>Colegio de Contadores Públicos de Lambayeque</small>
+          </div>
+        </div>
+        <div>
+          <div>
+            <p>Secretario General</p>
+            <small>Colegio de Contadores Públicos de Lambayeque</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="pie-documento">
+        <p>Este documento ha sido generado electrónicamente por el Portal Intranet CCPL.</p>
+        <p>Para verificar su autenticidad, comuníquese con la secretaría del colegio.</p>
+        <p><strong>Av. Balta 1230, Chiclayo, Lambayeque - Tel: (074) 23-4567</strong></p>
+      </div>
+    </div>
+
+    <div class="franja-inferior"></div>
+  </div>
+</div>
+{% endblock %}

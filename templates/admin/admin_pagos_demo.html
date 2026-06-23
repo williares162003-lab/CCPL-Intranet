@@ -1,0 +1,323 @@
+{% extends "base.html" %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin/admin_cuotas.css') }}?v=5">
+{% endblock %}
+
+{% block content %}
+<div class="pagina">
+  <div class="encabezado-pagina">
+    <div>
+      <p class="etiqueta-seccion">Administracion</p>
+      <h2 class="titulo-pagina">Pagos y comprobantes</h2>
+      <p class="texto-apoyo">Auditoria de pagos registrados, comprobantes internos y anulaciones.</p>
+    </div>
+    <div class="fila-wrap no-print">
+      <a href="{{ url_for('admin_pagos_demo_exportar', q=busqueda, estado_pago=estado_pago) }}"
+         class="boton boton-primario">
+        <span class="material-symbols-outlined">download</span> Exportar CSV
+      </a>
+      <button type="button" onclick="window.print()" class="boton boton-secundario">
+        <span class="material-symbols-outlined">print</span> Imprimir
+      </button>
+    </div>
+  </div>
+
+  <div class="resumen-grid pagos-demo-resumen">
+    <article class="resumen-card pagado">
+      <p class="resumen-label">Recaudado</p>
+      <p class="resumen-valor">S/ {{ "%.2f"|format(resumen_pagos.recaudado or 0) }}</p>
+    </article>
+    <article class="resumen-card">
+      <p class="resumen-label">Transacciones</p>
+      <p class="resumen-valor">{{ resumen_pagos.total_transacciones or 0 }}</p>
+    </article>
+    <article class="resumen-card pagado">
+      <p class="resumen-label">Comprobantes emitidos</p>
+      <p class="resumen-valor">{{ resumen_pagos.comprobantes_emitidos or 0 }}</p>
+    </article>
+    <article class="resumen-card pendiente">
+      <p class="resumen-label">Comprobantes anulados</p>
+      <p class="resumen-valor">{{ resumen_pagos.comprobantes_anulados or 0 }}</p>
+    </article>
+  </div>
+
+  <section class="procesamiento-grid pagos-demo-grid">
+    <article class="proceso-card">
+      <div class="proceso-header">
+        <span class="material-symbols-outlined">query_stats</span>
+        <div>
+          <p class="proceso-label">Reporte</p>
+          <h3>Pagos por metodo</h3>
+        </div>
+      </div>
+      <div class="metodo-lista">
+        {% for metodo in resumen_pagos.metodos %}
+        <div class="metodo-item">
+          <div>
+            <p class="texto-principal">{{ metodo.metodo }}</p>
+            <p class="texto-pequeno">{{ metodo.total }} operacion(es)</p>
+          </div>
+          <strong>S/ {{ "%.2f"|format(metodo.monto or 0) }}</strong>
+        </div>
+        {% else %}
+        <p class="mensaje-vacio compacto">Aun no hay pagos registrados.</p>
+        {% endfor %}
+      </div>
+    </article>
+
+    <article class="proceso-card">
+      <div class="proceso-header">
+        <span class="material-symbols-outlined">receipt_long</span>
+        <div>
+          <p class="proceso-label">Control</p>
+          <h3>Regla de comprobantes</h3>
+        </div>
+      </div>
+      <p class="proceso-texto">
+        Los comprobantes no se eliminan. Si hay un error se anulan y se registra
+        el usuario administrativo, fecha y motivo.
+      </p>
+    </article>
+  </section>
+
+  <form method="GET" class="filtro-formulario no-print">
+    <div class="filtro-campo">
+      <label class="etiqueta-campo">Buscar</label>
+      <input name="q" type="search" value="{{ busqueda }}"
+             placeholder="Nombre, matricula, concepto o transaccion"
+             class="campo-formulario" />
+    </div>
+    <div class="filtro-campo filtro-campo-tipo">
+      <label class="etiqueta-campo">Estado pago</label>
+      <select name="estado_pago" class="campo-formulario">
+        <option value="">Todos</option>
+        <option value="Aprobado" {% if estado_pago == "Aprobado" %}selected{% endif %}>Aprobado</option>
+        <option value="Pendiente" {% if estado_pago == "Pendiente" %}selected{% endif %}>Pendiente</option>
+        <option value="Rechazado" {% if estado_pago == "Rechazado" %}selected{% endif %}>Rechazado</option>
+      </select>
+    </div>
+    <div class="filtro-campo filtro-campo-tipo">
+      <label class="etiqueta-campo">Comprobante</label>
+      <select name="estado_comprobante" class="campo-formulario">
+        <option value="">Todos</option>
+        <option value="Emitido" {% if estado_comprobante == "Emitido" %}selected{% endif %}>Emitido</option>
+        <option value="Anulado" {% if estado_comprobante == "Anulado" %}selected{% endif %}>Anulado</option>
+      </select>
+    </div>
+    <div class="filtro-campo filtro-campo-cantidad">
+      <label class="etiqueta-campo">Ver</label>
+      <select name="por_pagina" class="campo-formulario">
+        <option value="10" {% if por_pagina == 10 %}selected{% endif %}>10</option>
+        <option value="25" {% if por_pagina == 25 %}selected{% endif %}>25</option>
+        <option value="50" {% if por_pagina == 50 %}selected{% endif %}>50</option>
+      </select>
+    </div>
+    <button type="submit" class="boton boton-oscuro">
+      <span class="material-symbols-outlined">filter_list</span> Filtrar
+    </button>
+    {% if busqueda or estado_pago or estado_comprobante or por_pagina != 25 %}
+    <a href="{{ url_for('admin_pagos_demo') }}" class="boton boton-secundario">Limpiar</a>
+    {% endif %}
+  </form>
+
+  <section class="tarjeta-tabla">
+    <div class="tabla-toolbar">
+      <p>
+        Mostrando {{ paginacion.desde }} - {{ paginacion.hasta }}
+        de {{ paginacion.total }} transacciones
+      </p>
+      <p>Pagina {{ paginacion.pagina }} de {{ paginacion.total_paginas }}</p>
+    </div>
+    <div class="tabla-responsive">
+      <table class="tabla-datos">
+        <thead>
+          <tr>
+            <th>Colegiado</th>
+            <th>Concepto</th>
+            <th>Metodo</th>
+            <th>Transaccion</th>
+            <th class="derecha">Monto</th>
+            <th class="centro">Pago</th>
+            <th class="centro">Comprobante</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in transacciones %}
+          <tr>
+            <td>
+              <p class="texto-principal">{{ t.nombre }}</p>
+              <p class="texto-pequeno texto-mono">{{ t.matricula }}</p>
+            </td>
+            <td>
+              <p class="texto-secundario">{{ t.concepto }}</p>
+              <p class="texto-pequeno">{{ t.pagado_en or t.creado_en }}</p>
+            </td>
+            <td>{{ t.metodo }}</td>
+            <td>
+              <p class="texto-mono">{{ t.codigo_transaccion }}</p>
+              <p class="texto-pequeno">{{ t.codigo_autorizacion }}</p>
+              {% if t.evidencia_id %}
+              <p class="texto-pequeno">Origen: evidencia #{{ t.evidencia_id }}</p>
+              {% endif %}
+            </td>
+            <td class="derecha texto-principal">S/ {{ "%.2f"|format(t.monto or 0) }}</td>
+            <td class="centro">
+              <span class="estado-badge {% if t.estado == 'Aprobado' %}estado-pagado{% else %}estado-pendiente{% endif %}">
+                {{ t.estado }}
+              </span>
+            </td>
+            <td class="centro">
+              {% if t.comprobante_id %}
+              <a href="{{ url_for('admin_comprobante_pago_demo', comprobante_id=t.comprobante_id) }}"
+                 class="boton-link">
+                {{ t.serie }}-{{ "%08d"|format(t.numero or 0) }}
+              </a>
+              <br>
+              <span class="estado-badge {% if t.comprobante_estado == 'Anulado' %}estado-inactivo{% else %}estado-pagado{% endif %}">
+                {{ t.comprobante_estado }}
+              </span>
+              {% else %}
+              <span class="texto-pequeno">Sin comprobante</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="7" class="centro texto-pequeno">Sin transacciones registradas.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if paginacion.total_paginas > 1 %}
+    <nav class="paginacion" aria-label="Paginacion de pagos">
+      <a class="paginacion-link {% if paginacion.pagina == 1 %}disabled{% endif %}"
+         href="{{ url_for('admin_pagos_demo', q=busqueda, estado_pago=estado_pago, estado_comprobante=estado_comprobante, por_pagina=por_pagina, pagina=paginacion.pagina - 1) }}">
+        Anterior
+      </a>
+      {% for n in range(paginacion.inicio, paginacion.fin + 1) %}
+      <a class="paginacion-numero {% if n == paginacion.pagina %}activo{% endif %}"
+         href="{{ url_for('admin_pagos_demo', q=busqueda, estado_pago=estado_pago, estado_comprobante=estado_comprobante, por_pagina=por_pagina, pagina=n) }}">
+        {{ n }}
+      </a>
+      {% endfor %}
+      <a class="paginacion-link {% if paginacion.pagina == paginacion.total_paginas %}disabled{% endif %}"
+         href="{{ url_for('admin_pagos_demo', q=busqueda, estado_pago=estado_pago, estado_comprobante=estado_comprobante, por_pagina=por_pagina, pagina=paginacion.pagina + 1) }}">
+        Siguiente
+      </a>
+    </nav>
+    {% endif %}
+  </section>
+
+  <section class="tarjeta-tabla">
+    <div class="tarjeta-encabezado">
+      <div>
+        <h3 class="titulo-seccion sin-margen">Comprobantes internos</h3>
+        <p class="texto-secundario">Ultimos comprobantes generados por pagos registrados.</p>
+      </div>
+    </div>
+    <div class="tabla-responsive">
+      <table class="tabla-datos">
+        <thead>
+          <tr>
+            <th>Comprobante</th>
+            <th>Colegiado</th>
+            <th>Concepto</th>
+            <th class="derecha">Total</th>
+            <th class="centro">Estado</th>
+            <th>Anulacion</th>
+            <th class="centro">Fiscal</th>
+            <th class="centro">Accion</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in comprobantes %}
+          <tr>
+            <td>
+              <a href="{{ url_for('admin_comprobante_pago_demo', comprobante_id=c.id) }}"
+                 class="texto-mono">
+                {{ c.serie }}-{{ "%08d"|format(c.numero or 0) }}
+              </a>
+              {% if c.evidencia_id %}
+              <p class="texto-pequeno">Evidencia #{{ c.evidencia_id }}</p>
+              {% endif %}
+              <p class="texto-pequeno">{{ c.fecha_emision }}</p>
+            </td>
+            <td>
+              <p class="texto-principal">{{ c.nombre }}</p>
+              <p class="texto-pequeno texto-mono">{{ c.matricula }}</p>
+            </td>
+            <td>{{ c.concepto }}</td>
+            <td class="derecha texto-principal">S/ {{ "%.2f"|format(c.total or 0) }}</td>
+            <td class="centro">
+              <span class="estado-badge {% if c.estado == 'Anulado' %}estado-inactivo{% else %}estado-pagado{% endif %}">
+                {{ c.estado }}
+              </span>
+            </td>
+            <td>
+              {% if c.estado == 'Anulado' %}
+              <div class="revision-auditoria">
+                <p class="texto-principal">Anulado por</p>
+                <p class="texto-pequeno">{{ c.anulado_por_nombre or '-' }}</p>
+                <p class="texto-pequeno texto-mono">{{ c.anulado_por_matricula or '-' }}</p>
+                <p class="texto-pequeno">{{ c.anulado_en or '' }}</p>
+                <p class="texto-pequeno">{{ c.motivo_anulacion or '' }}</p>
+              </div>
+              {% else %}
+              <span class="texto-pequeno">Vigente</span>
+              {% endif %}
+            </td>
+            <td class="centro">
+              {% if c.fiscal_id %}
+              <a href="{{ url_for('admin_comprobante_fiscal', fiscal_id=c.fiscal_id) }}"
+                 class="boton-link">
+                {{ c.fiscal_serie }}-{{ "%08d"|format(c.fiscal_numero or 0) }}
+              </a>
+              <br>
+              <span class="estado-badge {% if c.fiscal_estado == 'Anulado' %}estado-inactivo{% elif c.fiscal_estado == 'Aceptado' %}estado-pagado{% else %}estado-pendiente{% endif %}">
+                {{ c.fiscal_estado }}
+              </span>
+              {% elif c.estado == 'Emitido' %}
+              <details class="anular-detalle">
+                <summary class="boton-mini boton-primario">Emitir fiscal</summary>
+                <form action="{{ url_for('admin_emitir_comprobante_fiscal', comprobante_pago_id=c.id) }}"
+                      method="POST"
+                      class="anular-form"
+                      data-confirm="Desea emitir el comprobante fiscal de este pago?">
+                  <select name="tipo_comprobante" class="campo-formulario">
+                    <option value="Boleta">Boleta</option>
+                    <option value="Factura">Factura</option>
+                  </select>
+                  <button type="submit" class="boton-mini boton-primario">Emitir</button>
+                </form>
+              </details>
+              {% else %}
+              <span class="texto-pequeno">No disponible</span>
+              {% endif %}
+            </td>
+            <td class="centro">
+              {% if c.estado == 'Emitido' %}
+              <details class="anular-detalle">
+                <summary class="boton-mini boton-rechazar">Anular</summary>
+                <form action="{{ url_for('admin_anular_comprobante_pago_demo', comprobante_id=c.id) }}"
+                      method="POST"
+                      class="anular-form"
+                      data-confirm="Desea anular este comprobante?">
+                  <textarea name="motivo" rows="3" required class="campo-formulario"
+                            placeholder="Motivo de anulacion"></textarea>
+                  <button type="submit" class="boton-mini boton-rechazar">Confirmar</button>
+                </form>
+              </details>
+              {% else %}
+              <span class="texto-pequeno">Sin accion</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="8" class="centro texto-pequeno">Sin comprobantes registrados.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+{% endblock %}

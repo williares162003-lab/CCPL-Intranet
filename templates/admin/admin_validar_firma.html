@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin/admin_firma_edni.css') }}?v=2">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin/admin_validar_firma.css') }}?v=1">
+{% endblock %}
+
+{% block content %}
+<div class="pagina espaciado-medio validar-firma">
+  <div class="firma-encabezado">
+    <div>
+      <p class="etiqueta-seccion">Certificado de habilidad</p>
+      <h2 class="titulo-pagina">Validacion de firma digital</h2>
+      <p class="texto-apoyo">Revisa si el PDF emitido contiene firma digital y si el documento permanece integro.</p>
+    </div>
+    <a href="{{ volver_url }}" class="boton boton-secundario">
+      <span class="material-symbols-outlined">arrow_back</span>
+      Volver
+    </a>
+  </div>
+
+  <section class="validacion-grid">
+    <article class="firma-card">
+      <div class="firma-card-header">
+        <span class="material-symbols-outlined">description</span>
+        <div>
+          <p class="firma-label">Documento</p>
+          <h3>{{ tramite.asunto }}</h3>
+        </div>
+      </div>
+
+      <div class="firma-datos firma-datos-validacion">
+        <div>
+          <span>Colegiado</span>
+          <strong>{{ tramite.nombre }}</strong>
+          <p class="texto-pequeno texto-mono">{{ tramite.matricula }}</p>
+        </div>
+        <div>
+          <span>Tramite</span>
+          <strong>{{ tramite.tipo_nombre }}</strong>
+          <p class="texto-pequeno">{{ tramite.fecha_solicitud }}</p>
+        </div>
+        <div>
+          <span>Estado</span>
+          <strong>{{ tramite.estado }}</strong>
+          <p class="texto-pequeno">{{ tramite.estado_firma or 'Firma registrada' }}</p>
+        </div>
+      </div>
+
+      <div class="firma-acciones-linea">
+        <a href="{{ pdf_url }}" target="_blank" rel="noopener" class="boton boton-primario">
+          <span class="material-symbols-outlined">picture_as_pdf</span>
+          Abrir PDF
+        </a>
+      </div>
+    </article>
+
+    <article class="firma-card validacion-resultado-card">
+      <div class="validacion-estado {% if resultado.ok %}ok{% else %}error{% endif %}">
+        <span class="material-symbols-outlined">{% if resultado.ok %}verified{% else %}warning{% endif %}</span>
+        <div>
+          <p class="firma-label">Resultado</p>
+          <h3>{{ resultado.estado }}</h3>
+          <p>{{ resultado.mensaje }}</p>
+        </div>
+      </div>
+
+      {% if resultado.firmas %}
+      <div class="firmas-lista">
+        {% for firma in resultado.firmas %}
+        <div class="firma-validada">
+          <div class="firma-validada-header">
+            <strong>{{ firma.campo }}</strong>
+            <span class="estado-badge {% if firma.valida and firma.intacta %}estado-aprobado{% else %}estado-rechazado{% endif %}">
+              {% if firma.valida and firma.intacta %}Integra{% else %}Observada{% endif %}
+            </span>
+          </div>
+          <dl class="firma-detalle">
+            <div>
+              <dt>Firmante</dt>
+              <dd>{{ firma.firmante }}</dd>
+            </div>
+            {% if firma.dni %}
+            <div>
+              <dt>DNI / doc.</dt>
+              <dd>{{ firma.dni }}</dd>
+            </div>
+            {% endif %}
+            <div>
+              <dt>Emisor</dt>
+              <dd>{{ firma.emisor }}</dd>
+            </div>
+            <div>
+              <dt>Fecha de firma</dt>
+              <dd>{{ firma.firmado_en }}</dd>
+            </div>
+            <div>
+              <dt>Integridad</dt>
+              <dd>{% if firma.intacta %}Documento sin cambios{% else %}Documento observado{% endif %}</dd>
+            </div>
+            <div>
+              <dt>Confianza local</dt>
+              <dd>{% if firma.confiable %}Cadena confiable{% else %}Cadena RENIEC no instalada como confianza local{% endif %}</dd>
+            </div>
+          </dl>
+          {% if firma.error %}
+          <p class="texto-pequeno estado-alerta">{{ firma.error }}</p>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <p class="texto-pequeno nota-validacion">
+        Para una verificacion oficial de confianza, abra el PDF en Adobe Acrobat Reader y revise el panel de firmas.
+      </p>
+    </article>
+  </section>
+</div>
+{% endblock %}

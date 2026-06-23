@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/colegiado/constancia.css') }}?v=3">
+{% endblock %}
+
+{% block content %}
+<div class="pagina-estrecha espaciado-medio">
+
+  <div class="fila-separada no-print">
+    <div>
+      <p class="etiqueta-seccion">Educacion continua</p>
+      <h2 class="titulo-panel">Certificado de curso</h2>
+    </div>
+    <div class="fila-wrap">
+      <a href="{{ url_for('educacion_continua') }}" class="boton boton-secundario">
+        <span class="material-symbols-outlined">arrow_back</span> Mis cursos
+      </a>
+      <button onclick="window.print()" class="boton boton-primario">
+        <span class="material-symbols-outlined">print</span> Imprimir
+      </button>
+      {% if certificado_archivo %}
+      <a href="{{ url_for('static', filename=certificado_archivo) }}" target="_blank" rel="noopener" class="boton boton-secundario">
+        <span class="material-symbols-outlined">open_in_new</span> Abrir PDF subido
+      </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="constancia-doc">
+    <div class="franja-superior"></div>
+
+    <div class="constancia-cuerpo">
+      <div class="constancia-header">
+        <div class="constancia-logo">
+          <span class="material-symbols-outlined icon-fill">workspace_premium</span>
+        </div>
+        <p class="etiqueta-seccion">Colegio de Contadores Publicos de Lambayeque</p>
+        <h1>Certificado de participacion</h1>
+        <h2>Educacion continua</h2>
+        <p>Vista generada por la Intranet CCPL</p>
+      </div>
+
+      <div class="documento-titulo">
+        <h2>Certificado</h2>
+        <div></div>
+      </div>
+
+      <div class="documento-texto">
+        <p class="certifica">CERTIFICA:</p>
+        <p>
+          Que el(la) colegiado(a) <strong>{{ certificado.nombre }}</strong>,
+          identificado(a) con DNI N. <strong>{{ certificado.documento }}</strong>
+          y matricula N. <strong>{{ certificado.matricula }}</strong>,
+          ha culminado satisfactoriamente el curso
+          <strong>{{ certificado.titulo }}</strong>.
+        </p>
+        <p>
+          El curso corresponde a la categoria <strong>{{ certificado.categoria }}</strong>,
+          fue desarrollado bajo modalidad <strong>{{ certificado.modalidad }}</strong>,
+          con una duracion de <strong>{{ certificado.duracion_horas }} horas academicas</strong>
+          y estuvo a cargo de <strong>{{ certificado.ponente }}</strong>.
+        </p>
+      </div>
+
+      <div class="datos-documento">
+        <div>
+          <p class="dato-label">Fecha de emision</p>
+          <p>{{ today }}</p>
+        </div>
+        <div>
+          <p class="dato-label">Periodo del curso</p>
+          <p>{{ certificado.fecha_evento or '-' }}</p>
+        </div>
+        <div>
+          <p class="dato-label">Certificado</p>
+          <p>Certificado registrado</p>
+          {% if certificado_archivo %}
+          <a href="{{ url_for('static', filename=certificado_archivo) }}" target="_blank" rel="noopener" class="boton-link certificado-link">
+            Abrir archivo adjunto
+          </a>
+          {% endif %}
+          {% if certificado.certificado and not certificado_archivo %}
+          <p class="texto-pequeno">Archivo adjunto no disponible. Puede imprimir este certificado generado por el sistema.</p>
+          {% endif %}
+        </div>
+        <div>
+          <p class="dato-label">Estado</p>
+          <p class="texto-ok">Aprobado</p>
+        </div>
+      </div>
+
+      <div class="firmas">
+        <div>
+          <div>
+            <p>Coordinacion Academica</p>
+            <small>Colegio de Contadores Publicos de Lambayeque</small>
+          </div>
+        </div>
+        <div>
+          <div>
+            <p>{{ certificado.ponente }}</p>
+            <small>Ponente del curso</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="pie-documento">
+        <p>Este certificado ha sido generado electronicamente por el Portal Intranet CCPL.</p>
+        <p>Para verificar su autenticidad, comuniquese con la secretaria del colegio.</p>
+      </div>
+    </div>
+
+    <div class="franja-inferior"></div>
+  </div>
+</div>
+{% endblock %}

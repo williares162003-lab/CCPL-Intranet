@@ -1,0 +1,193 @@
+.constancia-doc {
+  overflow: hidden;
+  background: var(--blanco);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+}
+
+.franja-superior,
+.franja-inferior {
+  height: 12px;
+}
+
+.franja-superior {
+  background: linear-gradient(90deg, var(--azul), var(--azul), var(--dorado));
+}
+
+.franja-inferior {
+  background: linear-gradient(90deg, var(--dorado), var(--azul), var(--azul));
+}
+
+.constancia-cuerpo {
+  padding: 40px;
+}
+
+.constancia-header {
+  padding-bottom: 32px;
+  margin-bottom: 32px;
+  text-align: center;
+  border-bottom: 2px solid var(--azul);
+}
+
+.constancia-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 16px;
+  color: var(--blanco);
+  background: var(--azul);
+  border-radius: 16px;
+}
+
+.constancia-logo .material-symbols-outlined {
+  font-size: 34px;
+}
+
+.constancia-header h1,
+.constancia-header h2 {
+  margin: 4px 0 0;
+  color: var(--azul);
+  text-transform: uppercase;
+}
+
+.constancia-header h1 {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.constancia-header h2 {
+  font-size: 18px;
+}
+
+.constancia-header > p:last-child {
+  margin: 6px 0 0;
+  color: var(--texto-claro);
+  font-size: 14px;
+}
+
+.documento-titulo {
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.documento-titulo h2 {
+  margin: 0;
+  color: var(--azul);
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.documento-titulo div {
+  width: 96px;
+  height: 4px;
+  margin: 10px auto 0;
+  background: var(--dorado);
+  border-radius: 999px;
+}
+
+.documento-texto {
+  display: grid;
+  gap: 16px;
+  color: #1e293b;
+  line-height: 1.7;
+  text-align: justify;
+}
+
+.documento-texto p {
+  margin: 0;
+}
+
+.documento-texto strong {
+  color: var(--azul);
+}
+
+.certifica {
+  color: var(--azul);
+  font-size: 18px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.datos-documento {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  margin-top: 40px;
+  padding: 24px;
+  background: #f8fafc;
+  border-radius: 12px;
+}
+
+.datos-documento p {
+  margin: 0;
+}
+
+.datos-documento p:last-child {
+  margin-top: 6px;
+  color: var(--azul);
+  font-weight: 800;
+}
+
+.certificado-link {
+  justify-content: flex-start;
+  margin-top: 6px;
+  font-size: 13px;
+}
+
+.texto-ok {
+  color: #047857 !important;
+}
+
+.firmas {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 48px;
+  margin-top: 48px;
+  text-align: center;
+}
+
+.firmas > div > div {
+  padding-top: 12px;
+  border-top: 2px solid #94a3b8;
+}
+
+.firmas p {
+  margin: 0;
+  color: var(--azul);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.firmas small {
+  color: var(--texto-claro);
+}
+
+.pie-documento {
+  margin-top: 40px;
+  padding-top: 24px;
+  color: #94a3b8;
+  font-size: 12px;
+  text-align: center;
+  border-top: 1px solid var(--borde);
+}
+
+.pie-documento p {
+  margin: 4px 0;
+}
+
+@media (max-width: 640px) {
+  .constancia-cuerpo {
+    padding: 24px;
+  }
+
+  .datos-documento,
+  .firmas {
+    grid-template-columns: 1fr;
+  }
+}

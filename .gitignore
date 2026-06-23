@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+
+# Entornos locales
+venv/
+.venv/
+env/
+.env
+.env.*
+
+# Archivos privados o sensibles
+private/
+*.pfx
+*.p12
+*.pem
+*.key
+*.crt
+*.cer
+
+# Archivos generados por pruebas
+tmp_pdf_review/
+
+# Uploads del sistema: evidencias, tramites, certificados, SUNAT, etc.
+static/uploads/**
+!static/uploads/
+!static/uploads/**/
+!static/uploads/**/.gitkeep
+
+# Sistema operativo / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

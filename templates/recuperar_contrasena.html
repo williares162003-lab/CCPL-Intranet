@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ page_title }} | CCPL</title>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}?v=2">
+</head>
+<body>
+  <main class="login-page login-page-simple">
+    <section class="login-form-section">
+      <div class="login-card-wrap">
+        <div class="login-mobile-brand visible">
+          <img src="{{ url_for('static', filename='imagenes/escudo-ccpl.png') }}"
+               alt="Colegio de Contadores Publicos de Lambayeque"
+               class="login-mobile-logo" />
+          <p>Recuperacion de acceso</p>
+        </div>
+
+        <div class="login-card">
+          <div>
+            <h2>Recuperar contrasena</h2>
+            <p>Ingrese su matricula o correo registrado. Le enviaremos un codigo de 6 digitos.</p>
+          </div>
+
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              <div class="login-alerts">
+                {% for category, message in messages %}
+                  <div class="alerta {% if category == 'error' %}alerta-error{% else %}alerta-success{% endif %}">
+                    {{ message }}
+                  </div>
+                {% endfor %}
+              </div>
+            {% endif %}
+          {% endwith %}
+
+          <form class="login-form" method="post">
+            <div class="login-field">
+              <label for="identificador">Matricula o correo</label>
+              <div class="login-input-wrap">
+                <span class="material-symbols-outlined">alternate_email</span>
+                <input class="login-input" id="identificador" name="identificador"
+                       placeholder="Ej: 12455-A o correo@dominio.com" type="text" required />
+              </div>
+            </div>
+
+            <button class="boton boton-primario boton-ancho" type="submit">
+              <span>Enviar codigo</span>
+              <span class="material-symbols-outlined">mail</span>
+            </button>
+
+            <a href="{{ url_for('login') }}" class="login-link-centro">Volver al inicio de sesion</a>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

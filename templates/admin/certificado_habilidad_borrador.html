@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ page_title or 'Borrador certificado de habilidad' }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin/certificado_habilidad.css') }}?v=3">
+</head>
+<body>
+  <div class="certificado-toolbar">
+    <a class="boton-volver" href="{{ url_for('admin_tramites') }}">Volver a tramites</a>
+    <a class="boton-imprimir" href="{{ pdf_url }}" target="_blank" rel="noopener">Abrir PDF</a>
+    <button type="button" class="boton-imprimir" onclick="window.print()">Imprimir</button>
+  </div>
+
+  <main class="certificado-hoja certificado-hoja-real">
+    <img class="certificado-base" src="{{ url_for('static', filename='imagenes/certificado-habilidad-base.png') }}" alt="Plantilla de certificado">
+
+    <span class="certificado-overlay certificado-numero-chip">{{ certificado.numero }}</span>
+
+    <section class="certificado-overlay certificado-identidad">
+      <p>CPC. {{ certificado.nombre|upper }}</p>
+      <span>MATRICULA {{ certificado.matricula|upper }}</span>
+    </section>
+
+    <p class="certificado-overlay certificado-fecha">
+      {{ certificado.ciudad }}, {{ certificado.fecha_emision }}
+    </p>
+
+    <p class="certificado-overlay certificado-vigencia-real">
+      HABIL HASTA EL {{ certificado.habil_hasta }}
+    </p>
+  </main>
+</body>
+</html>

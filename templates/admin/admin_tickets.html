@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin/admin_tickets.css') }}?v=2">
+{% endblock %}
+
+{% block content %}
+<div class="pagina espaciado-medio">
+
+  <div>
+    <p class="etiqueta-seccion">Administracion</p>
+    <h2 class="titulo-pagina">Incidencias de soporte</h2>
+    <p class="texto-apoyo">Gestiona, responde y cierra los tickets enviados por los colegiados.</p>
+  </div>
+
+  <div class="filtros-pills">
+    <a href="{{ url_for('admin_tickets') }}" class="filtro-pill {% if not filtro %}activo{% endif %}">
+      Todos
+    </a>
+    {% for estado_opt in ['Abierto', 'En Revision', 'Cerrado'] %}
+    <a href="{{ url_for('admin_tickets', estado=estado_opt) }}" class="filtro-pill {% if filtro == estado_opt %}activo{% endif %}">
+      {{ estado_opt }}
+    </a>
+    {% endfor %}
+  </div>
+
+  <section class="tarjeta-tabla">
+    <div class="tarjeta-encabezado">
+      <p class="texto-secundario">{{ tickets|length }} incidencia(s) encontrada(s).</p>
+    </div>
+    <div class="tabla-responsive">
+      <table class="tabla-datos tabla-tickets">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Colegiado</th>
+            <th>Categoria</th>
+            <th>Incidencia</th>
+            <th class="centro">Estado</th>
+            <th>Respuesta / accion</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in tickets %}
+          <tr>
+            <td class="texto-pequeno texto-mono">#{{ t.id }}</td>
+            <td>
+              <p class="texto-principal">{{ t.nombre or t.matricula }}</p>
+              <p class="texto-pequeno texto-mono">{{ t.matricula }}</p>
+            </td>
+            <td class="capitalizar">{{ t.categoria }}</td>
+            <td>
+              <p class="texto-principal asunto-ticket">{{ t.asunto }}</p>
+              <p class="texto-pequeno descripcion-ticket">{{ t.descripcion }}</p>
+              <p class="texto-pequeno">Registrado: {{ t.creado_en }}</p>
+            </td>
+            <td class="centro">
+              <span class="estado-badge {% if t.estado == 'Cerrado' %}estado-cerrado{% elif t.estado[:2] == 'En' %}estado-revision{% else %}estado-abierto{% endif %}">
+                {{ 'En Revision' if t.estado == 'En atencion' else t.estado }}
+              </span>
+            </td>
+            <td>
+              {% if t.estado == 'Cerrado' %}
+                <div class="respuesta-ticket">
+                  <p class="texto-pequeno">Respuesta enviada</p>
+                  <p>{{ t.respuesta_admin or 'Sin respuesta registrada.' }}</p>
+                  {% if t.respondido_en %}
+                    <small>{{ t.respondido_en }}</small>
+                  {% endif %}
+                </div>
+                <form action="{{ url_for('admin_estado_ticket', tid=t.id) }}" method="POST" data-confirm="Desea reabrir este ticket?">
+                  <input type="hidden" name="estado" value="Abierto">
+                  <button type="submit" class="boton-mini boton-abrir">Reabrir</button>
+                </form>
+              {% else %}
+                <form action="{{ url_for('admin_estado_ticket', tid=t.id) }}" method="POST" class="ticket-form" data-confirm="Desea guardar la respuesta del ticket?">
+                  <div class="ticket-form-grid">
+                    <select name="estado" class="campo-formulario campo-ticket">
+                      <option value="Abierto" {% if t.estado == 'Abierto' %}selected{% endif %}>Abierto</option>
+                      <option value="En Revision" {% if t.estado[:2] == 'En' %}selected{% endif %}>En Revision</option>
+                      <option value="Cerrado">Cerrado</option>
+                    </select>
+                    <textarea name="respuesta" rows="3" class="campo-formulario campo-ticket" placeholder="Respuesta para el colegiado">{{ t.respuesta_admin or '' }}</textarea>
+                  </div>
+                  <button type="submit" class="boton-mini boton-primario">
+                    <span class="material-symbols-outlined">save</span>
+                    Guardar
+                  </button>
+                </form>
+              {% endif %}
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="6" class="centro texto-pequeno fila-vacia">No hay incidencias con este filtro.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+{% endblock %}

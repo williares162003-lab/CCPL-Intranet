@@ -1,0 +1,53 @@
+.asunto-ticket {
+  margin-bottom: 4px;
+}
+
+.descripcion-ticket {
+  max-width: 360px;
+  line-height: 1.45;
+  white-space: normal;
+}
+
+.tabla-tickets td:last-child,
+.tabla-tickets th:last-child {
+  min-width: 320px;
+}
+
+.ticket-form {
+  display: grid;
+  gap: 10px;
+}
+
+.ticket-form-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.campo-ticket {
+  min-height: 34px;
+  font-size: 13px;
+}
+
+textarea.campo-ticket {
+  min-height: 76px;
+  resize: vertical;
+}
+
+.respuesta-ticket {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 10px;
+  padding: 12px;
+  background: #f8fafc;
+  border: 1px solid var(--borde-claro);
+  border-radius: 8px;
+}
+
+.respuesta-ticket p {
+  margin: 0;
+  line-height: 1.45;
+}
+
+.respuesta-ticket small {
+  color: var(--texto-suave);
+}

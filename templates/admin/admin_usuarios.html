@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin/admin_colegiados.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="pagina">
+
+  <div class="encabezado-pagina">
+    <div>
+      <p class="etiqueta-seccion">Administracion</p>
+      <h2 class="titulo-pagina">Gestion de usuarios</h2>
+    </div>
+    <button onclick="abrirModalNuevoUsuario()" class="boton boton-primario">
+      <span class="material-symbols-outlined">person_add</span> Nuevo usuario
+    </button>
+  </div>
+
+  <section class="tarjeta-tabla">
+    <div class="tarjeta-encabezado">
+      {% set total_activos = usuarios | selectattr('activo', 'eq', 1) | list | length %}
+      <p class="texto-secundario">
+        Total registrados: <strong>{{ usuarios|length }}</strong> |
+        Activos: <strong>{{ total_activos }}</strong>
+      </p>
+    </div>
+    <div class="tabla-responsive">
+      <table class="tabla-datos">
+        <thead>
+          <tr>
+            <th>Usuario</th>
+            <th>Nombre</th>
+            <th class="centro">Rol</th>
+            <th class="centro">Estado</th>
+            <th class="centro">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for u in usuarios %}
+          <tr>
+            <td>
+              <p class="texto-principal">{{ u.matricula }}</p>
+              <p class="texto-pequeno">Contrasena registrada</p>
+            </td>
+            <td class="texto-secundario">{{ u.nombre }}</td>
+            <td class="centro texto-principal">{{ u.rol }}</td>
+            <td class="centro">
+              <span class="estado-badge {% if u.activo == 1 %}estado-vigente{% else %}estado-inactivo{% endif %}">
+                {% if u.activo == 1 %}Activo{% else %}Inactivo{% endif %}
+              </span>
+            </td>
+            <td class="centro">
+              <button
+                type="button"
+                class="boton-accion"
+                title="Editar"
+                data-edit-usuario
+                data-id="{{ u.id }}"
+                data-matricula="{{ u.matricula }}"
+                data-rol="{{ u.rol }}"
+                data-activo="{{ u.activo }}">
+                <span class="material-symbols-outlined">edit</span>
+              </button>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="5" class="centro texto-pequeno">Sin usuarios registrados.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<div id="modal-nuevo-usuario" class="modal-fondo hidden">
+  <div class="modal-caja ancho">
+    <div class="modal-barra"></div>
+    <div class="modal-cuerpo">
+      <div class="modal-header">
+        <div>
+          <p class="modal-subtitulo">Registro de usuario</p>
+          <h3 class="modal-titulo">Nuevo usuario</h3>
+        </div>
+        <button onclick="cerrarModalNuevoUsuario()" class="boton-cerrar">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <form action="{{ url_for('admin_nuevo_usuario') }}" method="POST" class="formulario" data-usuario-form data-confirm="Desea registrar este usuario?">
+        <div class="form-grid">
+          <div class="campo-completo">
+            <label class="etiqueta-campo">Usuario o matricula *</label>
+            <input name="matricula" type="text" required placeholder="Ej: 23456-C o admin2" class="campo-formulario" />
+            <p class="ayuda-campo">Para rol colegiado, la matricula debe existir. Para ponente, usa el mismo nombre registrado en el curso.</p>
+          </div>
+          <div>
+            <label class="etiqueta-campo">Rol *</label>
+            <select name="rol" required class="campo-formulario">
+              <option value="">Seleccione</option>
+              <option value="colegiado">colegiado</option>
+              <option value="ponente">ponente</option>
+              <option value="admin">admin</option>
+            </select>
+          </div>
+          <div>
+            <label class="etiqueta-campo">Estado *</label>
+            <select name="activo" required class="campo-formulario">
+              <option value="1">Activo</option>
+              <option value="0">Inactivo</option>
+            </select>
+          </div>
+          <div class="campo-completo">
+            <label class="etiqueta-campo">Contrasena *</label>
+            <input name="password" type="password" required placeholder="Contrasena inicial" class="campo-formulario" />
+          </div>
+        </div>
+
+        <div class="acciones-formulario">
+          <button type="button" onclick="cerrarModalNuevoUsuario()" class="boton boton-secundario">Cancelar</button>
+          <button type="submit" class="boton boton-primario">
+            <span class="material-symbols-outlined">save</span> Registrar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div id="modal-editar-usuario" class="modal-fondo hidden">
+  <div class="modal-caja ancho">
+    <div class="modal-barra"></div>
+    <div class="modal-cuerpo">
+      <div class="modal-header">
+        <div>
+          <p class="modal-subtitulo">Modificar usuario</p>
+          <h3 class="modal-titulo">Editar usuario</h3>
+        </div>
+        <button onclick="cerrarModalEditarUsuario()" class="boton-cerrar">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <form id="form-editar-usuario" method="POST" class="formulario" data-usuario-edit-form data-confirm="Desea guardar los cambios del usuario?">
+        <div class="form-grid">
+          <div class="campo-completo">
+            <label class="etiqueta-campo">Usuario o matricula</label>
+            <p id="edit-usuario-matricula" class="texto-principal"></p>
+          </div>
+          <div>
+            <label class="etiqueta-campo">Rol *</label>
+            <select id="edit-usuario-rol" name="rol" required class="campo-formulario">
+              <option value="colegiado">colegiado</option>
+              <option value="ponente">ponente</option>
+              <option value="admin">admin</option>
+            </select>
+          </div>
+          <div>
+            <label class="etiqueta-campo">Estado *</label>
+            <select id="edit-usuario-activo" name="activo" required class="campo-formulario">
+              <option value="1">Activo</option>
+              <option value="0">Inactivo</option>
+            </select>
+          </div>
+          <div class="campo-completo">
+            <label class="etiqueta-campo">Nueva contrasena</label>
+            <input name="password" type="password" placeholder="Dejar vacio para mantener la actual" class="campo-formulario" />
+          </div>
+        </div>
+
+        <div class="acciones-formulario">
+          <button type="button" onclick="cerrarModalEditarUsuario()" class="boton boton-secundario">Cancelar</button>
+          <button type="submit" class="boton boton-primario">
+            <span class="material-symbols-outlined">save</span> Guardar cambios
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/admin/admin_usuarios.js') }}"></script>
+{% endblock %}

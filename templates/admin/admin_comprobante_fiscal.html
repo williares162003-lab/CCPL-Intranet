@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/colegiado/estado_cuenta.css') }}?v=4">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin/admin_cuotas.css') }}?v=6">
+{% endblock %}
+
+{% block content %}
+<div class="pagina espaciado">
+  <section class="encabezado-con-panel no-print">
+    <div>
+      <p class="etiqueta-seccion">Facturacion</p>
+      <h2 class="titulo-pagina">Comprobante fiscal</h2>
+      <p class="texto-apoyo">Documento preparado para emision electronica SUNAT.</p>
+    </div>
+    <div class="fila-wrap">
+      <a href="{{ url_for('admin_facturacion') }}" class="boton boton-secundario">
+        <span class="material-symbols-outlined">arrow_back</span> Facturacion
+      </a>
+      {% if comprobante.estado in ['Pendiente', 'Rechazado'] %}
+      <form action="{{ url_for('admin_enviar_comprobante_fiscal', fiscal_id=comprobante.id) }}"
+            method="POST"
+            data-confirm="Desea enviar este comprobante a SUNAT beta?">
+        <button type="submit" class="boton boton-primario">
+          <span class="material-symbols-outlined">send</span> Enviar SUNAT
+        </button>
+      </form>
+      {% endif %}
+      <button type="button" onclick="window.print()" class="boton boton-primario">
+        <span class="material-symbols-outlined">print</span> Imprimir
+      </button>
+    </div>
+  </section>
+
+  <article class="fiscal-documento">
+    <header class="fiscal-header">
+      <div class="fiscal-emisor">
+        <img src="{{ url_for('static', filename='imagenes/escudo-ccpl.png') }}"
+             alt="CCPL" class="fiscal-logo">
+        <div>
+          <h2>{{ config_facturacion.razon_social or 'Colegio de Contadores Publicos de Lambayeque' }}</h2>
+          <p>{{ config_facturacion.nombre_comercial or 'CCPL' }}</p>
+          <p>{{ config_facturacion.direccion or 'Lambayeque' }}</p>
+        </div>
+      </div>
+      <div class="fiscal-serie-box">
+        <p>RUC {{ config_facturacion.ruc or '-' }}</p>
+        <h1>{{ comprobante.tipo_comprobante|upper }} DE VENTA ELECTRONICA</h1>
+        <strong>{{ numero_comprobante }}</strong>
+      </div>
+    </header>
+
+    <section class="fiscal-meta">
+      <div>
+        <span>Fecha de emision</span>
+        <strong>{{ comprobante.fecha_emision }}</strong>
+      </div>
+      <div>
+        <span>Moneda</span>
+        <strong>{{ comprobante.moneda or 'PEN' }}</strong>
+      </div>
+      <div>
+        <span>Tipo SUNAT</span>
+        <strong>{{ tipo_codigo_sunat }}</strong>
+      </div>
+      <div>
+        <span>Estado</span>
+        <strong>{{ comprobante.estado }}</strong>
+      </div>
+    </section>
+
+    <section class="fiscal-cliente">
+      <p class="fiscal-section-title">Datos del adquirente o usuario</p>
+      <div class="fiscal-info-grid">
+        <p><span>Senor(es)</span><strong>{{ comprobante.cliente_nombre }}</strong></p>
+        <p><span>{{ comprobante.tipo_documento_cliente }}</span><strong>{{ comprobante.numero_documento_cliente }}</strong></p>
+        <p><span>Matricula</span><strong>{{ comprobante.matricula }}</strong></p>
+        <p><span>Correo</span><strong>{{ comprobante.cliente_correo or comprobante.correo or '-' }}</strong></p>
+      </div>
+    </section>
+
+    <section class="fiscal-detalle">
+      <table>
+        <thead>
+          <tr>
+            <th>Descripcion</th>
+            <th class="centro">Cant.</th>
+            <th class="derecha">Valor unit.</th>
+            <th class="derecha">Subtotal</th>
+            <th class="derecha">IGV</th>
+            <th class="derecha">Importe</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for d in detalle %}
+          <tr>
+            <td>{{ d.descripcion }}</td>
+            <td class="centro">{{ "%.2f"|format(d.cantidad or 0) }}</td>
+            <td class="derecha">S/ {{ "%.2f"|format(d.valor_unitario or 0) }}</td>
+            <td class="derecha">S/ {{ "%.2f"|format(d.subtotal or 0) }}</td>
+            <td class="derecha">S/ {{ "%.2f"|format(d.igv or 0) }}</td>
+            <td class="derecha fiscal-importe">S/ {{ "%.2f"|format(d.total or 0) }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="6" class="centro texto-pequeno">Sin detalle registrado.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+
+    <section class="fiscal-resumen">
+      <div class="fiscal-observacion">
+        <p class="fiscal-section-title">Informacion SUNAT</p>
+        <p>
+          Estado:
+          <span class="estado-badge {% if comprobante.estado == 'Anulado' %}estado-inactivo{% elif comprobante.estado == 'Aceptado' %}estado-pagado{% elif comprobante.estado == 'Rechazado' %}estado-vencida{% else %}estado-pendiente{% endif %}">
+            {{ comprobante.estado }}
+          </span>
+        </p>
+        <p>CDR / Ticket: <strong>{{ comprobante.ticket_sunat or 'Pendiente de envio' }}</strong></p>
+        <p>{{ comprobante.cdr_descripcion or comprobante.cdr_estado or 'Documento preparado para envio electronico.' }}</p>
+        {% if comprobante.xml_archivo %}
+        <a href="{{ url_for('static', filename=comprobante.xml_archivo) }}" target="_blank" class="no-print">
+          Ver XML firmado
+        </a>
+        {% endif %}
+      </div>
+      <div class="fiscal-totales">
+        <p><span>Op. gravada / inafecta</span><strong>S/ {{ "%.2f"|format(comprobante.subtotal or 0) }}</strong></p>
+        <p><span>IGV</span><strong>S/ {{ "%.2f"|format(comprobante.igv or 0) }}</strong></p>
+        <p class="fiscal-total"><span>Importe total</span><strong>S/ {{ "%.2f"|format(comprobante.total or 0) }}</strong></p>
+      </div>
+    </section>
+
+    <footer class="fiscal-footer">
+      <div class="fiscal-qr">
+        <img src="{{ qr_fiscal }}" alt="Codigo QR del comprobante">
+      </div>
+      <div class="fiscal-footer-text">
+        <p>
+          Representacion impresa de la {{ comprobante.tipo_comprobante|lower }} de venta electronica.
+          Consulte el comprobante con los datos de serie, numero, RUC emisor y fecha de emision.
+        </p>
+        <p>Hash: <strong>{{ comprobante.codigo_hash }}</strong></p>
+        <p>Documento generado por la Intranet CCPL. Modo de envio: {{ config_facturacion.modo_envio or 'SUNAT_BETA' }}.</p>
+      </div>
+    </footer>
+
+    {% if comprobante.estado != 'Anulado' %}
+    <section class="comprobante-detalle no-print">
+      <details class="anular-detalle">
+        <summary class="boton-mini boton-rechazar">Anular comprobante fiscal</summary>
+        <form action="{{ url_for('admin_anular_comprobante_fiscal', fiscal_id=comprobante.id) }}"
+              method="POST"
+              class="anular-form"
+              data-confirm="Desea anular este comprobante fiscal?">
+          <textarea name="motivo" rows="3" required class="campo-formulario"
+                    placeholder="Motivo de anulacion"></textarea>
+          <button type="submit" class="boton-mini boton-rechazar">Confirmar anulacion</button>
+        </form>
+      </details>
+    </section>
+    {% else %}
+    <section class="comprobante-detalle">
+      <div class="pasarela-aviso">
+        <span class="material-symbols-outlined">block</span>
+        <div>
+          <p class="texto-principal">Comprobante fiscal anulado</p>
+          <p class="texto-secundario">{{ comprobante.motivo_anulacion }}</p>
+          <p class="texto-pequeno">
+            {{ comprobante.anulado_por_nombre or '-' }}
+            | {{ comprobante.anulado_por_matricula or '-' }}
+            | {{ comprobante.anulado_en or '' }}
+          </p>
+        </div>
+      </div>
+    </section>
+    {% endif %}
+  </article>
+
+  <section class="tarjeta-tabla no-print">
+    <div class="tarjeta-encabezado">
+      <div>
+        <h3 class="titulo-seccion sin-margen">Auditoria SUNAT</h3>
+        <p class="texto-secundario">Registro de emision, envio y anulaciones.</p>
+      </div>
+    </div>
+    <div class="tabla-responsive">
+      <table class="tabla-datos">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Accion</th>
+            <th>Estado</th>
+            <th>Mensaje</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for log in logs %}
+          <tr>
+            <td class="texto-pequeno">{{ log.creado_en }}</td>
+            <td>{{ log.accion }}</td>
+            <td>
+              <span class="estado-badge {% if log.estado == 'Anulado' %}estado-inactivo{% elif log.estado == 'Aceptado' %}estado-pagado{% else %}estado-pendiente{% endif %}">
+                {{ log.estado }}
+              </span>
+            </td>
+            <td>{{ log.mensaje }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="4" class="centro texto-pequeno">Sin logs registrados.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+{% endblock %}

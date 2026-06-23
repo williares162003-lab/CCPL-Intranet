@@ -1,0 +1,141 @@
+.validar-firma {
+  min-height: 100%;
+}
+
+.validacion-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(360px, 1.1fr);
+  align-items: start;
+  gap: 14px;
+}
+
+.firma-datos-validacion {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.validacion-resultado-card {
+  gap: 14px;
+}
+
+.validacion-estado {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 8px;
+  border: 1px solid #dbeafe;
+  background: #f8fbff;
+}
+
+.validacion-estado .material-symbols-outlined {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.validacion-estado h3,
+.validacion-estado p {
+  margin: 0;
+}
+
+.validacion-estado.ok {
+  border-color: #a7f3d0;
+  background: #ecfdf5;
+}
+
+.validacion-estado.ok .material-symbols-outlined,
+.validacion-estado.ok h3 {
+  color: #047857;
+}
+
+.validacion-estado.error {
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+
+.validacion-estado.error .material-symbols-outlined,
+.validacion-estado.error h3 {
+  color: #b91c1c;
+}
+
+.firmas-lista {
+  display: grid;
+  gap: 10px;
+}
+
+.firma-validada {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--linea);
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.firma-validada-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.firma-validada-header strong {
+  color: var(--azul-profundo);
+}
+
+.firma-detalle {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+
+.firma-detalle div {
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid #e4edf7;
+  border-radius: 8px;
+  background: #f8fbff;
+}
+
+.firma-detalle dt {
+  margin: 0 0 4px;
+  color: var(--texto-claro);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.firma-detalle dd {
+  margin: 0;
+  color: var(--azul-profundo);
+  font-size: 13px;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.nota-validacion {
+  margin: 0;
+  padding: 12px;
+  color: #92400e;
+  border: 1px solid #fde68a;
+  border-radius: 8px;
+  background: #fffbeb;
+}
+
+@media (max-width: 1040px) {
+  .validacion-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .firma-datos-validacion,
+  .firma-detalle {
+    grid-template-columns: 1fr;
+  }
+}

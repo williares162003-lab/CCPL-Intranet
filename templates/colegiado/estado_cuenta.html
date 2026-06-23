@@ -1,0 +1,320 @@
+{% extends "base.html" %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/colegiado/estado_cuenta.css') }}?v=3">
+{% endblock %}
+
+{% block content %}
+<div class="pagina espaciado">
+  <section>
+    <p class="etiqueta-seccion">Finanzas</p>
+    <h2 class="titulo-pagina">Estado de cuenta</h2>
+    <p class="texto-apoyo">Consulta tus movimientos, cuotas y pagos pendientes.</p>
+  </section>
+
+  <div class="print-header">
+    <h1>Colegio de Contadores Públicos de Lambayeque</h1>
+    <p>Estado de cuenta - {{ profile.nombre }} ({{ profile.matricula }})</p>
+    <small>Generado el {{ today }}</small>
+  </div>
+
+  <section class="grid-tres">
+    <article class="resumen-card">
+      <p class="resumen-label">Deuda pendiente total</p>
+      <h3 class="resumen-valor">{{ deuda_total }}</h3>
+    </article>
+    <article class="resumen-card">
+      <p class="resumen-label">Último pago realizado</p>
+      <h3 class="resumen-valor">{{ ultimo_pago }}</h3>
+    </article>
+    <article class="resumen-card">
+      <p class="resumen-label">Próximo vencimiento</p>
+      <h3 class="resumen-valor">{{ proximo_vencimiento }}</h3>
+    </article>
+  </section>
+
+  <section class="tarjeta-tabla no-print">
+    <div class="tarjeta-encabezado">
+      <div>
+        <h3 class="titulo-seccion sin-margen">Medios de pago disponibles</h3>
+        <p class="texto-secundario">Usa uno de estos medios para cancelar cuotas pendientes.</p>
+      </div>
+    </div>
+    <div class="medios-pago-grid">
+      {% for medio in medios_pago %}
+      <article class="medio-pago-card">
+        <div class="medio-pago-icono">
+          <span class="material-symbols-outlined">account_balance_wallet</span>
+        </div>
+        <div>
+          <p class="texto-principal">{{ medio.nombre }}</p>
+          <p class="texto-secundario">{{ medio.descripcion or '-' }}</p>
+          <p class="texto-mono">{{ medio.numero_cuenta }}</p>
+          <p class="texto-pequeno">Titular: {{ medio.titular }}</p>
+        </div>
+      </article>
+      {% else %}
+      <p class="mensaje-vacio">Aun no hay medios de pago activos.</p>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="tarjeta-tabla">
+    <div class="tarjeta-encabezado fila-separada">
+      <div>
+        <h3 class="titulo-seccion sin-margen">Movimientos</h3>
+        <p class="texto-secundario">Resumen de cuotas y servicios facturados.</p>
+      </div>
+      <div class="fila-wrap no-print">
+        <button onclick="window.print()" class="boton boton-secundario">
+          <span class="material-symbols-outlined">print</span> Imprimir
+        </button>
+        <button onclick="window.print()" class="boton boton-primario">
+          <span class="material-symbols-outlined">picture_as_pdf</span> Descargar PDF
+        </button>
+      </div>
+    </div>
+    <div class="tabla-responsive">
+      <table class="tabla-datos">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Concepto</th>
+            <th class="derecha">Monto (S/)</th>
+            <th class="centro">Estado</th>
+            <th class="centro no-print">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in account_movements %}
+          <tr>
+            <td>{{ row.fecha }}</td>
+            <td>{{ row.concepto }}</td>
+            <td class="derecha texto-principal">{{ row.monto }}</td>
+            <td class="centro">
+              <span class="estado-badge {% if row.estado == 'Pagado' %}estado-pagado{% else %}estado-pendiente{% endif %}">{{ row.estado }}</span>
+            </td>
+            <td class="centro no-print">
+              {% if row.estado == 'Pendiente' %}
+                <div class="acciones-pago">
+                  {% if mercado_pago.habilitado %}
+                    <form action="{{ url_for('colegiado_crear_pago_mercado_pago', cuota_id=row.id) }}"
+                          method="POST"
+                          data-confirm="Desea iniciar el pago con Mercado Pago?">
+                      <button type="submit" class="boton-mini boton-primario">
+                        Mercado Pago
+                      </button>
+                    </form>
+                  {% else %}
+                    <button type="button" class="boton-mini boton-secundario" disabled>
+                      Mercado Pago
+                    </button>
+                  {% endif %}
+                  <a href="{{ url_for('colegiado_pasarela_demo', cuota_id=row.id) }}"
+                     class="boton-mini boton-secundario">
+                    Pago interno
+                  </a>
+                {% if row.evidencia %}
+                <span class="estado-badge estado-pendiente">En revision</span>
+                {% elif medios_pago %}
+                <button
+                  type="button"
+                  class="boton-mini boton-secundario"
+                  data-registrar-evidencia
+                  data-cuota-id="{{ row.id }}"
+                  data-concepto="{{ row.concepto }}"
+                  data-monto="{{ row.monto }}">
+                  Voucher
+                </button>
+                {% else %}
+                <span class="texto-pequeno">Sin medios</span>
+                {% endif %}
+                </div>
+              {% else %}
+                {% if row.comprobante %}
+                <a href="{{ url_for('colegiado_comprobante_pago', comprobante_id=row.comprobante.id) }}"
+                   class="boton-mini boton-secundario">
+                  Ver comprobante
+                </a>
+                {% else %}
+                <span class="texto-pequeno">Pagado</span>
+                {% endif %}
+              {% endif %}
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="5" class="centro texto-pequeno">Sin movimientos registrados.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="tarjeta-tabla no-print">
+    <div class="tarjeta-encabezado">
+      <div>
+        <h3 class="titulo-seccion sin-margen">Comprobantes emitidos</h3>
+        <p class="texto-secundario">Comprobantes internos generados por pagos registrados en el sistema.</p>
+      </div>
+    </div>
+    <div class="tabla-responsive">
+      <table class="tabla-datos">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Comprobante</th>
+            <th>Concepto</th>
+            <th>Metodo</th>
+            <th class="derecha">Total</th>
+            <th class="centro">Accion</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for comp in comprobantes_pago %}
+          <tr>
+            <td>{{ comp.fecha_emision }}</td>
+            <td class="texto-mono">{{ comp.serie }}-{{ "%08d"|format(comp.numero or 0) }}</td>
+            <td>{{ comp.concepto }}</td>
+            <td>{{ comp.metodo }}</td>
+            <td class="derecha texto-principal">S/ {{ "%.2f"|format(comp.total or 0) }}</td>
+            <td class="centro">
+              <a href="{{ url_for('colegiado_comprobante_pago', comprobante_id=comp.id) }}"
+                 class="boton-link">
+                Ver
+              </a>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="6" class="centro texto-pequeno">Aun no tienes comprobantes generados.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="tarjeta-tabla no-print">
+    <div class="tarjeta-encabezado">
+      <div>
+        <h3 class="titulo-seccion sin-margen">Evidencias enviadas</h3>
+        <p class="texto-secundario">Seguimiento de pagos registrados para revision.</p>
+      </div>
+    </div>
+    <div class="tabla-responsive">
+      <table class="tabla-datos">
+        <thead>
+          <tr>
+            <th>Fecha pago</th>
+            <th>Concepto</th>
+            <th>Medio</th>
+            <th>Operacion</th>
+            <th class="centro">Archivo</th>
+            <th class="derecha">Monto</th>
+            <th class="centro">Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ev in evidencias_pago %}
+          <tr>
+            <td>{{ ev.fecha_pago }}</td>
+            <td class="texto-secundario">{{ ev.concepto }}</td>
+            <td>{{ ev.medio_pago }}</td>
+            <td class="texto-mono">{{ ev.numero_operacion }}</td>
+            <td class="centro">
+              {% if ev.archivo %}
+              <a href="{{ url_for('static', filename=ev.archivo) }}" target="_blank" rel="noopener" class="boton-link">
+                Ver
+              </a>
+              {% else %}
+              <span class="texto-pequeno">-</span>
+              {% endif %}
+            </td>
+            <td class="derecha texto-principal">S/ {{ "%.2f"|format(ev.monto or 0) }}</td>
+            <td class="centro">
+              <span class="estado-badge {% if ev.estado == 'Aprobado' %}estado-pagado{% elif ev.estado == 'Rechazado' %}estado-inactivo{% else %}estado-pendiente{% endif %}">
+                {{ ev.estado }}
+              </span>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="7" class="centro texto-pequeno">Aun no registraste evidencias de pago.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<div id="modal-evidencia-pago" class="modal-fondo hidden">
+  <div class="modal-caja">
+    <div class="modal-barra"></div>
+    <div class="modal-cuerpo">
+      <div class="modal-header">
+        <div>
+          <p class="modal-subtitulo">Estado de cuenta</p>
+          <h3 class="modal-titulo">Registrar evidencia</h3>
+        </div>
+        <button type="button" onclick="cerrarModalEvidenciaPago()" class="boton-cerrar">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <form action="{{ url_for('colegiado_registrar_evidencia_pago') }}" method="POST" enctype="multipart/form-data" class="formulario" data-evidencia-pago-form data-confirm="Desea registrar esta evidencia de pago?">
+        <input id="evidencia-cuota-id" type="hidden" name="cuota_id">
+
+        <div>
+          <label class="etiqueta-campo">Cuota</label>
+          <p id="evidencia-concepto" class="texto-principal"></p>
+        </div>
+
+        <div class="form-grid">
+          <div>
+            <label class="etiqueta-campo">Medio de pago *</label>
+            <select name="medio_pago_id" required class="campo-formulario">
+              <option value="">Seleccione un medio</option>
+              {% for medio in medios_pago %}
+              <option value="{{ medio.id }}">{{ medio.nombre }} - {{ medio.numero_cuenta }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <label class="etiqueta-campo">Fecha de pago *</label>
+            <input name="fecha_pago" type="date" required class="campo-formulario">
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div>
+            <label class="etiqueta-campo">Numero de operacion *</label>
+            <input name="numero_operacion" required class="campo-formulario" placeholder="Ej: 000123456">
+          </div>
+          <div>
+            <label class="etiqueta-campo">Monto pagado *</label>
+            <input id="evidencia-monto" name="monto" type="number" step="0.01" min="0.01" required class="campo-formulario">
+          </div>
+        </div>
+
+        <div>
+          <label class="etiqueta-campo">Voucher o evidencia *</label>
+          <input name="archivo_evidencia" type="file" required accept=".pdf,.jpg,.jpeg,.png,.webp" class="campo-formulario">
+          <p class="texto-pequeno">Formatos permitidos: PDF, JPG, PNG o WEBP.</p>
+        </div>
+
+        <div>
+          <label class="etiqueta-campo">Comentario</label>
+          <textarea name="comentario" rows="3" class="campo-formulario" placeholder="Detalle opcional del pago"></textarea>
+        </div>
+
+        <div class="acciones-formulario">
+          <button type="button" onclick="cerrarModalEvidenciaPago()" class="boton boton-secundario">Cancelar</button>
+          <button type="submit" class="boton boton-primario">
+            <span class="material-symbols-outlined">save</span> Registrar evidencia
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/colegiado/estado_cuenta.js') }}?v=3"></script>
+{% endblock %}

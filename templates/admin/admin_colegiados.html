@@ -1,0 +1,287 @@
+{% extends "base.html" %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin/admin_colegiados.css') }}?v=3">
+{% endblock %}
+
+{% block content %}
+<div class="pagina">
+
+  <div class="encabezado-pagina">
+    <div>
+      <p class="etiqueta-seccion">Administracion</p>
+      <h2 class="titulo-pagina">Gestion de colegiados</h2>
+    </div>
+    <div class="acciones-colegiados no-print">
+      <a href="{{ url_for('admin_colegiados_exportar', q=busqueda, especialidad=especialidad_filtro, estado=estado_filtro, reconocimiento=reconocimiento_filtro) }}"
+         class="boton boton-secundario">
+        <span class="material-symbols-outlined">download</span> Exportar Excel
+      </a>
+      <button type="button" onclick="window.print()" class="boton boton-secundario">
+        <span class="material-symbols-outlined">print</span> Imprimir
+      </button>
+      <button onclick="abrirModalNuevo()" class="boton boton-primario">
+        <span class="material-symbols-outlined">person_add</span> Nuevo colegiado
+      </button>
+    </div>
+  </div>
+
+  <form method="GET" class="filtro-formulario filtro-colegiados no-print">
+    <div class="filtro-campo filtro-busqueda">
+      <label class="etiqueta-campo">Buscar</label>
+      <input name="q" type="search" value="{{ busqueda }}"
+             placeholder="Nombre, matricula, DNI, correo o direccion"
+             class="campo-formulario" />
+    </div>
+    <div class="filtro-campo">
+      <label class="etiqueta-campo">Especialidad</label>
+      <select name="especialidad" class="campo-formulario">
+        <option value="">Todas</option>
+        {% for e in especialidades %}
+        <option value="{{ e.id }}" {% if especialidad_filtro|string == e.id|string %}selected{% endif %}>
+          {{ e.nombre }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="filtro-campo filtro-estado">
+      <label class="etiqueta-campo">Estado</label>
+      <select name="estado" class="campo-formulario">
+        <option value="">Todos</option>
+        <option value="Vigente" {% if estado_filtro == "Vigente" %}selected{% endif %}>Vigente</option>
+        <option value="Inactivo" {% if estado_filtro == "Inactivo" %}selected{% endif %}>Inactivo</option>
+      </select>
+    </div>
+    <div class="filtro-campo filtro-estado">
+      <label class="etiqueta-campo">Reconocimiento</label>
+      <select name="reconocimiento" class="campo-formulario">
+        <option value="">Todos</option>
+        <option value="30" {% if reconocimiento_filtro == "30" %}selected{% endif %}>Proximos 30 anios</option>
+      </select>
+    </div>
+    <button type="submit" class="boton boton-oscuro">
+      <span class="material-symbols-outlined">filter_list</span> Filtrar
+    </button>
+    {% if busqueda or especialidad_filtro or estado_filtro or reconocimiento_filtro %}
+    <a href="{{ url_for('admin_colegiados') }}" class="boton boton-secundario">Limpiar</a>
+    {% endif %}
+  </form>
+
+  <section class="tarjeta-tabla">
+    <div class="tarjeta-encabezado">
+      <p class="texto-secundario">Total encontrados: <strong>{{ colegiados|length }}</strong></p>
+      {% if especialidad_filtro %}
+      <span class="filtro-activo">Especialidad: {{ especialidad_filtro_nombre or especialidad_filtro }}</span>
+      {% endif %}
+      {% if reconocimiento_filtro == "30" %}
+      <span class="filtro-activo alerta">Reconocimiento: cumplen 30 anios en 12 meses</span>
+      {% endif %}
+    </div>
+    <div class="tabla-responsive">
+      <table class="tabla-datos tabla-colegiados">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Matricula</th>
+            <th>Especialidad</th>
+            <th>Direccion</th>
+            <th>30 anios</th>
+            <th class="centro">EPC</th>
+            <th class="centro">Estado</th>
+            <th class="centro no-print">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in colegiados %}
+          <tr>
+            <td>
+              <p class="texto-principal">{{ c.nombre }}</p>
+              <p class="texto-pequeno">{{ c.correo }}</p>
+              <p class="texto-pequeno texto-mono">DNI {{ c.documento or "-" }}</p>
+            </td>
+            <td class="texto-mono texto-principal">{{ c.matricula }}</td>
+            <td class="texto-secundario">{{ c.especialidad }}</td>
+            <td class="texto-secundario">{{ c.direccion or "Sin registrar" }}</td>
+            <td>
+              {% if c.fecha_colegiatura %}
+              <p class="texto-pequeno">Colegiado desde {{ c.fecha_colegiatura }}</p>
+              <p class="texto-principal">{{ c.fecha_reconocimiento_30 }}</p>
+                {% if c.dias_para_30 is not none and c.dias_para_30 >= 0 and c.dias_para_30 <= 365 %}
+                <span class="estado-badge estado-revision">Preparar reconocimiento</span>
+                {% endif %}
+              {% else %}
+              <span class="texto-pequeno">Sin fecha</span>
+              {% endif %}
+            </td>
+            <td class="centro texto-principal">{{ c.epc_points }}</td>
+            <td class="centro">
+              <span class="estado-badge {% if c.estado == 'Vigente' %}estado-vigente{% else %}estado-inactivo{% endif %}">
+                {{ c.estado }}
+              </span>
+            </td>
+            <td class="centro no-print">
+              <div class="acciones-tabla">
+                <button onclick="abrirModalEditar({{ c.id }}, {{ c.nombre|tojson }}, {{ (c.especialidad_id or '')|tojson }}, {{ (c.direccion or '')|tojson }}, {{ c.correo|tojson }}, {{ (c.telefono or '')|tojson }}, {{ c.epc_points }}, {{ (c.vigencia or '')|tojson }}, {{ ((c.fecha_colegiatura or '')|string)|tojson }})"
+                  class="boton-accion" title="Editar">
+                  <span class="material-symbols-outlined">edit</span>
+                </button>
+                <form action="{{ url_for('admin_toggle_colegiado', cid=c.id) }}" method="POST" data-confirm="Desea cambiar el estado de este colegiado?">
+                  <button type="submit" class="boton-accion" title="{% if c.estado == 'Vigente' %}Desactivar{% else %}Activar{% endif %}">
+                    <span class="material-symbols-outlined">{% if c.estado == 'Vigente' %}toggle_on{% else %}toggle_off{% endif %}</span>
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="8" class="centro texto-pequeno">Sin colegiados registrados para el filtro seleccionado.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<div id="modal-nuevo" class="modal-fondo hidden">
+  <div class="modal-caja ancho">
+    <div class="modal-barra"></div>
+    <div class="modal-cuerpo">
+      <div class="modal-header">
+        <div>
+          <p class="modal-subtitulo">Registro de colegiado</p>
+          <h3 class="modal-titulo">Nuevo colegiado</h3>
+        </div>
+        <button onclick="cerrarModalNuevo()" class="boton-cerrar">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <form action="{{ url_for('admin_nuevo_colegiado') }}" method="POST" class="formulario" data-confirm="Desea registrar este colegiado?">
+        <div class="form-grid">
+          <div class="campo-completo">
+            <label class="etiqueta-campo">Nombre completo *</label>
+            <input name="nombre" type="text" required placeholder="Apellidos y nombres" class="campo-formulario" />
+          </div>
+          <div>
+            <label class="etiqueta-campo">Matricula *</label>
+            <input name="matricula" type="text" required placeholder="12345-A" class="campo-formulario" />
+          </div>
+          <div>
+            <label class="etiqueta-campo">DNI *</label>
+            <input name="documento" type="text" required placeholder="12345678" class="campo-formulario" />
+          </div>
+          <div class="campo-completo">
+            <label class="etiqueta-campo">Especialidad *</label>
+            <select name="especialidad_id" required class="campo-formulario">
+              <option value="">Seleccione especialidad</option>
+              {% for e in especialidades %}
+              <option value="{{ e.id }}">{{ e.nombre }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="campo-completo">
+            <label class="etiqueta-campo">Direccion *</label>
+            <input name="direccion" type="text" required
+                   placeholder="Av. / Calle / Distrito" class="campo-formulario" />
+          </div>
+          <div>
+            <label class="etiqueta-campo">Fecha de colegiatura</label>
+            <input name="fecha_colegiatura" type="date" class="campo-formulario" />
+            <p class="ayuda-campo">Sirve para alertar un anio antes de cumplir 30 anios.</p>
+          </div>
+          <div>
+            <label class="etiqueta-campo">Correo electronico *</label>
+            <input name="correo" type="email" required placeholder="correo@ejemplo.com" class="campo-formulario" />
+          </div>
+          <div>
+            <label class="etiqueta-campo">Telefono</label>
+            <input name="telefono" type="text" placeholder="987654321" class="campo-formulario" />
+          </div>
+          <div class="campo-completo">
+            <label class="etiqueta-campo">Contrasena de acceso *</label>
+            <input name="password" type="password" required placeholder="Contrasena inicial del colegiado" class="campo-formulario" />
+            <p class="ayuda-campo">El colegiado usara su matricula y esta contrasena para ingresar.</p>
+          </div>
+        </div>
+
+        <div class="acciones-formulario">
+          <button type="button" onclick="cerrarModalNuevo()" class="boton boton-secundario">Cancelar</button>
+          <button type="submit" class="boton boton-primario">
+            <span class="material-symbols-outlined">save</span> Registrar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div id="modal-editar" class="modal-fondo hidden">
+  <div class="modal-caja ancho">
+    <div class="modal-barra"></div>
+    <div class="modal-cuerpo">
+      <div class="modal-header">
+        <div>
+          <p class="modal-subtitulo">Modificar datos</p>
+          <h3 class="modal-titulo">Editar colegiado</h3>
+        </div>
+        <button onclick="cerrarModalEditar()" class="boton-cerrar">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <form id="form-editar" method="POST" class="formulario" data-confirm="Desea guardar los cambios del colegiado?">
+        <div class="form-grid">
+          <div class="campo-completo">
+            <label class="etiqueta-campo">Nombre completo</label>
+            <input id="edit-nombre" name="nombre" type="text" required class="campo-formulario" />
+          </div>
+          <div class="campo-completo">
+            <label class="etiqueta-campo">Especialidad</label>
+            <select id="edit-especialidad-id" name="especialidad_id" required class="campo-formulario">
+              <option value="">Seleccione especialidad</option>
+              {% for e in especialidades %}
+              <option value="{{ e.id }}">{{ e.nombre }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="campo-completo">
+            <label class="etiqueta-campo">Direccion</label>
+            <input id="edit-direccion" name="direccion" type="text" required class="campo-formulario" />
+          </div>
+          <div>
+            <label class="etiqueta-campo">Correo electronico</label>
+            <input id="edit-correo" name="correo" type="email" class="campo-formulario" />
+          </div>
+          <div>
+            <label class="etiqueta-campo">Telefono</label>
+            <input id="edit-telefono" name="telefono" type="text" class="campo-formulario" />
+          </div>
+          <div>
+            <label class="etiqueta-campo">Fecha de colegiatura</label>
+            <input id="edit-fecha-colegiatura" name="fecha_colegiatura" type="date" class="campo-formulario" />
+          </div>
+          <div>
+            <label class="etiqueta-campo">Puntos EPC</label>
+            <input id="edit-epc" name="epc_points" type="number" min="0" max="999" class="campo-formulario" />
+          </div>
+          <div>
+            <label class="etiqueta-campo">Vigencia hasta</label>
+            <input id="edit-vigencia" name="vigencia" type="text" placeholder="31 de Diciembre de 2025" class="campo-formulario" />
+          </div>
+        </div>
+
+        <div class="acciones-formulario">
+          <button type="button" onclick="cerrarModalEditar()" class="boton boton-secundario">Cancelar</button>
+          <button type="submit" class="boton boton-primario">
+            <span class="material-symbols-outlined">save</span> Guardar cambios
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/admin/admin_colegiados.js') }}?v=3"></script>
+{% endblock %}

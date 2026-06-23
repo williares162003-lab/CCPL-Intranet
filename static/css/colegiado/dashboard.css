@@ -1,0 +1,209 @@
+.fecha-card {
+  min-width: 260px;
+  padding: 16px 20px;
+}
+
+.fecha-linea {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+  color: var(--azul);
+  font-weight: 700;
+}
+
+.fecha-linea .material-symbols-outlined {
+  color: var(--dorado);
+}
+
+.resumen-card {
+  padding: 24px;
+}
+
+.resumen-card .resumen-label {
+  color: var(--texto-claro);
+}
+
+.resumen-valor {
+  margin: 12px 0 0;
+  color: var(--azul);
+  font-size: 30px;
+  font-weight: 800;
+}
+
+.resumen-texto {
+  margin: 16px 0 0;
+  color: var(--texto-suave);
+  font-size: 14px;
+}
+
+.resumen-verde {
+  color: #065f46;
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+}
+
+.resumen-verde .resumen-label,
+.resumen-verde .resumen-valor,
+.resumen-verde .resumen-texto {
+  color: #065f46;
+}
+
+.resumen-principal {
+  color: #ffffff;
+  background: var(--azul);
+}
+
+.resumen-principal .resumen-label {
+  color: #fcd34d;
+}
+
+.resumen-principal .resumen-valor {
+  color: #ffffff;
+  font-size: 38px;
+}
+
+.resumen-card.pendiente {
+  background: #fffdf4;
+  border-color: rgba(242, 178, 26, 0.42);
+}
+
+.resumen-card.pagado {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+}
+
+.boton-dorado {
+  margin-top: 24px;
+  color: #ffffff;
+  background: var(--dorado);
+  border-color: var(--dorado);
+}
+
+.colegiado-panel-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.panel-card {
+  display: grid;
+  gap: 16px;
+  padding: 20px;
+  background: var(--blanco);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+}
+
+.dashboard-lista {
+  display: grid;
+  gap: 10px;
+}
+
+.curso-mini,
+.material-mini {
+  display: grid;
+  gap: 12px;
+  padding: 12px;
+  color: var(--texto-suave);
+  background: #f8fafc;
+  border: 1px solid var(--borde-claro);
+  border-radius: var(--radio);
+}
+
+.curso-mini {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.material-mini {
+  grid-template-columns: 38px minmax(0, 1fr);
+  align-items: start;
+}
+
+.material-mini .material-symbols-outlined {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  color: var(--azul);
+  background: var(--celeste-claro);
+  border-radius: var(--radio);
+}
+
+.curso-mini:hover,
+.material-mini:hover {
+  color: var(--azul);
+  background: var(--celeste-claro);
+  border-color: rgba(45, 154, 183, 0.28);
+}
+
+.curso-mini-progreso {
+  text-align: right;
+}
+
+.curso-mini-progreso strong {
+  display: block;
+  color: var(--azul);
+  font-size: 18px;
+  line-height: 1;
+}
+
+.curso-mini-progreso span {
+  display: block;
+  margin-top: 5px;
+  color: var(--texto-claro);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.acceso-card {
+  display: block;
+  padding: 24px;
+  background: var(--blanco);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  transition: transform 0.2s;
+}
+
+.acceso-card:hover {
+  transform: translateY(-2px);
+}
+
+.acceso-card .material-symbols-outlined {
+  color: var(--dorado);
+  font-size: 34px;
+}
+
+.acceso-card h4 {
+  margin: 16px 0 0;
+  color: var(--azul);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.acceso-card p {
+  margin: 8px 0 0;
+  color: var(--texto-suave);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+@media (max-width: 980px) {
+  .colegiado-panel-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .curso-mini,
+  .material-mini {
+    grid-template-columns: 1fr;
+  }
+
+  .curso-mini-progreso {
+    text-align: left;
+  }
+}

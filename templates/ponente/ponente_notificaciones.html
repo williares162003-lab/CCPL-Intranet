@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ponente/ponente.css') }}?v=6">
+{% endblock %}
+
+{% block content %}
+<div class="pagina espaciado">
+  <section class="encabezado-pagina">
+    <div>
+      <p class="etiqueta-seccion">Ponente</p>
+      <h2 class="titulo-pagina">Avisos del ponente</h2>
+      <p class="texto-apoyo">Alertas generadas segun progreso, pagos y cierre de cursos.</p>
+    </div>
+    <a href="{{ url_for('ponente_dashboard') }}" class="boton boton-secundario">
+      <span class="material-symbols-outlined">arrow_back</span> Panel
+    </a>
+  </section>
+
+  <div class="resumen-grid ponente-resumen">
+    <article class="resumen-card">
+      <p class="resumen-label">Bajo progreso</p>
+      <p class="resumen-valor">{{ resumen_seguimiento.bajo_progreso or 0 }}</p>
+    </article>
+    <article class="resumen-card">
+      <p class="resumen-label">Pagos pendientes</p>
+      <p class="resumen-valor">{{ resumen_seguimiento.pagos_pendientes or 0 }}</p>
+    </article>
+    <article class="resumen-card pagado">
+      <p class="resumen-label">Finalizados</p>
+      <p class="resumen-valor">{{ resumen_seguimiento.finalizados or 0 }}</p>
+    </article>
+  </div>
+
+  <section class="ponente-panel">
+    <div class="fila-separada">
+      <div>
+        <p class="etiqueta-seccion">Avisos</p>
+        <h3 class="titulo-panel">Prioridades del aula</h3>
+      </div>
+      <a href="{{ url_for('ponente_seguimiento') }}" class="boton-link">Ir a seguimiento</a>
+    </div>
+
+    <div class="ponente-aviso-lista">
+      {% for aviso in avisos %}
+      <article class="ponente-aviso grande">
+        <span class="material-symbols-outlined">
+          {% if aviso.tipo == 'cuota' %}payments{% elif aviso.relacion_tipo == 'seguimiento' %}monitoring{% else %}notifications{% endif %}
+        </span>
+        <div>
+          <p class="texto-principal">{{ aviso.titulo }}</p>
+          <p class="texto-secundario">{{ aviso.mensaje }}</p>
+          {% if aviso.creado_en %}
+          <p class="texto-pequeno">{{ aviso.creado_en }}</p>
+          {% endif %}
+        </div>
+        {% if aviso.link_endpoint == 'ponente_curso' and aviso.relacion_id %}
+        <a href="{{ url_for('ponente_curso', curso_id=aviso.relacion_id) }}" class="boton-mini boton-primario">{{ aviso.link_text or 'Abrir' }}</a>
+        {% elif aviso.link_endpoint %}
+        <a href="{{ url_for(aviso.link_endpoint) }}" class="boton-mini boton-primario">{{ aviso.link_text or 'Abrir' }}</a>
+        {% endif %}
+      </article>
+      {% else %}
+      <div class="mensaje-vacio">
+        <p class="texto-principal">Sin avisos pendientes</p>
+        <p class="texto-secundario">Cuando haya cursos por finalizar, pagos pendientes o inscritos con bajo progreso, apareceran aqui.</p>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+{% endblock %}

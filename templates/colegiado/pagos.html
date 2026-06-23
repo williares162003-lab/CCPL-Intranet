@@ -1,0 +1,347 @@
+{% extends "base.html" %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/colegiado/estado_cuenta.css') }}?v=4">
+{% endblock %}
+
+{% block content %}
+<div class="pagina espaciado">
+  <section class="encabezado-con-panel">
+    <div>
+      <p class="etiqueta-seccion">Pagos</p>
+      <h2 class="titulo-pagina">Modulo de pagos</h2>
+      <p class="texto-apoyo">Cancela tus cuotas pendientes con pago en linea o registrando voucher.</p>
+    </div>
+    <a href="{{ url_for('estado_cuenta') }}" class="boton boton-secundario">
+      <span class="material-symbols-outlined">receipt_long</span> Estado de cuenta
+    </a>
+  </section>
+
+  <section class="grid-tres">
+    <article class="resumen-card">
+      <p class="resumen-label">Deuda pendiente</p>
+      <h3 class="resumen-valor">S/ {{ "%.2f"|format(deuda_total or 0) }}</h3>
+    </article>
+    <article class="resumen-card">
+      <p class="resumen-label">Cuotas vencidas</p>
+      <h3 class="resumen-valor">{{ vencidas or 0 }}</h3>
+    </article>
+    <article class="resumen-card">
+      <p class="resumen-label">Voucher en revision</p>
+      <h3 class="resumen-valor">{{ en_revision or 0 }}</h3>
+    </article>
+  </section>
+
+  <section class="tarjeta-tabla">
+    <div class="tarjeta-encabezado">
+      <div>
+        <h3 class="titulo-seccion sin-margen">Formas de pago</h3>
+        <p class="texto-secundario">Elige pago automatico o registra un voucher para revision administrativa.</p>
+      </div>
+    </div>
+    <div class="medios-pago-grid">
+      <article class="medio-pago-card">
+        <div class="medio-pago-icono">
+          <span class="material-symbols-outlined">account_balance</span>
+        </div>
+        <div>
+          <p class="texto-principal">Mercado Pago</p>
+          <p class="texto-secundario">Pago en linea con tarjeta y medios habilitados por Mercado Pago.</p>
+          <p class="texto-pequeno">
+            {{ "Activo en " ~ mercado_pago.modo if mercado_pago.habilitado else "Pendiente de configuracion administrativa" }}
+          </p>
+        </div>
+      </article>
+      <article class="medio-pago-card">
+        <div class="medio-pago-icono">
+          <span class="material-symbols-outlined">credit_card</span>
+        </div>
+        <div>
+          <p class="texto-principal">Pago interno CCPL</p>
+          <p class="texto-secundario">Respaldo administrativo para pagos presenciales o validaciones internas.</p>
+          <p class="texto-pequeno">{{ metodos_internos | join(', ') }}</p>
+        </div>
+      </article>
+      {% for medio in medios_pago %}
+      <article class="medio-pago-card">
+        <div class="medio-pago-icono">
+          <span class="material-symbols-outlined">account_balance_wallet</span>
+        </div>
+        <div>
+          <p class="texto-principal">{{ medio.nombre }}</p>
+          <p class="texto-secundario">{{ medio.descripcion or '-' }}</p>
+          <p class="texto-mono">{{ medio.numero_cuenta }}</p>
+          <p class="texto-pequeno">Titular: {{ medio.titular }}</p>
+        </div>
+      </article>
+      {% else %}
+      <p class="mensaje-vacio">Aun no hay medios de pago activos para voucher.</p>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="tarjeta-tabla">
+    <div class="tarjeta-encabezado">
+      <div>
+        <h3 class="titulo-seccion sin-margen">Pago anual con descuento</h3>
+        <p class="texto-secundario">{{ pago_anual.mensaje }}</p>
+      </div>
+      <span class="estado-badge {% if pago_anual.habilitado %}estado-pagado{% else %}estado-pendiente{% endif %}">
+        {{ 'Disponible' if pago_anual.habilitado else 'Fuera de campaña' }}
+      </span>
+    </div>
+
+    <form action="{{ url_for('colegiado_generar_pago_anual') }}"
+          method="POST"
+          class="formulario formulario-adelanto"
+          data-confirm="Desea generar el pago anual con descuento?">
+      <input type="hidden" name="anio" value="{{ pago_anual.anio or '' }}">
+      <div class="form-grid">
+        <div>
+          <label class="etiqueta-campo">Campaña</label>
+          <p class="monto-fijo">{{ pago_anual.ventana_label or '-' }}</p>
+        </div>
+        <div>
+          <label class="etiqueta-campo">Descuento</label>
+          <p class="monto-fijo">{{ "%.0f"|format(pago_anual.descuento or 0) }}%</p>
+        </div>
+        <div>
+          <label class="etiqueta-campo">Monto mensual aplicado</label>
+          <p class="monto-fijo">
+            S/ {{ "%.2f"|format((pago_anual.monto_total or 0) / 12 if pago_anual.monto_total else 0) }}
+          </p>
+        </div>
+        <div>
+          <label class="etiqueta-campo">Total anual</label>
+          <p class="monto-fijo">S/ {{ "%.2f"|format(pago_anual.monto_total or 0) }}</p>
+        </div>
+      </div>
+      <div class="acciones-formulario">
+        <button type="submit"
+                class="boton boton-primario"
+                {% if not pago_anual.habilitado %}disabled{% endif %}>
+          <span class="material-symbols-outlined">workspace_premium</span>
+          Generar pago anual
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <section class="tarjeta-tabla">
+    <div class="tarjeta-encabezado">
+      <div>
+        <h3 class="titulo-seccion sin-margen">Adelantar cuotas</h3>
+        <p class="texto-secundario">Genera cuotas futuras para pagarlas antes de su vencimiento.</p>
+      </div>
+    </div>
+
+    <form action="{{ url_for('colegiado_adelantar_cuotas') }}"
+          method="POST"
+          class="formulario formulario-adelanto"
+          data-adelantar-cuotas-form
+          data-monto-mensual="{{ pago_adelantado.monto_mensual or 80 }}"
+          data-confirm="Desea generar estas cuotas adelantadas?">
+      <div class="form-grid">
+        <div>
+          <label class="etiqueta-campo">Año</label>
+          <input name="anio" type="number" min="2024" max="2035"
+                 value="{{ pago_adelantado.anio or '' }}"
+                 required class="campo-formulario">
+        </div>
+        <div>
+          <label class="etiqueta-campo">Mes inicial</label>
+          <select name="mes_inicio" required class="campo-formulario">
+            <option value="1" {% if pago_adelantado.mes_inicio == 1 %}selected{% endif %}>Enero</option>
+            <option value="2" {% if pago_adelantado.mes_inicio == 2 %}selected{% endif %}>Febrero</option>
+            <option value="3" {% if pago_adelantado.mes_inicio == 3 %}selected{% endif %}>Marzo</option>
+            <option value="4" {% if pago_adelantado.mes_inicio == 4 %}selected{% endif %}>Abril</option>
+            <option value="5" {% if pago_adelantado.mes_inicio == 5 %}selected{% endif %}>Mayo</option>
+            <option value="6" {% if pago_adelantado.mes_inicio == 6 %}selected{% endif %}>Junio</option>
+            <option value="7" {% if pago_adelantado.mes_inicio == 7 %}selected{% endif %}>Julio</option>
+            <option value="8" {% if pago_adelantado.mes_inicio == 8 %}selected{% endif %}>Agosto</option>
+            <option value="9" {% if pago_adelantado.mes_inicio == 9 %}selected{% endif %}>Septiembre</option>
+            <option value="10" {% if pago_adelantado.mes_inicio == 10 %}selected{% endif %}>Octubre</option>
+            <option value="11" {% if pago_adelantado.mes_inicio == 11 %}selected{% endif %}>Noviembre</option>
+            <option value="12" {% if pago_adelantado.mes_inicio == 12 %}selected{% endif %}>Diciembre</option>
+          </select>
+        </div>
+        <div>
+          <label class="etiqueta-campo">Cantidad de meses</label>
+          <input name="cantidad_meses" type="number" min="1" max="12"
+                 value="{{ pago_adelantado.cantidad_meses or 1 }}"
+                 required class="campo-formulario">
+        </div>
+        <div>
+          <label class="etiqueta-campo">Monto mensual</label>
+          <p class="monto-fijo">S/ {{ "%.2f"|format(pago_adelantado.monto_mensual or 80) }}</p>
+        </div>
+      </div>
+
+      <div class="adelanto-resumen">
+        <p>{{ pago_adelantado.mensaje }}</p>
+        <strong>Total estimado: <span data-total-adelanto>S/ 0.00</span></strong>
+      </div>
+
+      <div class="acciones-formulario">
+        <button type="submit" class="boton boton-primario">
+          <span class="material-symbols-outlined">event_upcoming</span> Generar cuotas
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <section class="tarjeta-tabla">
+    <div class="tarjeta-encabezado">
+      <div>
+        <h3 class="titulo-seccion sin-margen">Cuotas por pagar</h3>
+        <p class="texto-secundario">Solo se muestran cuotas pendientes.</p>
+      </div>
+    </div>
+    <div class="tabla-responsive">
+      <table class="tabla-datos">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Concepto</th>
+            <th>Tipo</th>
+            <th class="derecha">Monto</th>
+            <th class="centro">Estado</th>
+            <th class="centro">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in pendientes %}
+          <tr>
+            <td>
+              <p class="texto-principal">{{ row.fecha }}</p>
+              <p class="texto-pequeno">Vence: {{ row.fecha_vencimiento or '-' }}</p>
+            </td>
+            <td>{{ row.concepto }}</td>
+            <td>{{ row.tipo or 'otro' }}</td>
+            <td class="derecha texto-principal">S/ {{ row.monto }}</td>
+            <td class="centro">
+              <span class="estado-badge {% if row.vencida %}estado-vencida{% else %}estado-pendiente{% endif %}">
+                {{ 'Vencida' if row.vencida else 'Pendiente' }}
+              </span>
+            </td>
+            <td class="centro">
+              <div class="acciones-pago">
+                {% if mercado_pago.habilitado %}
+                  <form action="{{ url_for('colegiado_crear_pago_mercado_pago', cuota_id=row.id) }}"
+                        method="POST"
+                        data-confirm="Desea iniciar el pago con Mercado Pago?">
+                    <button type="submit" class="boton-mini boton-primario">
+                      Mercado Pago
+                    </button>
+                  </form>
+                {% else %}
+                  <button type="button" class="boton-mini boton-secundario" disabled>
+                    Mercado Pago
+                  </button>
+                {% endif %}
+                <a href="{{ url_for('colegiado_pasarela_demo', cuota_id=row.id) }}"
+                   class="boton-mini boton-secundario">
+                  Pago interno
+                </a>
+                {% if row.evidencia %}
+                <span class="estado-badge estado-pendiente">En revision</span>
+                {% elif medios_pago %}
+                <button
+                  type="button"
+                  class="boton-mini boton-secundario"
+                  data-registrar-evidencia
+                  data-cuota-id="{{ row.id }}"
+                  data-concepto="{{ row.concepto }}"
+                  data-monto="{{ row.monto }}">
+                  Voucher
+                </button>
+                {% else %}
+                <span class="texto-pequeno">Sin medios</span>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="6" class="centro texto-pequeno">No tienes cuotas pendientes.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<div id="modal-evidencia-pago" class="modal-fondo hidden">
+  <div class="modal-caja">
+    <div class="modal-barra"></div>
+    <div class="modal-cuerpo">
+      <div class="modal-header">
+        <div>
+          <p class="modal-subtitulo">Pagos</p>
+          <h3 class="modal-titulo">Registrar voucher</h3>
+        </div>
+        <button type="button" onclick="cerrarModalEvidenciaPago()" class="boton-cerrar">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <form action="{{ url_for('colegiado_registrar_evidencia_pago') }}" method="POST" enctype="multipart/form-data" class="formulario" data-evidencia-pago-form data-confirm="Desea registrar este voucher?">
+        <input id="evidencia-cuota-id" type="hidden" name="cuota_id">
+        <input type="hidden" name="volver_endpoint" value="colegiado_pagos">
+
+        <div>
+          <label class="etiqueta-campo">Cuota</label>
+          <p id="evidencia-concepto" class="texto-principal"></p>
+        </div>
+
+        <div class="form-grid">
+          <div>
+            <label class="etiqueta-campo">Medio de pago *</label>
+            <select name="medio_pago_id" required class="campo-formulario">
+              <option value="">Seleccione un medio</option>
+              {% for medio in medios_pago %}
+              <option value="{{ medio.id }}">{{ medio.nombre }} - {{ medio.numero_cuenta }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <label class="etiqueta-campo">Fecha de pago *</label>
+            <input name="fecha_pago" type="date" required class="campo-formulario">
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div>
+            <label class="etiqueta-campo">Numero de operacion *</label>
+            <input name="numero_operacion" required class="campo-formulario" placeholder="Ej: 000123456">
+          </div>
+          <div>
+            <label class="etiqueta-campo">Monto pagado *</label>
+            <input id="evidencia-monto" name="monto" type="number" step="0.01" min="0.01" required class="campo-formulario">
+          </div>
+        </div>
+
+        <div>
+          <label class="etiqueta-campo">Voucher o evidencia *</label>
+          <input name="archivo_evidencia" type="file" required accept=".pdf,.jpg,.jpeg,.png,.webp" class="campo-formulario">
+          <p class="texto-pequeno">Formatos permitidos: PDF, JPG, PNG o WEBP.</p>
+        </div>
+
+        <div>
+          <label class="etiqueta-campo">Comentario</label>
+          <textarea name="comentario" rows="3" class="campo-formulario" placeholder="Detalle opcional del pago"></textarea>
+        </div>
+
+        <div class="acciones-formulario">
+          <button type="button" onclick="cerrarModalEvidenciaPago()" class="boton boton-secundario">Cancelar</button>
+          <button type="submit" class="boton boton-primario">
+            <span class="material-symbols-outlined">save</span> Registrar voucher
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/colegiado/estado_cuenta.js') }}?v=3"></script>
+{% endblock %}

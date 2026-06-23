@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin/admin_cuotas.css') }}?v=6">
+{% endblock %}
+
+{% block content %}
+<div class="pagina">
+  <div class="encabezado-pagina">
+    <div>
+      <p class="etiqueta-seccion">Facturacion</p>
+      <h2 class="titulo-pagina">Configuracion SUNAT</h2>
+      <p class="texto-apoyo">Activa el envio beta usando el RUC, usuario SOL y certificado digital del emisor.</p>
+    </div>
+    <div class="fila-wrap no-print">
+      <a href="{{ url_for('admin_facturacion') }}" class="boton boton-secundario">
+        <span class="material-symbols-outlined">arrow_back</span> Facturacion
+      </a>
+    </div>
+  </div>
+
+  <section class="procesamiento-grid pagos-demo-grid">
+    <article class="proceso-card">
+      <div class="proceso-header">
+        <span class="material-symbols-outlined">cloud_sync</span>
+        <div>
+          <p class="proceso-label">Modo SUNAT</p>
+          <h3>SUNAT_BETA</h3>
+        </div>
+      </div>
+      <p class="proceso-texto">
+        El sistema genera XML UBL, lo firma con el certificado digital del emisor,
+        crea el ZIP oficial y lo envia al servicio beta de SUNAT.
+      </p>
+    </article>
+
+    <article class="proceso-card">
+      <div class="proceso-header">
+        <span class="material-symbols-outlined">verified_user</span>
+        <div>
+          <p class="proceso-label">Requisitos beta</p>
+          <h3>Credenciales reales</h3>
+        </div>
+      </div>
+      <p class="proceso-texto">
+        Para activar beta necesitas RUC emisor, usuario SOL secundario, clave SOL,
+        certificado .pfx/.p12 y clave del certificado.
+      </p>
+    </article>
+  </section>
+
+  <form method="POST" enctype="multipart/form-data" class="tarjeta-tabla proceso-form"
+        data-confirm="Desea guardar la configuracion de facturacion electronica?">
+    <div class="tabla-toolbar">
+      <p>Datos del emisor</p>
+      <p>{{ config.razon_social or "Sin configurar" }}</p>
+    </div>
+
+    <div class="config-grid">
+      <div class="filtro-campo">
+        <label class="etiqueta-campo">Modo de envio</label>
+        <input value="SUNAT_BETA" class="campo-formulario" disabled>
+      </div>
+
+      <div class="filtro-campo">
+        <label class="etiqueta-campo">RUC emisor *</label>
+        <input name="ruc" value="{{ config.ruc or '' }}" class="campo-formulario"
+               maxlength="11" required placeholder="Ej: 20123456789">
+      </div>
+
+      <div class="filtro-campo">
+        <label class="etiqueta-campo">Razon social *</label>
+        <input name="razon_social" value="{{ config.razon_social or '' }}"
+               class="campo-formulario" required>
+      </div>
+
+      <div class="filtro-campo">
+        <label class="etiqueta-campo">Nombre comercial</label>
+        <input name="nombre_comercial" value="{{ config.nombre_comercial or 'CCPL' }}"
+               class="campo-formulario">
+      </div>
+
+      <div class="filtro-campo config-span">
+        <label class="etiqueta-campo">Direccion fiscal *</label>
+        <input name="direccion" value="{{ config.direccion or '' }}"
+               class="campo-formulario" required>
+      </div>
+
+      <div class="filtro-campo">
+        <label class="etiqueta-campo">Serie boleta</label>
+        <input name="serie_boleta" value="{{ config.serie_boleta or 'B001' }}"
+               class="campo-formulario" maxlength="10">
+      </div>
+
+      <div class="filtro-campo">
+        <label class="etiqueta-campo">Serie factura</label>
+        <input name="serie_factura" value="{{ config.serie_factura or 'F001' }}"
+               class="campo-formulario" maxlength="10">
+      </div>
+    </div>
+
+    <div class="tabla-toolbar config-separador">
+      <p>Conexion SUNAT beta</p>
+      <p>Las claves se guardan y no se vuelven a mostrar.</p>
+    </div>
+
+    <div class="config-grid">
+      <div class="filtro-campo">
+        <label class="etiqueta-campo">Usuario SOL secundario</label>
+        <input name="usuario_sol" value="{{ config.usuario_sol or '' }}"
+               class="campo-formulario" placeholder="Usuario secundario">
+      </div>
+
+      <div class="filtro-campo">
+        <label class="etiqueta-campo">Clave SOL</label>
+        <input name="clave_sol" type="password" class="campo-formulario"
+               placeholder="{% if config.clave_sol %}Guardada, dejar vacio para conservar{% else %}Clave SOL{% endif %}">
+      </div>
+
+      <div class="filtro-campo">
+        <label class="etiqueta-campo">Clave del certificado</label>
+        <input name="certificado_clave" type="password" class="campo-formulario"
+               placeholder="{% if config.certificado_clave %}Guardada, dejar vacio para conservar{% else %}Clave del .pfx/.p12{% endif %}">
+      </div>
+
+      <div class="filtro-campo config-span">
+        <label class="etiqueta-campo">Certificado digital .pfx/.p12</label>
+        <input name="certificado_archivo" type="file" class="campo-formulario" accept=".pfx,.p12">
+        <p class="texto-pequeno">
+          {% if certificado_guardado %}
+          Certificado guardado. Suba otro archivo solo si desea reemplazarlo.
+          {% else %}
+          Aun no hay certificado valido guardado.
+          {% endif %}
+        </p>
+      </div>
+
+      <div class="filtro-campo config-span">
+        <label class="etiqueta-campo">Endpoint beta</label>
+        <input name="endpoint_beta"
+               value="{{ config.endpoint_beta or 'https://e-beta.sunat.gob.pe/ol-ti-itcpfegem-beta/billService' }}"
+               class="campo-formulario">
+      </div>
+    </div>
+
+    <div class="config-acciones no-print">
+      <a href="{{ url_for('admin_facturacion') }}" class="boton boton-secundario">Cancelar</a>
+      <button type="submit" class="boton boton-primario">
+        <span class="material-symbols-outlined">save</span> Guardar configuracion
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}

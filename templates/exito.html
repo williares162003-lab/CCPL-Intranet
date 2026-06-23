@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Operación Exitosa</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            max-width: 400px;
+            border-top: 6px solid #27ae60;
+        }
+        .icon {
+            font-size: 3.5rem;
+            color: #27ae60;
+            margin-bottom: 1rem;
+        }
+        h2 { color: #1a1a2e; margin-bottom: 0.5rem; }
+        p  { color: #666; margin-bottom: 2rem; }
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background-color: #1a1a2e;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        .btn:hover { background-color: #2d2d50; }
+        .secondary-link {
+            display: block;
+            margin-top: 1rem;
+            color: #1a1a2e;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .secondary-link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="icon">&#10003;</div>
+        <h2>¡Operación exitosa!</h2>
+        <p>{{ mensaje or 'El registro ha sido guardado correctamente en el sistema.' }}</p>
+        <a href="{{ url_for(volver_endpoint or 'index') }}" class="btn">{{ primary_label or 'Ver Colegiados' }}</a>
+        <a href="{{ url_for(panel_endpoint or 'index') }}" class="secondary-link">Volver al Panel</a>
+    </div>
+</body>
+</html>

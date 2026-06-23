@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin/admin_medios_pago.css') }}?v=1">
+{% endblock %}
+
+{% block content %}
+<div class="pagina">
+  <div class="encabezado-pagina">
+    <div>
+      <p class="etiqueta-seccion">Administracion</p>
+      <h2 class="titulo-pagina">Medios de pago</h2>
+    </div>
+    <button type="button" onclick="abrirModalNuevoMedioPago()" class="boton boton-primario">
+      <span class="material-symbols-outlined">add_card</span> Nuevo medio
+    </button>
+  </div>
+
+  <div class="resumen-grid medios-resumen">
+    {% set activos = medios | selectattr('activo', 'eq', 1) | list | length %}
+    <article class="resumen-card">
+      <p class="resumen-label">Registrados</p>
+      <p class="resumen-valor">{{ medios|length }}</p>
+    </article>
+    <article class="resumen-card pagado">
+      <p class="resumen-label">Activos</p>
+      <p class="resumen-valor">{{ activos }}</p>
+    </article>
+    <article class="resumen-card pendiente">
+      <p class="resumen-label">Inactivos</p>
+      <p class="resumen-valor">{{ medios|length - activos }}</p>
+    </article>
+  </div>
+
+  <section class="tarjeta-tabla">
+    <div class="tabla-responsive">
+      <table class="tabla-datos">
+        <thead>
+          <tr>
+            <th>Medio</th>
+            <th>Cuenta</th>
+            <th>Titular</th>
+            <th class="centro">Estado</th>
+            <th class="centro">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for medio in medios %}
+          <tr>
+            <td>
+              <p class="texto-principal">{{ medio.nombre }}</p>
+              <p class="texto-pequeno">{{ medio.descripcion or '-' }}</p>
+            </td>
+            <td>
+              <p class="texto-principal texto-mono">{{ medio.numero_cuenta }}</p>
+            </td>
+            <td class="texto-secundario">{{ medio.titular }}</td>
+            <td class="centro">
+              <span class="estado-badge {% if medio.activo == 1 %}estado-vigente{% else %}estado-inactivo{% endif %}">
+                {% if medio.activo == 1 %}Activo{% else %}Inactivo{% endif %}
+              </span>
+            </td>
+            <td class="centro">
+              <div class="acciones-tabla">
+                <button
+                  type="button"
+                  class="boton-accion"
+                  title="Editar"
+                  data-edit-medio-pago
+                  data-id="{{ medio.id }}"
+                  data-nombre="{{ medio.nombre }}"
+                  data-descripcion="{{ medio.descripcion or '' }}"
+                  data-numero-cuenta="{{ medio.numero_cuenta }}"
+                  data-titular="{{ medio.titular }}"
+                  data-activo="{{ medio.activo }}">
+                  <span class="material-symbols-outlined">edit</span>
+                </button>
+                <form action="{{ url_for('admin_eliminar_medio_pago', medio_id=medio.id) }}" method="POST" data-confirm="Desea eliminar este medio de pago?">
+                  <button type="submit" class="boton-accion boton-accion-peligro" title="Eliminar">
+                    <span class="material-symbols-outlined">delete</span>
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="5" class="centro texto-pequeno">Sin medios de pago registrados.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<div id="modal-nuevo-medio-pago" class="modal-fondo hidden">
+  <div class="modal-caja">
+    <div class="modal-barra"></div>
+    <div class="modal-cuerpo">
+      <div class="modal-header">
+        <div>
+          <p class="modal-subtitulo">Medios de pago</p>
+          <h3 class="modal-titulo">Nuevo medio</h3>
+        </div>
+        <button type="button" onclick="cerrarModalNuevoMedioPago()" class="boton-cerrar">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <form action="{{ url_for('admin_nuevo_medio_pago') }}" method="POST" class="formulario" data-medio-pago-form data-confirm="Desea registrar este medio de pago?">
+        <div class="form-grid">
+          <div>
+            <label class="etiqueta-campo">Nombre *</label>
+            <input name="nombre" required class="campo-formulario" placeholder="Ej: Yape Institucional">
+          </div>
+          <div>
+            <label class="etiqueta-campo">Numero o cuenta *</label>
+            <input name="numero_cuenta" required class="campo-formulario" placeholder="Ej: 987654321">
+          </div>
+        </div>
+
+        <div>
+          <label class="etiqueta-campo">Titular *</label>
+          <input name="titular" required class="campo-formulario" placeholder="Titular de la cuenta">
+        </div>
+
+        <div class="form-grid">
+          <div>
+            <label class="etiqueta-campo">Descripcion</label>
+            <input name="descripcion" class="campo-formulario" placeholder="Ej: Pagos por aplicativo movil">
+          </div>
+          <div>
+            <label class="etiqueta-campo">Estado *</label>
+            <select name="activo" required class="campo-formulario">
+              <option value="1">Activo</option>
+              <option value="0">Inactivo</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="acciones-formulario">
+          <button type="button" onclick="cerrarModalNuevoMedioPago()" class="boton boton-secundario">Cancelar</button>
+          <button type="submit" class="boton boton-primario">
+            <span class="material-symbols-outlined">save</span> Registrar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div id="modal-editar-medio-pago" class="modal-fondo hidden">
+  <div class="modal-caja">
+    <div class="modal-barra"></div>
+    <div class="modal-cuerpo">
+      <div class="modal-header">
+        <div>
+          <p class="modal-subtitulo">Medios de pago</p>
+          <h3 class="modal-titulo">Editar medio</h3>
+        </div>
+        <button type="button" onclick="cerrarModalEditarMedioPago()" class="boton-cerrar">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <form id="form-editar-medio-pago" method="POST" class="formulario" data-medio-pago-form data-confirm="Desea guardar los cambios del medio de pago?">
+        <div class="form-grid">
+          <div>
+            <label class="etiqueta-campo">Nombre *</label>
+            <input id="edit-medio-nombre" name="nombre" required class="campo-formulario">
+          </div>
+          <div>
+            <label class="etiqueta-campo">Numero o cuenta *</label>
+            <input id="edit-medio-cuenta" name="numero_cuenta" required class="campo-formulario">
+          </div>
+        </div>
+
+        <div>
+          <label class="etiqueta-campo">Titular *</label>
+          <input id="edit-medio-titular" name="titular" required class="campo-formulario">
+        </div>
+
+        <div class="form-grid">
+          <div>
+            <label class="etiqueta-campo">Descripcion</label>
+            <input id="edit-medio-descripcion" name="descripcion" class="campo-formulario">
+          </div>
+          <div>
+            <label class="etiqueta-campo">Estado *</label>
+            <select id="edit-medio-activo" name="activo" required class="campo-formulario">
+              <option value="1">Activo</option>
+              <option value="0">Inactivo</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="acciones-formulario">
+          <button type="button" onclick="cerrarModalEditarMedioPago()" class="boton boton-secundario">Cancelar</button>
+          <button type="submit" class="boton boton-primario">
+            <span class="material-symbols-outlined">save</span> Guardar cambios
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/admin/admin_medios_pago.js') }}?v=1"></script>
+{% endblock %}

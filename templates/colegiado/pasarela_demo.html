@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/colegiado/estado_cuenta.css') }}?v=2">
+{% endblock %}
+
+{% block content %}
+<div class="pagina espaciado">
+  <section class="encabezado-con-panel">
+    <div>
+      <p class="etiqueta-seccion">Pago interno CCPL</p>
+      <h2 class="titulo-pagina">Confirmar pago interno</h2>
+      <p class="texto-apoyo">Registra un pago validado por administracion y genera el comprobante interno.</p>
+    </div>
+    <a href="{{ url_for('estado_cuenta') }}" class="boton boton-secundario">
+      <span class="material-symbols-outlined">arrow_back</span> Volver
+    </a>
+  </section>
+
+  <section class="pasarela-layout">
+    <article class="tarjeta-tabla pasarela-card">
+      <div class="tarjeta-encabezado">
+        <div>
+          <p class="etiqueta-seccion">Detalle de cuota</p>
+          <h3 class="titulo-seccion sin-margen">{{ cuota.concepto }}</h3>
+        </div>
+      </div>
+
+      <div class="pasarela-resumen">
+        <div>
+          <p class="resumen-label">Colegiado</p>
+          <h3 class="resumen-valor mini">{{ cuota.nombre }}</h3>
+          <p class="texto-secundario">Matricula {{ cuota.matricula }}</p>
+        </div>
+        <div>
+          <p class="resumen-label">Monto a pagar</p>
+          <h3 class="resumen-valor">S/ {{ "%.2f"|format(cuota.monto or 0) }}</h3>
+        </div>
+      </div>
+
+      <form action="{{ url_for('colegiado_confirmar_pago_demo', cuota_id=cuota.id) }}"
+            method="POST"
+            class="formulario"
+            data-confirm="Desea confirmar este pago?">
+        <div>
+          <label class="etiqueta-campo">Metodo de pago *</label>
+          <select name="metodo_pago" required class="campo-formulario">
+            {% for metodo in metodos_internos %}
+            <option value="{{ metodo }}">{{ metodo }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-grid">
+          <div>
+            <label class="etiqueta-campo">Operacion</label>
+            <input value="Aprobacion automatica" readonly class="campo-formulario">
+          </div>
+          <div>
+            <label class="etiqueta-campo">Moneda</label>
+            <input value="PEN - Soles" readonly class="campo-formulario">
+          </div>
+        </div>
+
+        <div class="pasarela-aviso">
+          <span class="material-symbols-outlined">verified_user</span>
+          <div>
+            <p class="texto-principal">Ambiente interno CCPL</p>
+            <p class="texto-secundario">Se registra una transaccion interna y se genera un comprobante para trazabilidad.</p>
+          </div>
+        </div>
+
+        <div class="acciones-formulario">
+          <a href="{{ url_for('estado_cuenta') }}" class="boton boton-secundario">Cancelar</a>
+          <button type="submit" class="boton boton-primario">
+            <span class="material-symbols-outlined">payments</span> Confirmar pago
+          </button>
+        </div>
+      </form>
+    </article>
+
+    <aside class="tarjeta-tabla pasarela-card secundaria">
+      <p class="etiqueta-seccion">Flujo</p>
+      <h3 class="titulo-seccion sin-margen">Proceso del pago</h3>
+      <ol class="pasarela-pasos">
+        <li>Validar cuota pendiente.</li>
+        <li>Registrar transaccion interna.</li>
+        <li>Marcar cuota como pagada.</li>
+        <li>Emitir comprobante interno.</li>
+      </ol>
+    </aside>
+  </section>
+</div>
+{% endblock %}

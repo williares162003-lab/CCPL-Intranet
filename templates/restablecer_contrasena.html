@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ page_title }} | CCPL</title>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}?v=2">
+</head>
+<body>
+  <main class="login-page login-page-simple">
+    <section class="login-form-section">
+      <div class="login-card-wrap">
+        <div class="login-mobile-brand visible">
+          <img src="{{ url_for('static', filename='imagenes/escudo-ccpl.png') }}"
+               alt="Colegio de Contadores Publicos de Lambayeque"
+               class="login-mobile-logo" />
+          <p>Restablecimiento seguro</p>
+        </div>
+
+        <div class="login-card">
+          <div>
+            <h2>Nueva contrasena</h2>
+            <p>Ingrese el codigo enviado a {{ correo or 'su correo registrado' }}.</p>
+          </div>
+
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              <div class="login-alerts">
+                {% for category, message in messages %}
+                  <div class="alerta {% if category == 'error' %}alerta-error{% else %}alerta-success{% endif %}">
+                    {{ message }}
+                  </div>
+                {% endfor %}
+              </div>
+            {% endif %}
+          {% endwith %}
+
+          <form class="login-form" method="post">
+            <div class="login-field">
+              <label for="codigo">Codigo de verificacion</label>
+              <div class="login-input-wrap">
+                <span class="material-symbols-outlined">pin</span>
+                <input class="login-input" id="codigo" name="codigo"
+                       placeholder="6 digitos" inputmode="numeric" maxlength="6" required />
+              </div>
+            </div>
+
+            <div class="login-field">
+              <label for="password">Nueva contrasena</label>
+              <div class="login-input-wrap">
+                <span class="material-symbols-outlined">lock_reset</span>
+                <input class="login-input" id="password" name="password"
+                       placeholder="Minimo 6 caracteres" type="password" required />
+              </div>
+            </div>
+
+            <div class="login-field">
+              <label for="confirmar">Confirmar contrasena</label>
+              <div class="login-input-wrap">
+                <span class="material-symbols-outlined">verified_user</span>
+                <input class="login-input" id="confirmar" name="confirmar"
+                       placeholder="Repita la nueva contrasena" type="password" required />
+              </div>
+            </div>
+
+            <button class="boton boton-primario boton-ancho" type="submit">
+              <span>Actualizar contrasena</span>
+              <span class="material-symbols-outlined">check_circle</span>
+            </button>
+
+            <a href="{{ url_for('recuperar_contrasena') }}" class="login-link-centro">Solicitar otro codigo</a>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

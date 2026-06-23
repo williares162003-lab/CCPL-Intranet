@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ponente/ponente.css') }}?v=8">
+{% endblock %}
+
+{% block content %}
+<div class="pagina espaciado">
+  <section class="encabezado-pagina">
+    <div>
+      <p class="etiqueta-seccion">Ponente</p>
+      <h2 class="titulo-pagina">Panel de trabajo</h2>
+      <p class="texto-apoyo">Resumen de cursos, materiales y seguimiento de inscritos.</p>
+    </div>
+    <div class="acciones-formulario">
+      <a href="{{ url_for('ponente_seguimiento') }}" class="boton boton-primario">
+        <span class="material-symbols-outlined">monitoring</span> Seguimiento
+      </a>
+    </div>
+  </section>
+
+  <div class="resumen-grid ponente-resumen">
+    <article class="resumen-card">
+      <p class="resumen-label">Cursos activos</p>
+      <p class="resumen-valor">{{ total_activos }}</p>
+      <span class="texto-pequeno">{{ cursos|length }} asignado(s)</span>
+    </article>
+    <article class="resumen-card pendiente">
+      <p class="resumen-label">Materiales</p>
+      <p class="resumen-valor">{{ total_materiales }}</p>
+      <span class="texto-pequeno">publicados en cursos</span>
+    </article>
+    <article class="resumen-card pagado">
+      <p class="resumen-label">Progreso promedio</p>
+      <p class="resumen-valor">{{ "%.0f"|format(resumen_seguimiento.progreso_promedio or promedio_general or 0) }}%</p>
+      <span class="texto-pequeno">{{ total_inscritos }} inscrito(s)</span>
+    </article>
+    <article class="resumen-card">
+      <p class="resumen-label">Bajo progreso</p>
+      <p class="resumen-valor">{{ resumen_seguimiento.bajo_progreso or 0 }}</p>
+      <span class="texto-pequeno">menor a 50%</span>
+    </article>
+    <article class="resumen-card">
+      <p class="resumen-label">Pagos pendientes</p>
+      <p class="resumen-valor">{{ resumen_seguimiento.pagos_pendientes or 0 }}</p>
+      <span class="texto-pequeno">inscrito(s)</span>
+    </article>
+    <article class="resumen-card pagado">
+      <p class="resumen-label">Finalizados</p>
+      <p class="resumen-valor">{{ total_finalizados }}</p>
+      <span class="texto-pequeno">curso(s)</span>
+    </article>
+  </div>
+
+  <section class="ponente-dashboard-layout">
+    <main class="ponente-dashboard-main">
+      <div class="fila-separada">
+        <div>
+          <p class="etiqueta-seccion">Cursos</p>
+          <h3 class="titulo-panel">Cursos asignados</h3>
+        </div>
+        <a href="{{ url_for('ponente_seguimiento') }}" class="boton-link">Ver seguimiento</a>
+      </div>
+
+      <section class="ponente-grid">
+        {% for curso in cursos %}
+        <article class="ponente-card">
+          <div class="ponente-card-icon">
+            <span class="material-symbols-outlined icon-fill">school</span>
+          </div>
+          <div class="ponente-card-body">
+            <div class="fila-separada">
+              <p class="etiqueta-seccion">{{ curso.categoria }}</p>
+              <span class="estado-badge {% if curso.estado == 'Activo' %}estado-pagado{% else %}estado-pendiente{% endif %}">
+                {{ curso.estado }}
+              </span>
+            </div>
+            <h3>{{ curso.titulo }}</h3>
+            <p class="texto-secundario">{{ curso.descripcion or 'Sin contenido registrado.' }}</p>
+            <div class="ponente-meta">
+              <span><strong>{{ curso.inscritos or 0 }}/{{ curso.cupos or 0 }}</strong> inscritos</span>
+              <span>{{ curso.total_materiales or 0 }} material(es)</span>
+              <span>{{ curso.modalidad or '-' }}</span>
+              <span>{{ curso.duracion_horas or 0 }} horas</span>
+            </div>
+            <div>
+              <div class="fila-separada">
+                <span class="texto-secundario">Progreso promedio</span>
+                <strong>{{ "%.0f"|format(curso.progreso_promedio or 0) }}%</strong>
+              </div>
+              <div class="barra-progreso">
+                <div class="barra-progreso-valor barra-azul" data-progress-bar data-progress="{{ "%.0f"|format(curso.progreso_promedio or 0) }}"></div>
+              </div>
+            </div>
+            <div class="ponente-card-actions">
+              <a href="{{ url_for('ponente_curso', curso_id=curso.id) }}" class="boton boton-primario">
+                <span class="material-symbols-outlined">visibility</span> Ver curso
+              </a>
+            </div>
+          </div>
+        </article>
+        {% else %}
+        <article class="tarjeta">
+          <p class="etiqueta-seccion">Cursos</p>
+          <h3 class="titulo-panel">Sin cursos asignados</h3>
+          <p class="texto-secundario">Cuando el administrador registre cursos con tu nombre como ponente, apareceran aqui.</p>
+        </article>
+        {% endfor %}
+      </section>
+    </main>
+
+    <aside class="ponente-dashboard-side">
+      <section class="ponente-panel">
+        <div class="fila-separada">
+          <div>
+            <p class="etiqueta-seccion">Gestion</p>
+            <h3 class="titulo-panel">Acciones pendientes</h3>
+          </div>
+          <a href="{{ url_for('ponente_seguimiento') }}" class="boton-link">Seguimiento</a>
+        </div>
+        <div class="ponente-lista-simple">
+          {% for accion in acciones_ponente %}
+          <article class="ponente-accion">
+            <span class="material-symbols-outlined">{{ accion.icono }}</span>
+            <div>
+              <p class="texto-principal">{{ accion.titulo }}</p>
+              <p class="texto-secundario">{{ accion.detalle }}</p>
+              <a href="{{ url_for('ponente_curso', curso_id=accion.curso_id) }}" class="boton-link">Abrir curso</a>
+            </div>
+          </article>
+          {% else %}
+          <p class="texto-secundario">No hay acciones urgentes por atender.</p>
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="ponente-panel">
+        <div class="fila-separada">
+          <div>
+            <p class="etiqueta-seccion">Avisos</p>
+            <h3 class="titulo-panel">Pendientes recientes</h3>
+          </div>
+          <a href="{{ url_for('ponente_notificaciones') }}" class="boton-link">Ver todos</a>
+        </div>
+        <div class="ponente-lista-simple">
+          {% for aviso in avisos_ponente %}
+          <article class="ponente-aviso">
+            <span class="material-symbols-outlined">
+              {% if aviso.tipo == 'cuota' %}payments{% else %}notifications{% endif %}
+            </span>
+            <div>
+              <p class="texto-principal">{{ aviso.titulo }}</p>
+              <p class="texto-secundario">{{ aviso.mensaje }}</p>
+            </div>
+          </article>
+          {% else %}
+          <p class="texto-secundario">No hay avisos pendientes.</p>
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="ponente-panel">
+        <div class="fila-separada">
+          <div>
+            <p class="etiqueta-seccion">Atencion</p>
+            <h3 class="titulo-panel">Bajo progreso</h3>
+          </div>
+          <a href="{{ url_for('ponente_seguimiento', progreso='bajo') }}" class="boton-link">Filtrar</a>
+        </div>
+        <div class="ponente-lista-simple">
+          {% for item in seguimiento_prioridad %}
+          <article class="ponente-mini-row">
+            <div>
+              <p class="texto-principal">{{ item.nombre }}</p>
+              <p class="texto-pequeno">{{ item.curso_titulo }}</p>
+            </div>
+            <strong>{{ item.progreso }}%</strong>
+          </article>
+          {% else %}
+          <p class="texto-secundario">No hay colegiados con bajo progreso.</p>
+          {% endfor %}
+        </div>
+      </section>
+    </aside>
+  </section>
+</div>
+{% endblock %}

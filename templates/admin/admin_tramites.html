@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin/admin_tramites.css') }}?v=1">
+{% endblock %}
+
+{% block content %}
+<div class="pagina espaciado-medio admin-tramites">
+  <div>
+    <p class="etiqueta-seccion">Administracion</p>
+    <h2 class="titulo-pagina">Tramites</h2>
+    <p class="texto-apoyo">Revisa tramites administrativos, valida deuda, verifica sustentos de baja o traslado y sube el documento emitido cuando corresponda.</p>
+  </div>
+
+  <div class="filtros-pills">
+    <a href="{{ url_for('admin_tramites', tipo=tipo_filtro) }}" class="filtro-pill {% if not filtro %}activo{% endif %}">
+      Todos
+    </a>
+    {% for estado_opt in ['Pendiente', 'En Revision', 'Aprobado', 'Rechazado'] %}
+    <a href="{{ url_for('admin_tramites', estado=estado_opt, tipo=tipo_filtro) }}" class="filtro-pill {% if filtro == estado_opt %}activo{% endif %}">
+      {{ estado_opt }}
+    </a>
+    {% endfor %}
+  </div>
+
+  <form class="filtro-linea" method="GET">
+    <div>
+      <label class="etiqueta-campo">Tipo de tramite</label>
+      <select name="tipo" class="campo-formulario">
+        <option value="">Todos los tipos</option>
+        {% for tipo in tipos_tramite %}
+        <option value="{{ tipo.codigo }}" {% if tipo_filtro == tipo.codigo %}selected{% endif %}>{{ tipo.nombre }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    {% if filtro %}
+    <input type="hidden" name="estado" value="{{ filtro }}">
+    {% endif %}
+    <button class="boton boton-primario" type="submit">
+      <span class="material-symbols-outlined">filter_alt</span>
+      Filtrar
+    </button>
+  </form>
+
+  <section class="tramites-panel">
+    <div class="tramites-panel-header">
+      <div>
+        <p class="texto-principal">{{ tramites|length }} tramite(s) encontrado(s)</p>
+        <p class="texto-pequeno">Cada solicitud se revisa con deuda, sustento, documento emitido y firma cuando corresponde.</p>
+      </div>
+    </div>
+
+    <div class="tramites-lista">
+      {% for t in tramites %}
+      {% set falta_sustento = t.requiere_sustento and not t.archivo_solicitud_existe %}
+      {% set requiere_sin_deuda = t.tipo_tramite in ['baja_colegiatura', 'traslado_colegio', 'certificado_habilidad'] %}
+      <article class="tramite-card">
+        <div class="tramite-info">
+          <div class="tramite-cabecera">
+            <div>
+              <p class="tramite-tipo">{{ t.tipo_nombre }}</p>
+              <h3>{{ t.asunto }}</h3>
+              <p class="texto-pequeno">{{ t.descripcion }}</p>
+            </div>
+            <span class="estado-badge {% if t.estado == 'Aprobado' %}estado-aprobado{% elif t.estado == 'Rechazado' %}estado-rechazado{% elif t.estado[:2] == 'En' %}estado-revision{% else %}estado-neutro{% endif %}">
+              {{ t.estado }}
+            </span>
+          </div>
+
+          <div class="tramite-resumen">
+            <div class="dato-tramite">
+              <span>Colegiado</span>
+              <strong>{{ t.nombre }}</strong>
+              <p class="texto-pequeno texto-mono">{{ t.matricula }}</p>
+            </div>
+            <div class="dato-tramite">
+              <span>Fecha</span>
+              <strong>{{ t.fecha_solicitud }}</strong>
+              {% if t.fecha_respuesta %}
+              <p class="texto-pequeno">Respondido: {{ t.fecha_respuesta }}</p>
+              {% endif %}
+            </div>
+            <div class="dato-tramite">
+              <span>Deuda</span>
+              {% if t.cuotas_pendientes and t.cuotas_pendientes > 0 %}
+              <strong>S/ {{ '%.2f'|format(t.deuda_pendiente or 0) }}</strong>
+              <p class="texto-pequeno">{{ t.cuotas_pendientes }} pendiente(s)</p>
+              {% else %}
+              <span class="estado-badge estado-aprobado">Sin deuda</span>
+              {% endif %}
+            </div>
+            <div class="dato-tramite">
+              <span>Documentos</span>
+              <div class="documentos-tramite">
+                {% if t.archivo_solicitud and t.archivo_solicitud_existe %}
+                <a href="{{ url_for('static', filename=t.archivo_solicitud) }}" target="_blank" rel="noopener" class="boton-link">Sustento</a>
+                {% elif t.archivo_solicitud %}
+                <p class="texto-pequeno">Sustento no disponible</p>
+                {% elif t.requiere_sustento %}
+                <p class="texto-pequeno estado-alerta">Falta sustento</p>
+                {% endif %}
+
+                {% if t.archivo_respuesta and t.archivo_respuesta_existe %}
+                <a href="{{ url_for('static', filename=t.archivo_respuesta) }}" target="_blank" rel="noopener" class="boton-link">PDF firmado</a>
+                <a href="{{ url_for('admin_validar_firma_tramite', tid=t.id) }}" class="boton-link">Validar firma</a>
+                {% elif t.archivo_respuesta %}
+                <p class="texto-pequeno">Emitido no disponible</p>
+                {% else %}
+                <p class="texto-pequeno">Sin emitido</p>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <div class="tramite-atencion">
+            <p class="dato-titulo">Atencion administrativa</p>
+            {% if t.revisado_por_nombre %}
+            <div class="revision-auditoria">
+              <p class="texto-principal">{{ t.accion_revision }} por {{ t.revisado_por_nombre }}</p>
+              <p class="texto-pequeno texto-mono">{{ t.revisado_por_matricula }}</p>
+              <p class="texto-pequeno">{{ t.revisado_en }}</p>
+              <p class="texto-pequeno">{{ t.detalle_revision }}</p>
+              {% if t.tipo_tramite == 'certificado_habilidad' %}
+              <div class="firma-resumen">
+                <p class="texto-pequeno"><strong>Firma:</strong> {{ t.estado_firma or 'Pendiente' }}</p>
+                {% if t.firmado_por_nombre %}
+                <p class="texto-pequeno"><strong>Firmado por:</strong> {{ t.firmado_por_nombre }}</p>
+                <p class="texto-pequeno texto-mono">{{ t.firmado_por_matricula }}</p>
+                {% endif %}
+                {% if t.firmado_en %}
+                <p class="texto-pequeno">{{ t.firmado_en }}</p>
+                {% endif %}
+                {% if t.estado_firma == 'Firmado' %}
+                <p class="texto-pequeno">Documento firmado con eDNI desde el sistema.</p>
+                {% endif %}
+              </div>
+              {% endif %}
+            </div>
+            {% else %}
+            <p class="texto-pequeno">Sin atencion registrada.</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <aside class="tramite-acciones">
+          <p class="acciones-titulo">Acciones</p>
+
+          {% if t.estado[:2] != 'En' %}
+          <form action="{{ url_for('admin_estado_tramite', tid=t.id) }}" method="POST" data-confirm="Desea poner este tramite en revision?">
+            <input type="hidden" name="estado" value="En Revision">
+            <input type="hidden" name="detalle_revision" value="Tramite tomado para revision administrativa.">
+            <button type="submit" class="boton-mini boton-revision">Poner en revision</button>
+          </form>
+          {% endif %}
+
+          {% if t.tipo_tramite == 'certificado_habilidad' %}
+            {% if t.archivo_respuesta and t.archivo_respuesta_existe %}
+            <a href="{{ url_for('static', filename=t.archivo_respuesta) }}" target="_blank" rel="noopener" class="boton-mini boton-abrir">Ver PDF firmado</a>
+            <a href="{{ url_for('admin_validar_firma_tramite', tid=t.id) }}" class="boton-mini boton-edni">Validar firma</a>
+            {% endif %}
+            {% if t.cuotas_pendientes and t.cuotas_pendientes > 0 %}
+            <button type="button" class="boton-mini boton-abrir boton-deshabilitado" disabled title="No se puede generar con cuotas pendientes">Borrador certificado</button>
+            {% else %}
+            <a href="{{ url_for('admin_certificado_habilidad_borrador', tid=t.id) }}" target="_blank" rel="noopener" class="boton-mini boton-abrir">Borrador certificado</a>
+            <a href="{{ url_for('admin_firma_edni', tid=t.id) }}" class="boton-mini boton-edni">Firmar con eDNI</a>
+            <p class="texto-pequeno ayuda-firma">La aprobacion se registra automaticamente al firmar con eDNI.</p>
+            {% endif %}
+          {% endif %}
+
+          {% if t.estado != 'Aprobado' %}
+            {% if requiere_sin_deuda and t.cuotas_pendientes and t.cuotas_pendientes > 0 %}
+            <button type="button" class="boton-mini boton-aprobar boton-deshabilitado" disabled title="No se puede aprobar con cuotas pendientes">Aprobar</button>
+            {% elif falta_sustento %}
+            <button type="button" class="boton-mini boton-aprobar boton-deshabilitado" disabled title="Debe tener documento sustentatorio">Aprobar</button>
+            {% elif t.tipo_tramite == 'certificado_habilidad' %}
+            <p class="texto-pequeno ayuda-firma">Este tramite solo se aprueba con firma eDNI desde el sistema.</p>
+            {% else %}
+            <details class="accion-detalle">
+              <summary class="boton-mini boton-aprobar">Aprobar tramite</summary>
+              <form action="{{ url_for('admin_estado_tramite', tid=t.id) }}" method="POST" enctype="multipart/form-data" data-confirm="Desea aprobar este tramite?">
+                <input type="hidden" name="estado" value="Aprobado">
+                <textarea class="campo-formulario campo-mini" name="detalle_revision" placeholder="Detalle de atencion">Tramite aprobado por administracion.</textarea>
+                <label class="archivo-mini">
+                  Archivo emitido
+                  <input name="archivo_respuesta" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp">
+                </label>
+                <button type="submit" class="boton-mini boton-aprobar">Confirmar aprobacion</button>
+              </form>
+            </details>
+            {% endif %}
+          {% endif %}
+
+          {% if t.estado != 'Rechazado' %}
+          <details class="accion-detalle">
+            <summary class="boton-mini boton-rechazar">Rechazar</summary>
+            <form action="{{ url_for('admin_estado_tramite', tid=t.id) }}" method="POST" data-confirm="Desea rechazar este tramite?">
+              <input type="hidden" name="estado" value="Rechazado">
+              <textarea class="campo-formulario campo-mini" name="detalle_revision" placeholder="Motivo de rechazo">Tramite rechazado por administracion.</textarea>
+              <button type="submit" class="boton-mini boton-rechazar">Confirmar rechazo</button>
+            </form>
+          </details>
+          {% endif %}
+        </aside>
+      </article>
+      {% else %}
+      <div class="tramites-vacio">
+        <p class="texto-principal">No hay tramites con este filtro.</p>
+        <p class="texto-pequeno">Cambie el estado o tipo de tramite para ampliar la busqueda.</p>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+{% endblock %}

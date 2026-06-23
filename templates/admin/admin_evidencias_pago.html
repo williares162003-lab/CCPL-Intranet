@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin/admin_cuotas.css') }}?v=3">
+{% endblock %}
+
+{% block content %}
+<div class="pagina">
+  <div class="encabezado-pagina">
+    <div>
+      <p class="etiqueta-seccion">Administracion</p>
+      <h2 class="titulo-pagina">Evidencias de pago</h2>
+    </div>
+  </div>
+
+  <form method="GET" class="filtro-formulario">
+    <div class="filtro-campo">
+      <label class="etiqueta-campo">Filtrar por estado</label>
+      <select name="estado" class="campo-formulario">
+        <option value="">Todas</option>
+        <option value="Pendiente" {% if filtro == 'Pendiente' %}selected{% endif %}>Pendiente</option>
+        <option value="Aprobado" {% if filtro == 'Aprobado' %}selected{% endif %}>Aprobado</option>
+        <option value="Rechazado" {% if filtro == 'Rechazado' %}selected{% endif %}>Anulado</option>
+      </select>
+    </div>
+    <button type="submit" class="boton boton-oscuro">
+      <span class="material-symbols-outlined">filter_list</span> Filtrar
+    </button>
+    {% if filtro %}
+    <a href="{{ url_for('admin_evidencias_pago') }}" class="boton boton-secundario">Limpiar</a>
+    {% endif %}
+  </form>
+
+  <div class="resumen-grid">
+    {% set total_pendiente = evidencias | selectattr('estado', 'eq', 'Pendiente') | list | length %}
+    {% set total_aprobado = evidencias | selectattr('estado', 'eq', 'Aprobado') | list | length %}
+    {% set total_rechazado = evidencias | selectattr('estado', 'eq', 'Rechazado') | list | length %}
+    <article class="resumen-card pendiente">
+      <p class="resumen-label">Pendientes</p>
+      <p class="resumen-valor">{{ total_pendiente }}</p>
+    </article>
+    <article class="resumen-card pagado">
+      <p class="resumen-label">Aprobadas</p>
+      <p class="resumen-valor">{{ total_aprobado }}</p>
+    </article>
+    <article class="resumen-card">
+      <p class="resumen-label">Anuladas</p>
+      <p class="resumen-valor">{{ total_rechazado }}</p>
+    </article>
+  </div>
+
+  <section class="tarjeta-tabla">
+    <div class="tabla-responsive">
+      <table class="tabla-datos">
+        <thead>
+          <tr>
+            <th>Colegiado</th>
+            <th>Cuota</th>
+            <th>Medio</th>
+            <th>Operacion</th>
+            <th>Fecha pago</th>
+            <th class="centro">Archivo</th>
+            <th class="derecha">Monto</th>
+            <th class="centro">Estado</th>
+            <th>Revision</th>
+            <th class="centro">Accion</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ev in evidencias %}
+          {% set estado_visible = 'Anulado' if ev.estado == 'Rechazado' else ev.estado %}
+          {% set accion_visible = ev.accion_revision or estado_visible %}
+          <tr>
+            <td>
+              <p class="texto-principal">{{ ev.nombre }}</p>
+              <p class="texto-pequeno texto-mono">{{ ev.matricula }}</p>
+            </td>
+            <td>
+              <p class="texto-secundario">{{ ev.concepto }}</p>
+              {% if ev.comentario %}
+              <p class="texto-pequeno">{{ ev.comentario }}</p>
+              {% endif %}
+            </td>
+            <td>{{ ev.medio_pago }}</td>
+            <td class="texto-mono">{{ ev.numero_operacion }}</td>
+            <td>{{ ev.fecha_pago }}</td>
+            <td class="centro">
+              {% if ev.archivo %}
+              <a href="{{ url_for('static', filename=ev.archivo) }}" target="_blank" rel="noopener" class="boton-link">
+                Ver evidencia
+              </a>
+              {% else %}
+              <span class="texto-pequeno">Sin archivo</span>
+              {% endif %}
+            </td>
+            <td class="derecha texto-principal">S/ {{ "%.2f"|format(ev.monto or 0) }}</td>
+            <td class="centro">
+              <span class="estado-badge {% if ev.estado == 'Aprobado' %}estado-pagado{% elif ev.estado == 'Rechazado' %}estado-inactivo{% else %}estado-pendiente{% endif %}">
+                {{ estado_visible }}
+              </span>
+            </td>
+            <td>
+              {% if ev.revisado_por_nombre %}
+              <div class="revision-auditoria">
+                <p class="texto-principal">{{ accion_visible }} por</p>
+                <p class="texto-pequeno">{{ ev.revisado_por_nombre }}</p>
+                <p class="texto-pequeno texto-mono">{{ ev.revisado_por_matricula }}</p>
+                {% if ev.revisado_en %}
+                <p class="texto-pequeno">{{ ev.revisado_en }}</p>
+                {% endif %}
+                {% if ev.detalle_revision %}
+                <p class="texto-pequeno">{{ ev.detalle_revision }}</p>
+                {% endif %}
+              </div>
+              {% else %}
+              <span class="texto-pequeno">Pendiente de revision</span>
+              {% endif %}
+            </td>
+            <td class="centro">
+              {% if ev.estado == 'Pendiente' %}
+              <div class="acciones-tabla">
+                <form action="{{ url_for('admin_estado_evidencia_pago', evidencia_id=ev.id) }}" method="POST" data-confirm="Desea aprobar esta evidencia y marcar la cuota como pagada?">
+                  <input type="hidden" name="estado" value="Aprobado">
+                  <input type="hidden" name="detalle_revision" value="Comprobante aprobado desde el panel administrativo.">
+                  <button type="submit" class="boton-mini boton-aprobar">Aprobar</button>
+                </form>
+                <form action="{{ url_for('admin_estado_evidencia_pago', evidencia_id=ev.id) }}" method="POST" data-confirm="Desea anular esta evidencia?">
+                  <input type="hidden" name="estado" value="Rechazado">
+                  <input type="hidden" name="detalle_revision" value="Comprobante anulado desde el panel administrativo.">
+                  <button type="submit" class="boton-mini boton-rechazar">Anular</button>
+                </form>
+              </div>
+              {% else %}
+              <span class="texto-pequeno">Revisada</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="10" class="centro texto-pequeno">Sin evidencias de pago registradas.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+{% endblock %}

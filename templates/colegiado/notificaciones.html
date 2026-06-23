@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/colegiado/notificaciones.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="pagina-media espaciado-medio">
+
+  <section class="fila-separada">
+    <div>
+      <p class="etiqueta-seccion">Centro de avisos</p>
+      <h2 class="titulo-pagina">Notificaciones</h2>
+    </div>
+    <div class="fila-wrap">
+      <button id="btn-mark-all" onclick="markAllRead()" class="boton boton-secundario" data-confirm-click="Desea marcar todas las notificaciones como leidas?">
+        <span class="material-symbols-outlined">done_all</span>
+        Marcar todo como leído
+      </button>
+      <button onclick="clearRead()" class="boton boton-peligro" data-confirm-click="Desea limpiar las notificaciones leidas?">
+        <span class="material-symbols-outlined">delete_sweep</span>
+        Limpiar leídas
+      </button>
+    </div>
+  </section>
+
+  <div class="barra-filtros" id="filter-bar">
+    <button class="filter-pill active" data-filter="all">Todas</button>
+    <button class="filter-pill" data-filter="cuota">
+      <span class="material-symbols-outlined">payments</span> Cuotas
+    </button>
+    <button class="filter-pill" data-filter="curso">
+      <span class="material-symbols-outlined">school</span> Cursos
+    </button>
+    <button class="filter-pill" data-filter="ticket">
+      <span class="material-symbols-outlined">support_agent</span> Soporte
+    </button>
+    <button class="filter-pill" data-filter="sistema">
+      <span class="material-symbols-outlined">info</span> Sistema
+    </button>
+    <span class="contador-filtro" id="filter-count"></span>
+  </div>
+
+  <div class="tarjeta-tabla">
+    <div id="empty-state" class="estado-vacio-notif">
+      <div class="icono-vacio">
+        <span class="material-symbols-outlined">notifications_off</span>
+      </div>
+      <p>No hay notificaciones</p>
+      <small>Todo está al día por el momento.</small>
+    </div>
+
+    <ul id="notif-list" class="lista-notificaciones">
+      {% for n in notifications %}
+        <li class="notif-row {% if not n.leido %}unread{% endif %}"
+            data-id="{{ n.id }}" data-type="{{ n.tipo }}" data-read="{{ 'true' if n.leido else 'false' }}">
+          <div class="notif-contenido">
+            <div class="notif-icon-wrap">
+              {% if n.tipo == 'cuota' %}
+              <div class="notif-icon notif-cuota">
+                <span class="material-symbols-outlined icon-fill">payments</span>
+              </div>
+              {% elif n.tipo == 'curso' %}
+              <div class="notif-icon notif-curso">
+                <span class="material-symbols-outlined icon-fill">school</span>
+              </div>
+              {% elif n.tipo == 'ticket' %}
+              <div class="notif-icon notif-ticket">
+                <span class="material-symbols-outlined icon-fill">support_agent</span>
+              </div>
+              {% else %}
+              <div class="notif-icon notif-sistema">
+                <span class="material-symbols-outlined icon-fill">info</span>
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="notif-cuerpo">
+              <div class="notif-cabecera">
+                <p class="texto-principal">{{ n.titulo }}</p>
+                {% if not n.leido %}
+                  <div class="notif-estado">
+                    <span class="unread-dot"></span>
+                    <span data-read-status>Sin leer</span>
+                  </div>
+                {% else %}
+                  <span class="notif-estado" data-read-status>Leído</span>
+                {% endif %}
+              </div>
+
+              <p class="notif-mensaje">{{ n.mensaje | safe }}</p>
+
+              <div class="notif-acciones">
+                {% if n.link_endpoint %}
+                  <a href="{{ url_for(n.link_endpoint) }}" class="boton-mini boton-primario">
+                    <span class="material-symbols-outlined">open_in_new</span>
+                    {{ n.link_text or 'Abrir' }}
+                  </a>
+                {% elif n.link_url %}
+                  <a href="{{ n.link_url }}" target="_blank" class="boton-mini boton-primario">
+                    <span class="material-symbols-outlined">open_in_new</span>
+                    {{ n.link_text or 'Abrir' }}
+                  </a>
+                {% endif %}
+
+                {% if not n.leido %}
+                  <button
+                    data-mark-read
+                    data-notif-id="{{ n.id }}"
+                    onclick="markRead(this.dataset.notifId)"
+                    data-confirm-click="Desea marcar esta notificacion como leida?"
+                    class="boton-mini boton-secundario">
+                    Marcar como leído
+                  </button>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <p class="resumen-notificaciones" id="summary-text"></p>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/colegiado/notificaciones.js') }}"></script>
+{% endblock %}

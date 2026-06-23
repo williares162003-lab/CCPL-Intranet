@@ -1,0 +1,462 @@
+/* Admin: Cuotas */
+
+.filtro-formulario {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.filtro-campo {
+  flex: 1;
+  min-width: 200px;
+}
+
+.filtro-campo-tipo {
+  flex: 0 0 190px;
+}
+
+.filtro-campo-cantidad {
+  flex: 0 0 100px;
+}
+
+.procesamiento-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.proceso-card {
+  background: #ffffff;
+  border: 1px solid #d7e3ee;
+  border-radius: 8px;
+  padding: 18px;
+  box-shadow: 0 14px 30px rgba(0, 43, 91, .06);
+}
+
+.proceso-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.proceso-header > .material-symbols-outlined {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border-radius: 8px;
+  color: #004b8d;
+  background: #e7f6fb;
+  border: 1px solid #b9e3ee;
+}
+
+.proceso-label {
+  margin: 0 0 4px;
+  color: #d49a00;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.proceso-header h3 {
+  margin: 0;
+  color: #002b5b;
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+.proceso-datos {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.proceso-datos div {
+  padding: 10px;
+  border: 1px solid #e4edf5;
+  border-radius: 8px;
+  background: #f8fbfd;
+}
+
+.proceso-datos span {
+  display: block;
+  color: #60748e;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.proceso-datos strong {
+  display: block;
+  margin-top: 5px;
+  color: #002b5b;
+  font-size: 15px;
+}
+
+.proceso-form {
+  margin-top: 4px;
+}
+
+.proceso-campos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.proceso-accion {
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.proceso-total {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  border: 1px solid #e4edf5;
+  border-radius: 8px;
+  color: #60748e;
+  background: #f8fbfd;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.proceso-total strong {
+  color: #004b8d;
+}
+
+.nota-proceso,
+.proceso-texto {
+  margin: 12px 0 0;
+  color: #60748e;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.boton-full {
+  width: 100%;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.resumen-grid {
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+.tabla-toolbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid #e4edf5;
+  color: #60748e;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.tabla-toolbar p {
+  margin: 0;
+}
+
+.tabla-cuotas th:nth-child(4),
+.tabla-cuotas td:nth-child(4) {
+  min-width: 230px;
+}
+
+.tabla-datos .acciones-tabla .boton {
+  min-height: 30px;
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  gap: 4px;
+}
+
+.tabla-datos .acciones-tabla .boton .material-symbols-outlined {
+  font-size: 20px;
+}
+
+.revision-auditoria {
+  min-width: 170px;
+  max-width: 220px;
+}
+
+.revision-auditoria p {
+  margin: 0;
+}
+
+.revision-auditoria p + p {
+  margin-top: 3px;
+}
+
+.tipo-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 72px;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.tipo-mensual {
+  color: #004b8d;
+  background: #e7f6fb;
+}
+
+.tipo-curso {
+  color: #006b4f;
+  background: #dff8ed;
+}
+
+.tipo-otro {
+  color: #6b4e00;
+  background: #fff4cf;
+}
+
+.estado-vencida {
+  color: #b42318;
+  background: #fee4e2;
+}
+
+.resumen-card.pendiente {
+  background: #fffbeb;
+  border-color: #fde68a;
+}
+
+.resumen-card.pagado {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+}
+
+.resumen-card.pendiente .resumen-label,
+.resumen-card.pendiente .resumen-valor {
+  color: #92400e;
+}
+
+.resumen-card.pagado .resumen-label,
+.resumen-card.pagado .resumen-valor {
+  color: #065f46;
+}
+
+.resumen-valor.compacto {
+  font-size: 18px;
+  line-height: 1.25;
+}
+
+.pagos-demo-resumen {
+  margin-bottom: 18px;
+}
+
+.pagos-demo-grid {
+  grid-template-columns: minmax(0, 1fr) minmax(280px, .75fr);
+}
+
+.config-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  padding: 18px;
+}
+
+.config-span {
+  grid-column: 1 / -1;
+}
+
+.config-separador {
+  border-top: 1px solid #e4edf5;
+}
+
+.config-acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 0 18px 18px;
+}
+
+.metodo-lista {
+  display: grid;
+  gap: 10px;
+}
+
+.metodo-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid #e4edf5;
+  border-radius: 8px;
+  background: #f8fbfd;
+}
+
+.metodo-item p {
+  margin: 0;
+}
+
+.metodo-item strong {
+  color: #004b8d;
+  white-space: nowrap;
+}
+
+.anular-detalle {
+  min-width: 180px;
+}
+
+.anular-detalle summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+.anular-detalle summary::-webkit-details-marker {
+  display: none;
+}
+
+.anular-form {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.anular-form textarea {
+  min-width: 180px;
+  resize: vertical;
+}
+
+.boton:disabled {
+  cursor: not-allowed;
+  opacity: .55;
+}
+
+.buscador-colegiado {
+  position: relative;
+}
+
+.resultados-colegiado {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 20;
+  max-height: 240px;
+  overflow: auto;
+  background: #ffffff;
+  border: 1px solid #c9d8e7;
+  border-radius: 8px;
+  box-shadow: 0 18px 35px rgba(0, 43, 91, .16);
+}
+
+.resultado-colegiado {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: 3px;
+  padding: 10px 12px;
+  border: 0;
+  border-bottom: 1px solid #edf3f8;
+  background: #ffffff;
+  color: #002b5b;
+  text-align: left;
+  cursor: pointer;
+}
+
+.resultado-colegiado:hover {
+  background: #e7f6fb;
+}
+
+.resultado-nombre {
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.resultado-detalle,
+.resultado-vacio,
+.ayuda-busqueda {
+  color: #60748e;
+  font-size: 12px;
+}
+
+.resultado-vacio {
+  margin: 0;
+  padding: 12px;
+}
+
+.paginacion {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 14px 16px;
+  border-top: 1px solid #e4edf5;
+}
+
+.paginacion-link,
+.paginacion-numero {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 38px;
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid #c9d8e7;
+  border-radius: 8px;
+  color: #004b8d;
+  background: #ffffff;
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.paginacion-numero.activo {
+  color: #ffffff;
+  border-color: #004b8d;
+  background: #004b8d;
+}
+
+.paginacion-link.disabled {
+  pointer-events: none;
+  color: #9aaabe;
+  background: #f3f6f9;
+}
+
+@media (max-width: 900px) {
+  .procesamiento-grid,
+  .proceso-datos,
+  .proceso-campos,
+  .config-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .config-span {
+    grid-column: auto;
+  }
+
+  .proceso-accion {
+    grid-template-columns: 1fr;
+  }
+
+  .filtro-campo-tipo {
+    flex: 1;
+  }
+
+  .filtro-campo-cantidad {
+    flex: 1;
+  }
+
+  .tabla-toolbar {
+    flex-direction: column;
+  }
+
+  .paginacion {
+    justify-content: center;
+  }
+}

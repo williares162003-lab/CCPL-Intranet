@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/colegiado/educacion_continua.css') }}?v=5">
+{% endblock %}
+
+{% block content %}
+<div class="pagina espaciado">
+  <section class="encabezado-con-panel">
+    <div>
+      <p class="etiqueta-seccion">Capacitacion</p>
+      <h2 class="titulo-pagina">Educacion continua</h2>
+      <p class="texto-apoyo">Gestiona tus cursos, materiales y certificados.</p>
+    </div>
+    <div class="epc-card">
+      <p class="dato-label">Puntos EPC 2024</p>
+      <p class="epc-valor">{{ epc_points }} <span>/ {{ epc_target }} pts</span></p>
+      <div class="barra-progreso">
+        <div class="barra-progreso-valor barra-dorada" data-progress-bar data-progress="{{ (epc_points * 100 // epc_target) }}"></div>
+      </div>
+      <p class="texto-pequeno">Te faltan <strong>{{ epc_target - epc_points }} puntos</strong> para completar el ciclo.</p>
+    </div>
+  </section>
+
+  <section class="educacion-resumen-grid">
+    <article class="educacion-resumen-card">
+      <span class="material-symbols-outlined">school</span>
+      <div>
+        <p class="dato-label">Cursos inscritos</p>
+        <strong>{{ education_summary.total_cursos }}</strong>
+        <p class="texto-pequeno">Promedio {{ education_summary.promedio_general }}%.</p>
+      </div>
+    </article>
+    <article class="educacion-resumen-card pendiente">
+      <span class="material-symbols-outlined">folder_open</span>
+      <div>
+        <p class="dato-label">Materiales</p>
+        <strong>{{ education_summary.total_materiales }}</strong>
+        <p class="texto-pequeno">Publicados por ponentes.</p>
+      </div>
+    </article>
+    <article class="educacion-resumen-card">
+      <span class="material-symbols-outlined">monitoring</span>
+      <div>
+        <p class="dato-label">Avance general</p>
+        <strong>{{ education_summary.promedio_general }}%</strong>
+        <p class="texto-pequeno">Segun progreso registrado.</p>
+      </div>
+    </article>
+    <article class="educacion-resumen-card pagado">
+      <span class="material-symbols-outlined">workspace_premium</span>
+      <div>
+        <p class="dato-label">Certificados</p>
+        <strong>{{ education_summary.certificados_disponibles }}</strong>
+        <p class="texto-pequeno">Listos para consultar.</p>
+      </div>
+    </article>
+  </section>
+
+  <section class="campus-header">
+    <div>
+      <p class="etiqueta-seccion">Mis aulas</p>
+      <h2 class="titulo-pagina">Vista general de cursos</h2>
+    </div>
+    <div class="campus-controles">
+      <span class="campus-chip">
+        <span class="material-symbols-outlined">school</span>
+        {{ courses|length }} curso(s)
+      </span>
+      <span class="campus-chip">
+        <span class="material-symbols-outlined">folder_open</span>
+        Materiales de apoyo
+      </span>
+    </div>
+  </section>
+
+  <section class="campus-grid">
+    {% for course in courses %}
+    <article class="campus-card">
+      <div class="campus-banner">
+        <span class="material-symbols-outlined">school</span>
+      </div>
+
+      <div class="campus-card-body">
+        <div class="campus-card-top">
+          <div>
+            <p class="etiqueta-seccion">{{ course.category }}</p>
+            <h3>{{ course.title }}</h3>
+            <p class="texto-pequeno">{{ course.modality or '-' }} | {{ course.hours }} horas | S/ {{ "%.2f"|format(course.amount or 0) }}</p>
+            <p class="texto-pequeno">Ponente: {{ course.speaker or '-' }}</p>
+          </div>
+          <span class="estado-badge {% if course.badge == 'Pagado' %}estado-pagado{% else %}estado-pendiente{% endif %}">
+            {{ course.badge }}
+          </span>
+        </div>
+
+        <div class="campus-stats">
+          <div>
+            <strong>{{ course.progress }}%</strong>
+            <span>avance</span>
+          </div>
+          <div>
+            <strong>{{ course.material_count }}</strong>
+            <span>materiales</span>
+          </div>
+          <div>
+            <strong>{{ course.hours }}</strong>
+            <span>horas</span>
+          </div>
+        </div>
+
+        <div class="campus-progress">
+          <div class="fila-separada">
+            <span class="texto-secundario">Progreso del curso</span>
+            <strong>{{ course.progress }}%</strong>
+          </div>
+          <div class="barra-progreso">
+            <div class="barra-progreso-valor {% if course.progress == 100 %}barra-verde{% else %}barra-azul{% endif %}" data-progress-bar data-progress="{{ course.progress }}"></div>
+          </div>
+        </div>
+
+        <div class="campus-materiales">
+          {% for material in course.materials[:3] %}
+          <div class="material-pill">
+            <span><span class="material-symbols-outlined">description</span></span>
+            <div>
+              <strong>{{ material.title }}</strong>
+              <small>{{ material.description }}</small>
+            </div>
+          </div>
+          {% else %}
+          <p class="texto-pequeno">El ponente aun no publico materiales.</p>
+          {% endfor %}
+        </div>
+
+        <div class="campus-footer">
+          <div>
+            {% if course.material_count %}
+            <p class="texto-principal">{{ course.material_count }} material(es) disponible(s)</p>
+            <p class="texto-pequeno">Revisa el aula para ver archivos o enlaces.</p>
+            {% else %}
+            <p class="texto-principal">Sin materiales publicados</p>
+            <p class="texto-pequeno">Revisa nuevamente cuando el ponente publique contenido.</p>
+            {% endif %}
+          </div>
+          <a class="boton-link" href="{{ url_for('colegiado_aula_curso', inscripcion_id=course.inscription_id) }}">
+            {% if course.progress == 100 and course.certificate %}
+              <span class="material-symbols-outlined">workspace_premium</span> Aula y certificado
+            {% else %}
+              <span class="material-symbols-outlined">play_circle</span> Entrar al aula
+            {% endif %}
+          </a>
+        </div>
+      </div>
+    </article>
+    {% else %}
+    <article class="campus-card campus-empty">
+      <div class="campus-card-body">
+        <p class="etiqueta-seccion">Mis cursos</p>
+        <h3>Aun no tienes cursos inscritos</h3>
+        <p class="texto-secundario">Puedes inscribirte en uno de los cursos disponibles.</p>
+      </div>
+    </article>
+    {% endfor %}
+  </section>
+
+  <section>
+    <div class="encabezado-pagina encabezado-compacto">
+      <div>
+        <p class="etiqueta-seccion">Disponibles</p>
+        <h2 class="titulo-pagina">Cursos para inscribirme</h2>
+      </div>
+    </div>
+
+    <div class="cursos-grid">
+      {% for course in available_courses %}
+      {% set sin_cupos = (course.inscritos or 0) >= (course.cupos or 0) %}
+      <article class="curso-card">
+        <div class="curso-banner curso-banner-disponible">
+          <span class="material-symbols-outlined icon-fill">workspace_premium</span>
+        </div>
+        <div class="curso-cuerpo">
+          <p class="etiqueta-seccion">{{ course.category }}</p>
+          <h3>{{ course.title }}</h3>
+          <p class="texto-secundario">{{ course.date }}</p>
+          <p class="texto-pequeno">{{ course.modality or '-' }} | {{ course.hours }} horas</p>
+          <p class="texto-principal">Tu precio: S/ {{ "%.2f"|format(course.amount or 0) }}</p>
+          <p class="texto-pequeno">
+            Condicion detectada: {{ course.price_condition }}
+            | Habil S/ {{ "%.2f"|format(course.amount_habil or 0) }}
+            | Inhabil S/ {{ "%.2f"|format(course.amount_inhabil or 0) }}
+          </p>
+          <p class="texto-pequeno">Ponente: {{ course.speaker or '-' }}</p>
+          <p class="texto-pequeno">Cupos: {{ course.inscritos or 0 }}/{{ course.cupos or 0 }}</p>
+          <div class="curso-footer">
+            {% if sin_cupos %}
+            <span class="estado-texto texto-pendiente">Sin cupos</span>
+            <button type="button" class="boton boton-secundario boton-ancho" disabled>
+              <span class="material-symbols-outlined">block</span> No disponible
+            </button>
+            {% else %}
+            <span class="estado-texto texto-ok">Disponible</span>
+            <form action="{{ url_for('colegiado_inscribirse_curso') }}" method="POST" data-confirm="Desea inscribirse en este curso?">
+              <input type="hidden" name="curso_id" value="{{ course.id }}">
+              <button type="submit" class="boton boton-primario">
+                <span class="material-symbols-outlined">person_add</span> Inscribirme
+              </button>
+            </form>
+            {% endif %}
+          </div>
+        </div>
+      </article>
+      {% else %}
+      <article class="curso-card">
+        <div class="curso-cuerpo">
+          <p class="etiqueta-seccion">Disponibles</p>
+          <h3>No hay cursos nuevos</h3>
+          <p class="texto-secundario">Cuando el administrador active cursos, apareceran aqui.</p>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+
+{% endblock %}

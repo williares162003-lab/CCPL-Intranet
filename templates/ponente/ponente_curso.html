@@ -1,0 +1,276 @@
+{% extends "base.html" %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/aula_virtual.css') }}?v=6">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ponente/ponente.css') }}?v=8">
+{% endblock %}
+
+{% block content %}
+<div class="pagina aula-page">
+  <section class="aula-hero aula-hero-gestion">
+    <div>
+      <p class="aula-breadcrumb">Ponente > Mis cursos > Gestion</p>
+      <p class="etiqueta-seccion">{{ curso.categoria }}</p>
+      <h2>{{ curso.titulo }}</h2>
+      <p>{{ curso.descripcion or 'Agregue una descripcion general del curso.' }}</p>
+      <div class="aula-meta">
+        <span>{{ curso.modalidad or '-' }}</span>
+        <span>{{ curso.duracion_horas or 0 }} horas</span>
+        <span>{{ curso.fecha_evento or 'Fecha por definir' }}</span>
+        <span>{{ inscritos|length }} inscritos</span>
+      </div>
+    </div>
+    <div class="aula-status">
+      <p class="dato-label">Promedio</p>
+      <strong>{{ "%.0f"|format(curso.progreso_promedio or 0) }}%</strong>
+      <div class="barra-progreso">
+        <div class="barra-progreso-valor barra-azul" data-progress-bar data-progress="{{ "%.0f"|format(curso.progreso_promedio or 0) }}"></div>
+      </div>
+      <span class="estado-badge estado-pagado">Modo gestion</span>
+    </div>
+  </section>
+
+  <section class="aula-resumen-grid">
+    <article class="aula-resumen-item">
+      <span class="material-symbols-outlined">groups</span>
+      <div>
+        <p class="dato-label">Inscritos</p>
+        <strong>{{ resumen_aula.total_inscritos }}</strong>
+        <p class="texto-pequeno">Colegiados matriculados.</p>
+      </div>
+    </article>
+    <article class="aula-resumen-item">
+      <span class="material-symbols-outlined">folder_open</span>
+      <div>
+        <p class="dato-label">Materiales</p>
+        <strong>{{ resumen_aula.total_materiales }}</strong>
+        <p class="texto-pequeno">Archivos o enlaces publicados.</p>
+      </div>
+    </article>
+    <article class="aula-resumen-item">
+      <span class="material-symbols-outlined">monitoring</span>
+      <div>
+        <p class="dato-label">Progreso</p>
+        <strong>{{ resumen_aula.progreso_promedio }}%</strong>
+        <p class="texto-pequeno">Promedio del curso.</p>
+      </div>
+    </article>
+    <article class="aula-resumen-item">
+      <span class="material-symbols-outlined">workspace_premium</span>
+      <div>
+        <p class="dato-label">Certificados</p>
+        <strong>{{ inscritos|selectattr('certificado')|list|length }}</strong>
+        <p class="texto-pequeno">Registrados por administracion.</p>
+      </div>
+    </article>
+  </section>
+
+  <nav class="aula-tabs" aria-label="Navegacion del curso">
+    <a href="#general-curso">General</a>
+    <a href="#materiales-curso">Materiales</a>
+    <a href="#seguimiento-curso">Seguimiento</a>
+  </nav>
+
+  <section class="aula-layout">
+    <aside class="aula-sidebar">
+      <a href="{{ url_for('ponente_dashboard') }}" class="boton boton-secundario boton-ancho">
+        <span class="material-symbols-outlined">arrow_back</span> Mis cursos
+      </a>
+
+      <div class="aula-panel aula-panel-progreso">
+        <p class="etiqueta-seccion">Gestion</p>
+        <strong>{{ inscritos|length }}</strong>
+        <p class="texto-secundario">inscrito(s) en este curso.</p>
+        <div class="aula-panel-lista">
+          <p><strong>{{ materiales|length }}</strong> material(es)</p>
+          <p><strong>{{ "%.0f"|format(curso.progreso_promedio or 0) }}%</strong> promedio</p>
+          <p><strong>{{ curso.cupos or 0 }}</strong> cupos</p>
+        </div>
+      </div>
+
+      <div class="aula-panel">
+        <p class="etiqueta-seccion">Acciones rapidas</p>
+        <div class="aula-side-actions">
+          <a href="#form-material"><span class="material-symbols-outlined">upload_file</span> Subir material</a>
+          <a href="#seguimiento-curso"><span class="material-symbols-outlined">monitoring</span> Actualizar progreso</a>
+        </div>
+      </div>
+
+      <div id="form-material" class="aula-panel">
+        <p class="etiqueta-seccion">Material</p>
+        <form action="{{ url_for('ponente_agregar_material', curso_id=curso.id) }}" method="POST" enctype="multipart/form-data" class="formulario formulario-compacto" data-material-form data-confirm="Desea agregar este material?">
+          <input name="titulo" required class="campo-formulario" placeholder="Titulo del material">
+          <textarea name="descripcion" rows="2" required class="campo-formulario" placeholder="Descripcion"></textarea>
+          <input name="enlace" type="url" class="campo-formulario" placeholder="Enlace opcional">
+          <input name="archivo_material" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp" class="campo-formulario">
+          <button type="submit" class="boton boton-primario boton-ancho">
+            <span class="material-symbols-outlined">upload_file</span> Subir material
+          </button>
+        </form>
+      </div>
+    </aside>
+
+    <main class="aula-contenido">
+      <section id="general-curso" class="aula-seccion aula-general">
+        <div class="aula-seccion-header">
+          <p class="etiqueta-seccion">Portada del curso</p>
+          <h3>Descripcion general</h3>
+        </div>
+        <form action="{{ url_for('ponente_actualizar_contenido', curso_id=curso.id) }}" method="POST" class="formulario ponente-form" data-contenido-form data-confirm="Desea guardar el contenido del curso?">
+          <textarea name="descripcion" rows="4" required class="campo-formulario" placeholder="Describe el contenido, temas o indicaciones del curso.">{{ curso.descripcion or '' }}</textarea>
+          <div class="acciones-formulario">
+            <button type="submit" class="boton boton-primario">
+              <span class="material-symbols-outlined">save</span> Guardar descripcion
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <section id="materiales-curso" class="aula-seccion">
+        <div class="aula-seccion-header">
+          <p class="etiqueta-seccion">Materiales</p>
+          <h3>Material publicado</h3>
+          <p>Use este espacio para lecturas, presentaciones, imagenes o enlaces de apoyo.</p>
+        </div>
+        <div class="aula-bloque">
+          <div class="aula-bloque-title">
+            <span class="material-symbols-outlined">folder_open</span>
+            <h4>Materiales del curso</h4>
+          </div>
+          {% for material in materiales %}
+          <article class="aula-item">
+            <span class="material-symbols-outlined">description</span>
+            <div>
+              <p class="texto-principal">{{ material.titulo }}</p>
+              <p class="texto-secundario">{{ material.descripcion }}</p>
+              <div class="fila-wrap">
+                {% if material.enlace %}
+                <a href="{{ material.enlace }}" target="_blank" rel="noopener" class="boton-link">Abrir enlace</a>
+                {% endif %}
+                {% if material.archivo and material.archivo_existe %}
+                <a href="{{ url_for('static', filename=material.archivo) }}" target="_blank" rel="noopener" class="boton-link">Descargar archivo</a>
+                {% elif material.archivo %}
+                <span class="texto-pequeno">Archivo no disponible</span>
+                {% endif %}
+                <form action="{{ url_for('ponente_eliminar_material', material_id=material.id) }}" method="POST" data-confirm="Desea eliminar este material?">
+                  <input type="hidden" name="curso_id" value="{{ curso.id }}">
+                  <button type="submit" class="boton-mini boton-rechazar">Eliminar</button>
+                </form>
+              </div>
+            </div>
+          </article>
+          {% else %}
+          <p class="texto-secundario">Aun no hay materiales publicados.</p>
+          {% endfor %}
+        </div>
+      </section>
+
+      <section id="seguimiento-curso" class="aula-seccion">
+        <div class="aula-seccion-header">
+          <p class="etiqueta-seccion">Seguimiento</p>
+          <h3>Colegiados matriculados</h3>
+        </div>
+        <div class="tabla-responsive">
+          <table class="tabla-datos">
+            <thead>
+              <tr>
+                <th>Colegiado</th>
+                <th class="centro">Progreso</th>
+                <th class="centro">Pago</th>
+                <th class="centro">Certificado</th>
+                <th class="centro">Accion</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for inscrito in inscritos %}
+              <tr>
+                <td>
+                  <p class="texto-principal">{{ inscrito.nombre }}</p>
+                  <p class="texto-pequeno texto-mono">{{ inscrito.matricula }}</p>
+                </td>
+                <td class="centro">
+                  <p class="texto-principal">{{ inscrito.progreso }}%</p>
+                  <div class="barra-progreso tabla-progreso">
+                    <div class="barra-progreso-valor {% if inscrito.progreso == 100 %}barra-verde{% else %}barra-azul{% endif %}" data-progress-bar data-progress="{{ inscrito.progreso }}"></div>
+                  </div>
+                </td>
+                <td class="centro">
+                  <span class="estado-badge {% if inscrito.estado_pago == 'Pagado' %}estado-pagado{% else %}estado-pendiente{% endif %}">
+                    {{ inscrito.estado_pago }}
+                  </span>
+                </td>
+                <td class="centro">
+                  {% if inscrito.certificado %}
+                  <span class="estado-badge estado-pagado">Emitido</span>
+                  {% else %}
+                  <span class="estado-badge estado-neutro">Pendiente</span>
+                  {% endif %}
+                </td>
+                <td class="centro">
+                  <button
+                    type="button"
+                    class="boton-mini boton-secundario"
+                    data-edit-progreso
+                    data-id="{{ inscrito.id }}"
+                    data-curso-id="{{ curso.id }}"
+                    data-nombre="{{ inscrito.nombre }}"
+                    data-matricula="{{ inscrito.matricula }}"
+                    data-progreso="{{ inscrito.progreso }}">
+                    Progreso
+                  </button>
+                </td>
+              </tr>
+              {% else %}
+              <tr><td colspan="5" class="centro texto-pequeno">Aun no hay colegiados inscritos.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </section>
+</div>
+
+<div id="modal-editar-progreso" class="modal-fondo hidden">
+  <div class="modal-caja">
+    <div class="modal-barra"></div>
+    <div class="modal-cuerpo">
+      <div class="modal-header">
+        <div>
+          <p class="modal-subtitulo">Seguimiento</p>
+          <h3 class="modal-titulo">Actualizar progreso</h3>
+        </div>
+        <button type="button" onclick="cerrarModalEditarProgreso()" class="boton-cerrar">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <form id="form-editar-progreso" method="POST" class="formulario" data-progreso-form data-confirm="Desea actualizar el progreso del colegiado?">
+        <input id="progreso-curso-id" type="hidden" name="curso_id" value="{{ curso.id }}">
+
+        <div>
+          <label class="etiqueta-campo">Colegiado</label>
+          <p id="progreso-colegiado" class="texto-principal"></p>
+          <p id="progreso-matricula" class="texto-pequeno texto-mono"></p>
+        </div>
+
+        <div>
+          <label class="etiqueta-campo">Progreso (%) *</label>
+          <input id="progreso-valor" name="progreso" type="number" min="0" max="100" required class="campo-formulario">
+          <p class="texto-pequeno">Use 100% cuando el colegiado haya culminado el curso.</p>
+        </div>
+
+        <div class="acciones-formulario">
+          <button type="button" onclick="cerrarModalEditarProgreso()" class="boton boton-secundario">Cancelar</button>
+          <button type="submit" class="boton boton-primario">
+            <span class="material-symbols-outlined">save</span> Guardar progreso
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/ponente/ponente.js') }}?v=6"></script>
+{% endblock %}

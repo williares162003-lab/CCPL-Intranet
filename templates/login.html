@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ page_title }} | CCPL</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+</head>
+
+<body>
+  <main class="login-page">
+    <section class="login-hero">
+      <img
+        src="{{ url_for('static', filename='imagenes/login-contadores-hero.png') }}"
+        alt="Ambiente institucional del Colegio de Contadores"
+        class="login-image"
+      />
+      <div class="login-overlay"></div>
+      <div class="login-hero-content">
+        <div class="login-logo">
+          <img
+            src="{{ url_for('static', filename='imagenes/escudo-ccpl.png') }}"
+            alt="Colegio de Contadores Publicos de Lambayeque"
+            class="login-logo-img"
+          />
+        </div>
+        <h1 class="login-title">Colegio de Contadores Publicos de Lambayeque</h1>
+        <p class="login-description">Portal de gestión profesional para colegiados y administradores.</p>
+      </div>
+    </section>
+
+    <section class="login-form-section">
+      <div class="login-card-wrap">
+        <div class="login-mobile-brand">
+          <img
+            src="{{ url_for('static', filename='imagenes/escudo-ccpl.png') }}"
+            alt="Colegio de Contadores Publicos de Lambayeque"
+            class="login-mobile-logo"
+          />
+          <p>Portal de gestión profesional</p>
+        </div>
+
+        <div class="login-card">
+          <div>
+            <h2>Bienvenido</h2>
+            <p>Inicie sesión para acceder a la intranet.</p>
+          </div>
+
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              <div class="login-alerts">
+                {% for category, message in messages %}
+                  <div class="alerta {% if category == 'error' %}alerta-error{% else %}alerta-success{% endif %}">
+                    {{ message }}
+                  </div>
+                {% endfor %}
+              </div>
+            {% endif %}
+          {% endwith %}
+
+          <form class="login-form" method="post">
+            <div class="login-field">
+              <label for="membership-id">Número de colegiatura</label>
+              <div class="login-input-wrap">
+                <span class="material-symbols-outlined">badge</span>
+                <input
+                  class="login-input"
+                  id="membership-id"
+                  name="membership-id"
+                  placeholder="Ingrese su número de colegiado"
+                  type="text"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="login-field">
+              <label for="password">Contraseña</label>
+              <div class="login-input-wrap">
+                <span class="material-symbols-outlined">lock</span>
+                <input
+                  class="login-input"
+                  id="password"
+                  name="password"
+                  placeholder="Ingrese su contraseña"
+                  type="password"
+                  required
+                />
+              </div>
+            </div>
+
+            <label class="remember-row">
+              <input id="remember" name="remember" type="checkbox" />
+              Recordarme
+              <a href="{{ url_for('recuperar_contrasena') }}" class="login-link-secundario">
+                Olvide mi contrasena
+              </a>
+            </label>
+
+            <button class="boton boton-primario boton-ancho" type="submit">
+              <span>Iniciar sesión</span>
+              <span class="material-symbols-outlined">login</span>
+            </button>
+          </form>
+
+          <div class="demo-access">
+            <p class="demo-access-title">Accesos de prueba</p>
+            <div>
+              <div class="demo-row">
+                <span>Colegiado:</span>
+                <strong>12455-A / cpc123</strong>
+              </div>
+              <div class="demo-row">
+                <span>Administrador:</span>
+                <strong>admin / admin2024</strong>
+              </div>
+              <div class="demo-row">
+                <span>Ponentes:</span>
+                <strong>ponente1-ponente5 / ponente123</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <footer class="login-footer">
+          2026 Colegio de Contadores Públicos de Lambayeque.
+        </footer>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

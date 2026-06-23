@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin/admin_dashboard.css') }}?v=4">
+{% endblock %}
+
+{% block content %}
+<div class="pagina dashboard-admin">
+  <section class="dashboard-hero">
+    <div>
+      <p class="etiqueta-seccion">Administracion del sistema</p>
+      <h2 class="titulo-pagina">Panel de control</h2>
+      <p class="texto-apoyo">Vista operativa de cuotas, cursos, evidencias y atenciones del CCPL.</p>
+    </div>
+    <div class="dashboard-fecha">
+      <span class="material-symbols-outlined">calendar_today</span>
+      <div>
+        <p>Fecha</p>
+        <strong>{{ today }}</strong>
+      </div>
+    </div>
+  </section>
+
+  <section class="dashboard-top-grid">
+    <article class="control-card control-card-grande">
+      <div class="card-top">
+        <h3>Cuotas pendientes</h3>
+        <span class="material-symbols-outlined">pending_actions</span>
+      </div>
+      <p class="numero-gigante">S/ {{ "%.0f"|format(stats.deuda_total or 0) }}</p>
+      <p class="subnumero">{{ stats.cuotas_pendientes }} cuotas pendientes</p>
+      <div class="alerta-interna {% if stats.cuotas_vencidas %}activa{% endif %}">
+        <div>
+          <strong>{{ stats.cuotas_vencidas }}</strong>
+          <span>vencidas</span>
+        </div>
+        <p>S/ {{ "%.0f"|format(stats.deuda_vencida or 0) }}</p>
+      </div>
+    </article>
+
+    <article class="control-card">
+      <div class="card-top">
+        <h3>Recaudado este mes</h3>
+        <span class="material-symbols-outlined">payments</span>
+      </div>
+      <p class="numero-card">S/ {{ "%.0f"|format(stats.recaudado_mes or 0) }}</p>
+      <p class="subnumero">Total pagado S/ {{ "%.0f"|format(stats.total_pagado or 0) }}</p>
+      <div class="barra-mini">
+        <span style="width: {{ stats.cumplimiento_pago_pct }}%"></span>
+      </div>
+    </article>
+
+    <article class="control-card gauge-card">
+      <div class="card-top">
+        <h3>Cumplimiento financiero</h3>
+        <span class="material-symbols-outlined">speed</span>
+      </div>
+      <div class="gauge" style="--valor: {{ stats.cumplimiento_pago_pct }};">
+        <div class="gauge-centro">
+          <strong>{{ stats.cumplimiento_pago_pct }}%</strong>
+          <span>pagado</span>
+        </div>
+      </div>
+      <div class="gauge-escala">
+        <span>0%</span>
+        <span>100%</span>
+      </div>
+    </article>
+
+    <article class="control-card control-card-alerta">
+      <div class="card-top">
+        <h3>Evidencias</h3>
+        <span class="material-symbols-outlined">receipt_long</span>
+      </div>
+      <p class="numero-card">{{ stats.evidencias_pendientes }}</p>
+      <p class="subnumero">por revisar</p>
+      <a href="{{ url_for('admin_evidencias_pago') }}" class="link-card">Ver evidencias</a>
+    </article>
+
+  </section>
+
+  <section class="dashboard-main-grid">
+    <article class="control-card chart-card">
+      <div class="card-top">
+        <h3>Pagos vs deuda por mes</h3>
+        <div class="leyenda-chart">
+          <span class="leyenda-pagado">Pagado</span>
+          <span class="leyenda-pendiente">Pendiente</span>
+        </div>
+      </div>
+      <div class="bar-chart">
+        {% for item in serie_financiera %}
+        <div class="bar-group">
+          <div class="bar-stack">
+            <span class="bar bar-pagado" style="height: {{ item.pagado_pct }}%" title="Pagado S/ {{ '%.2f'|format(item.pagado) }}"></span>
+            <span class="bar bar-pendiente" style="height: {{ item.pendiente_pct }}%" title="Pendiente S/ {{ '%.2f'|format(item.pendiente) }}"></span>
+          </div>
+          <p>{{ item.etiqueta }}</p>
+        </div>
+        {% endfor %}
+      </div>
+    </article>
+
+    <article class="control-card feedback-card">
+      <div class="card-top">
+        <h3>Alertas de gestion</h3>
+        <span class="material-symbols-outlined">notifications_active</span>
+      </div>
+      {% if alertas %}
+      <div class="alertas-lista">
+        {% for alerta in alertas %}
+        <a href="{{ alerta.url if alerta.url is defined else url_for(alerta.endpoint) }}" class="alerta-card">
+          <span class="material-symbols-outlined">{{ alerta.icon }}</span>
+          <div>
+            <strong>{{ alerta.titulo }}</strong>
+            <p>{{ alerta.detalle }}</p>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="mensaje-vacio compacto">No hay alertas criticas por ahora.</p>
+      {% endif %}
+    </article>
+
+    <article class="control-card ranking-card">
+      <div class="card-top">
+        <h3>Cursos con mas inscritos</h3>
+        <span class="material-symbols-outlined">leaderboard</span>
+      </div>
+      {% if cursos_top %}
+      <div class="ranking-lista">
+        {% for curso in cursos_top %}
+        <div class="ranking-item">
+          <div>
+            <strong>{{ curso.titulo }}</strong>
+            <span>{{ curso.inscritos }} inscritos</span>
+          </div>
+          <p>{{ curso.ocupacion_pct }}%</p>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="mensaje-vacio compacto">No hay cursos inscritos.</p>
+      {% endif %}
+    </article>
+  </section>
+
+  <section class="dashboard-lower-grid">
+    <article class="control-card status-card">
+      <div class="card-top">
+        <h3>Estado operativo</h3>
+        <span class="material-symbols-outlined">monitoring</span>
+      </div>
+      <div class="status-lista">
+        <div>
+          <span>Colegiados vigentes</span>
+          <strong>{{ stats.colegiados_activos }}</strong>
+        </div>
+        <div>
+          <span>Cursos activos</span>
+          <strong>{{ stats.cursos_activos }}</strong>
+        </div>
+        <div>
+          <span>Inscripciones</span>
+          <strong>{{ stats.inscripciones_total }}</strong>
+        </div>
+        <div>
+          <span>Certificados pendientes</span>
+          <strong>{{ stats.certificados_pendientes }}</strong>
+        </div>
+        <div>
+          <span>Tickets abiertos</span>
+          <strong>{{ stats.tickets_abiertos }}</strong>
+        </div>
+      </div>
+    </article>
+
+    <article class="control-card">
+      <div class="card-top">
+        <h3>Evidencias pendientes</h3>
+        <a href="{{ url_for('admin_evidencias_pago') }}">Ver todas</a>
+      </div>
+      {% if evidencias_pendientes %}
+      <div class="lista-dashboard">
+        {% for e in evidencias_pendientes %}
+        <div>
+          <strong>{{ e.nombre }}</strong>
+          <p>{{ e.concepto }}</p>
+          <span>{{ e.medio_pago }} - S/ {{ "%.2f"|format(e.monto or 0) }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="mensaje-vacio compacto">No hay evidencias pendientes.</p>
+      {% endif %}
+    </article>
+
+    <article class="control-card">
+      <div class="card-top">
+        <h3>Cuotas vencidas</h3>
+        <a href="{{ url_for('admin_cuotas') }}">Ver cuotas</a>
+      </div>
+      {% if cuotas_vencidas %}
+      <div class="lista-dashboard">
+        {% for q in cuotas_vencidas %}
+        <div>
+          <strong>{{ q.nombre }}</strong>
+          <p>{{ q.concepto }}</p>
+          <span>{{ q.fecha_vencimiento }} - S/ {{ "%.2f"|format(q.monto or 0) }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="mensaje-vacio compacto">No hay cuotas vencidas.</p>
+      {% endif %}
+    </article>
+
+    <article class="control-card">
+      <div class="card-top">
+        <h3>Proximos cursos</h3>
+        <a href="{{ url_for('admin_cursos') }}">Catalogo</a>
+      </div>
+      {% if cursos_proximos %}
+      <div class="lista-dashboard">
+        {% for curso in cursos_proximos %}
+        <div>
+          <strong>{{ curso.titulo }}</strong>
+          <p>{{ curso.ponente }}</p>
+          <span>Inicio: {{ curso.fecha_inicio }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="mensaje-vacio compacto">No hay cursos proximos registrados.</p>
+      {% endif %}
+    </article>
+  </section>
+</div>
+{% endblock %}

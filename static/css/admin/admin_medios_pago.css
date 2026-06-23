@@ -1,0 +1,36 @@
+.medios-resumen {
+  margin-bottom: 24px;
+}
+
+.texto-mono {
+  font-family: Consolas, "Liberation Mono", monospace;
+}
+
+.boton-accion {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  color: var(--texto-claro);
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.boton-accion:hover {
+  color: var(--azul);
+  background: #f1f5f9;
+}
+
+.boton-accion-peligro:hover {
+  color: #dc2626;
+  background: #fee2e2;
+}
+
+@media (max-width: 760px) {
+  .medios-resumen {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,272 @@
+.firma-edni {
+  min-height: 100%;
+}
+
+.firma-encabezado {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.firma-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.14fr) minmax(340px, 0.86fr);
+  align-items: start;
+  gap: 14px;
+}
+
+.firma-card {
+  display: grid;
+  align-content: start;
+  gap: 16px;
+  padding: 18px;
+  border: 1px solid var(--linea);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+}
+
+.firma-card-documento {
+  gap: 18px;
+}
+
+.firma-card-documento .firma-card-header {
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--linea);
+}
+
+.firma-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.firma-card-header > .material-symbols-outlined {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  color: var(--dorado);
+  background: #fffbeb;
+  border-radius: 8px;
+}
+
+.firma-card-header h3,
+.firma-card-header p,
+.edni-estado p,
+.edni-estado strong {
+  margin: 0;
+}
+
+.edni-datos {
+  display: grid;
+  gap: 6px;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.edni-datos li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 9px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.edni-datos span {
+  color: var(--texto-claro);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.edni-datos strong {
+  color: var(--azul-profundo);
+  font-size: 12px;
+  text-align: right;
+}
+
+.firma-card-header h3 {
+  color: var(--azul-profundo);
+  font-size: 20px;
+}
+
+.firma-label {
+  color: var(--texto-claro);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.firma-datos {
+  display: grid;
+  grid-template-columns: minmax(190px, 1.3fr) minmax(170px, 0.9fr) minmax(150px, 0.8fr);
+  gap: 10px;
+}
+
+.firma-datos div {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  min-height: 86px;
+  padding: 12px;
+  border: 1px solid #e4edf7;
+  border-radius: 8px;
+  background: #f8fbff;
+}
+
+.firma-datos span {
+  color: var(--texto-claro);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.firma-datos strong {
+  color: var(--azul-profundo);
+  font-size: 14px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.firma-acciones-linea {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.firma-acciones-linea .boton {
+  width: auto;
+  min-width: 136px;
+  min-height: 40px;
+  padding: 10px 14px;
+  align-self: center;
+  justify-content: center;
+}
+
+.firma-acciones-documento {
+  padding-top: 4px;
+  justify-content: flex-start;
+}
+
+.firma-acciones-documento .boton {
+  min-width: 126px;
+  height: auto;
+}
+
+.firma-acciones-linea .material-symbols-outlined {
+  font-size: 18px;
+}
+
+.edni-estado {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid #dbeafe;
+  border-radius: 8px;
+  background: #f8fbff;
+}
+
+.edni-estado .material-symbols-outlined {
+  color: #64748b;
+}
+
+.edni-estado.ok {
+  border-color: #a7f3d0;
+  background: #ecfdf5;
+}
+
+.edni-estado.ok .material-symbols-outlined,
+.edni-estado.ok strong {
+  color: #047857;
+}
+
+.edni-estado.error {
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+
+.edni-estado.error .material-symbols-outlined,
+.edni-estado.error strong {
+  color: #b91c1c;
+}
+
+.edni-estado.proceso {
+  border-color: #fde68a;
+  background: #fffbeb;
+}
+
+.edni-estado.proceso .material-symbols-outlined,
+.edni-estado.proceso strong {
+  color: #92400e;
+}
+
+.firma-pin {
+  display: block;
+  margin-top: 14px;
+}
+
+.firma-pin .campo-formulario {
+  margin-top: 6px;
+}
+
+.firma-pin .texto-pequeno {
+  display: block;
+  margin-top: 6px;
+}
+
+.firma-card-instruccion {
+  grid-template-columns: minmax(240px, auto) minmax(0, 1fr);
+  align-items: start;
+  gap: 14px;
+  border-left: 4px solid var(--dorado);
+}
+
+.firma-card-instruccion .texto-apoyo {
+  margin: 0;
+}
+
+.firma-card-instruccion .firma-card-header h3 {
+  font-size: 18px;
+}
+
+.firma-card-instruccion .firma-card-header > .material-symbols-outlined {
+  width: 38px;
+  height: 38px;
+}
+
+.firma-form {
+  display: grid;
+  gap: 14px;
+}
+
+@media (max-width: 960px) {
+  .firma-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .firma-datos {
+    grid-template-columns: 1fr;
+  }
+
+  .firma-card-instruccion {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .firma-encabezado {
+    display: grid;
+  }
+
+  .firma-acciones-linea .boton {
+    width: 100%;
+  }
+}

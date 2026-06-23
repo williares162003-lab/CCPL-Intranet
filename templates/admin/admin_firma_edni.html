@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin/admin_firma_edni.css') }}?v=3">
+{% endblock %}
+
+{% block content %}
+<div class="pagina espaciado-medio firma-edni">
+  <div class="firma-encabezado">
+    <div>
+      <p class="etiqueta-seccion">Certificado de habilidad</p>
+      <h2 class="titulo-pagina">Firma digital eDNI</h2>
+      <p class="texto-apoyo">Certificado preparado para firma digital con DNI electronico.</p>
+    </div>
+    <a href="{{ url_for('admin_tramites') }}" class="boton boton-secundario">
+      <span class="material-symbols-outlined">arrow_back</span>
+      Volver
+    </a>
+  </div>
+
+  <div id="edni-config"
+       data-estado-url="{{ firmador_estado_url }}"
+       data-firma-url="{{ firmador_firma_url }}"
+       data-pdf-url="{{ pdf_url }}"
+       data-guardar-url="{{ guardar_url }}"
+       data-tramite-id="{{ tramite.id }}"
+       data-nombre-archivo="certificado_habilidad_{{ certificado.matricula }}_{{ certificado.numero }}.pdf"></div>
+
+  <section class="firma-grid">
+    <article class="firma-card firma-card-documento">
+      <div class="firma-card-header">
+        <span class="material-symbols-outlined">description</span>
+        <div>
+          <p class="firma-label">Documento</p>
+          <h3>Certificado a firmar</h3>
+        </div>
+      </div>
+
+      <div class="firma-datos">
+        <div>
+          <span>Colegiado</span>
+          <strong>{{ certificado.nombre }}</strong>
+          <p class="texto-pequeno texto-mono">{{ certificado.matricula }}</p>
+        </div>
+        <div>
+          <span>Vigencia</span>
+          <strong>{{ certificado.habil_hasta }}</strong>
+        </div>
+        <div>
+          <span>Solicitud</span>
+          <strong>Nro. {{ certificado.numero }}</strong>
+          <p class="texto-pequeno">{{ tramite.fecha_solicitud }}</p>
+        </div>
+      </div>
+
+      <div class="firma-acciones-linea firma-acciones-documento">
+        <a href="{{ url_for('admin_certificado_habilidad_borrador', tid=tramite.id) }}"
+           target="_blank" rel="noopener" class="boton boton-secundario">
+          <span class="material-symbols-outlined">visibility</span>
+          Ver borrador
+        </a>
+        <a href="{{ pdf_url }}" target="_blank" rel="noopener" class="boton boton-primario">
+          <span class="material-symbols-outlined">picture_as_pdf</span>
+          Abrir PDF
+        </a>
+      </div>
+    </article>
+
+    <article class="firma-card">
+      <div class="firma-card-header">
+        <span class="material-symbols-outlined">badge</span>
+        <div>
+          <p class="firma-label">eDNI</p>
+          <h3>Firmador eDNI</h3>
+        </div>
+      </div>
+
+      <div id="edni-estado" class="edni-estado pendiente" aria-live="polite">
+        <span class="material-symbols-outlined">radio_button_unchecked</span>
+        <div>
+          <strong>Sin verificar</strong>
+          <p>Conecte el lector, inserte el DNIe y verifique el certificado de firma.</p>
+        </div>
+      </div>
+
+      <label class="etiqueta-campo firma-pin">
+        PIN de firma del DNIe
+        <input id="edni-pin" class="campo-formulario" type="password" inputmode="numeric"
+               autocomplete="off" placeholder="Ingrese el PIN solo al firmar">
+        <span class="texto-pequeno">El PIN se usa solo durante la firma y no se guarda en el sistema.</span>
+      </label>
+
+      <div class="firma-acciones-linea">
+        <button id="btn-verificar-edni" type="button" class="boton boton-secundario">
+          <span class="material-symbols-outlined">sync</span>
+          Verificar
+        </button>
+        <button id="btn-firmar-edni" type="button" class="boton boton-primario" disabled>
+          <span class="material-symbols-outlined">draw</span>
+          Firmar con eDNI
+        </button>
+      </div>
+    </article>
+  </section>
+
+  <section class="firma-card firma-card-instruccion">
+    <div class="firma-card-header">
+      <span class="material-symbols-outlined">verified_user</span>
+      <div>
+        <p class="firma-label">Registro automatico</p>
+        <h3>Firma desde el sistema</h3>
+      </div>
+    </div>
+    <p class="texto-apoyo">
+      El PDF firmado se guarda en el tramite, aprueba la solicitud y queda disponible para descarga del colegiado.
+    </p>
+  </section>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/admin/admin_firma_edni.js') }}?v=11"></script>
+{% endblock %}
