@@ -70,40 +70,62 @@ Ejemplo PythonAnywhere:
 https://trabajodaweb.pythonanywhere.com/api/postman-collection
 ```
 
+La coleccion generada es una sola y esta separada por tabla:
+
+```text
+CCPL Intranet - APIs JWT
+|-- 01 - Generar token JWT
+|-- especialidades_colegiado
+|   |-- api_guardar_especialidad_colegiado [POST]
+|   |-- api_actualizar_especialidad_colegiado [POST]
+|   |-- api_eliminar_especialidad_colegiado [POST]
+|   |-- api_leer_especialidad_colegiado_xid [GET]
+|   `-- api_leer_especialidades_colegiado [GET]
+|-- colegiados
+|-- usuarios
+|-- cuotas
+|-- cursos
+`-- demas tablas del proyecto
+```
+
 ## 5. Formato de rutas CRUD
 
 Cada tabla tiene cinco APIs con el estilo trabajado en clase:
 
 ```http
-/api_guardar<entidad>
-/api_actualizar<entidad>/<id>
-/api_eliminar<entidad>/<id>
-/api_leer<entidad>xid/<id>
-/api_leer<entidades>
+POST /api_guardar_<entidad>
+POST /api_actualizar_<entidad>
+POST /api_eliminar_<entidad>
+GET  /api_leer_<entidad>_xid?id=1
+GET  /api_leer_<entidades>
 ```
+
+Para actualizar y eliminar se envia el `id` dentro del JSON. `api_leer_<entidad>_xid` tambien acepta POST si se envia el `id` en el body, pero en la coleccion se deja con GET para probarlo mas rapido.
 
 Todas estas rutas usan `@jwt_required()`, por eso en Postman siempre se debe enviar el token.
 
+En `main.py` las APIs quedaron escritas tabla por tabla y separadas por comentarios. No dependen de una funcion CRUD generica, para que el codigo se vea parecido al formato trabajado en clase.
+
 ## 6. Entidades disponibles
 
-- `especialidadcolegiado`
+- `especialidad_colegiado`
 - `colegiado`
 - `usuario`
-- `recuperacionpassword`
+- `recuperacion_password`
 - `cuota`
-- `mediopago`
-- `evidenciapago`
-- `transaccionpago`
-- `comprobantepago`
-- `configuracionmercadopago`
-- `ordenmercadopago`
-- `configuracionfacturacion`
-- `comprobantefiscal`
-- `comprobantefiscaldetalle`
-- `facturacionsunatlog`
+- `medio_pago`
+- `evidencia_pago`
+- `transaccion_pago`
+- `comprobante_pago`
+- `configuracion_mercado_pago`
+- `orden_mercado_pago`
+- `configuracion_facturacion`
+- `comprobante_fiscal`
+- `comprobante_fiscal_detalle`
+- `facturacion_sunat_log`
 - `curso`
-- `contenidocurso`
-- `inscripcioncurso`
+- `contenido_curso`
+- `inscripcion_curso`
 - `tramite`
 - `ticket`
 - `notificacion`
@@ -113,21 +135,21 @@ Todas estas rutas usan `@jwt_required()`, por eso en Postman siempre se debe env
 Listar colegiados:
 
 ```http
-GET /api_leercolegiados
+GET /api_leer_colegiados
 Authorization: JWT TOKEN_GENERADO
 ```
 
 Leer colegiado por id:
 
 ```http
-GET /api_leercolegiadoxid/1
+GET /api_leer_colegiado_xid?id=1
 Authorization: JWT TOKEN_GENERADO
 ```
 
 Guardar especialidad:
 
 ```http
-POST /api_guardarespecialidadcolegiado
+POST /api_guardar_especialidad_colegiado
 Authorization: JWT TOKEN_GENERADO
 Content-Type: application/json
 
@@ -140,11 +162,12 @@ Content-Type: application/json
 Actualizar especialidad:
 
 ```http
-PUT /api_actualizarespecialidadcolegiado/1
+POST /api_actualizar_especialidad_colegiado
 Authorization: JWT TOKEN_GENERADO
 Content-Type: application/json
 
 {
+  "id": 1,
   "nombre": "Perito Contable Actualizado",
   "activo": 1
 }
@@ -153,6 +176,11 @@ Content-Type: application/json
 Eliminar especialidad:
 
 ```http
-DELETE /api_eliminarespecialidadcolegiado/1
+POST /api_eliminar_especialidad_colegiado
 Authorization: JWT TOKEN_GENERADO
+Content-Type: application/json
+
+{
+  "id": 1
+}
 ```

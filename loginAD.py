@@ -202,3 +202,142 @@ def actualizar_password_con_codigo(matricula, codigo, nueva_password):
         "ok": False,
         "mensaje": "No se pudo actualizar la contrasena."
     }
+
+
+# ============================================================
+# FUNCIONES CRUD - RECUPERACION PASSWORD
+# ============================================================
+
+RECUPERACION_PASSWORD_CRUD_COLUMNAS = [
+    "matricula", "correo", "codigo_hash", "usado",
+    "fecha_expiracion", "usado_en",
+]
+
+
+def _columnas_presentes_crud_login(p_datos, p_columnas):
+    datos = p_datos or {}
+    return {
+        columna: datos[columna]
+        for columna in p_columnas
+        if columna in datos and columna != "id"
+    }
+
+
+def leer_recuperaciones_password():
+    try:
+        asegurar_tabla_recuperacion_password()
+        conn = obtenerconexion()
+        result = []
+        if conn:
+            with conn:
+                with conn.cursor() as cursor:
+                    sql =  " SELECT id, matricula, correo, codigo_hash, usado, "
+                    sql += "        fecha_expiracion, usado_en, creado_en "
+                    sql += "   FROM recuperacion_password "
+                    sql += "  ORDER BY creado_en DESC, id DESC "
+                    cursor.execute(sql)
+                    result = cursor.fetchall()
+        return result
+    except Exception:
+        raise
+
+
+def leer_recuperacion_password_por_id(p_id):
+    try:
+        asegurar_tabla_recuperacion_password()
+        conn = obtenerconexion()
+        if conn:
+            with conn:
+                with conn.cursor() as cursor:
+                    sql =  " SELECT id, matricula, correo, codigo_hash, usado, "
+                    sql += "        fecha_expiracion, usado_en, creado_en "
+                    sql += "   FROM recuperacion_password "
+                    sql += "  WHERE id = %s "
+                    cursor.execute(sql, (p_id,))
+                    return cursor.fetchone()
+        return None
+    except Exception:
+        raise
+
+
+def insertar_recuperacion_password_crud(p_datos):
+    valores = _columnas_presentes_crud_login(
+        p_datos,
+        RECUPERACION_PASSWORD_CRUD_COLUMNAS
+    )
+    if not valores:
+        return False
+
+    columnas_sql = ", ".join(valores.keys())
+    marcas_sql = ", ".join(["%s"] * len(valores))
+    sql = f"INSERT INTO recuperacion_password ({columnas_sql}) VALUES ({marcas_sql})"
+
+    try:
+        asegurar_tabla_recuperacion_password()
+        conn = obtenerconexion()
+        if conn:
+            with conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(sql, tuple(valores.values()))
+                conn.commit()
+            return True
+        return False
+    except Exception as e:
+        print(repr(e))
+        return False
+
+
+def actualizar_recuperacion_password_crud(p_datos):
+    registro_id = (p_datos or {}).get("id")
+    if not registro_id:
+        return False
+
+    valores = _columnas_presentes_crud_login(
+        p_datos,
+        RECUPERACION_PASSWORD_CRUD_COLUMNAS
+    )
+    if not valores:
+        return False
+
+    set_sql = ", ".join([f"{columna} = %s" for columna in valores.keys()])
+    sql = f"UPDATE recuperacion_password SET {set_sql} WHERE id = %s"
+    parametros = list(valores.values())
+    parametros.append(registro_id)
+
+    try:
+        asegurar_tabla_recuperacion_password()
+        conn = obtenerconexion()
+        if conn:
+            with conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(sql, tuple(parametros))
+                    filas = cursor.rowcount
+                conn.commit()
+            return filas > 0
+        return False
+    except Exception as e:
+        print(repr(e))
+        return False
+
+
+def eliminar_recuperacion_password(p_id):
+    if not p_id:
+        return False
+
+    try:
+        asegurar_tabla_recuperacion_password()
+        conn = obtenerconexion()
+        if conn:
+            with conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(
+                        "DELETE FROM recuperacion_password WHERE id = %s",
+                        (p_id,)
+                    )
+                    filas = cursor.rowcount
+                conn.commit()
+            return filas > 0
+        return False
+    except Exception as e:
+        print(repr(e))
+        return False

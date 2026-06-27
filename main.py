@@ -20,7 +20,12 @@ from werkzeug.utils import secure_filename
 from bd import obtenerconexion
 from loginAD import (autenticar_usuario, buscar_usuario_recuperacion,
                      registrar_codigo_recuperacion,
-                     actualizar_password_con_codigo)
+                     actualizar_password_con_codigo,
+                     leer_recuperaciones_password,
+                     leer_recuperacion_password_por_id,
+                     insertar_recuperacion_password_crud,
+                     actualizar_recuperacion_password_crud,
+                     eliminar_recuperacion_password)
 from colegiadoAD import (clsColegiado, leer_colegiados,
                          leer_especialidades_colegiados, buscar_colegiados,
                          insertar_colegiado, actualizar_colegiado,
@@ -55,7 +60,18 @@ from colegiadoAD import (clsColegiado, leer_colegiados,
                          marcar_notificacion_leida,
                          eliminar_notificaciones_leidas,
                          insertar_ticket, leer_tickets, leer_tickets_colegiado,
-                         leer_ticket_por_id, actualizar_estado_ticket)
+                         leer_ticket_por_id, actualizar_estado_ticket,
+                         leer_especialidad_colegiado_por_id,
+                         insertar_especialidad_colegiado_crud,
+                         actualizar_especialidad_colegiado_crud,
+                         eliminar_especialidad_colegiado,
+                         leer_colegiado_por_id, eliminar_colegiado,
+                         actualizar_tramite_crud, eliminar_tramite,
+                         actualizar_ticket_crud, eliminar_ticket,
+                         leer_notificaciones_crud, leer_notificacion_por_id,
+                         insertar_notificacion_crud,
+                         actualizar_notificacion_crud,
+                         eliminar_notificacion)
 from adminAD import (clsUsuario, leer_usuarios, insertar_usuario,
                      actualizar_usuario,
                      clsCuota, leer_cuotas, contar_cuotas, resumir_cuotas,
@@ -99,7 +115,56 @@ from adminAD import (clsUsuario, leer_usuarios, insertar_usuario,
                      insertar_curso, actualizar_curso, eliminar_curso,
                      curso_tiene_inscripciones, curso_ya_finalizo,
                      leer_dashboard_admin, leer_reporte_financiero,
-                     leer_reporte_cursos, leer_reporte_colegiados)
+                     leer_reporte_cursos, leer_reporte_colegiados,
+                     leer_usuario_por_id, eliminar_usuario,
+                     leer_cuota_por_id, actualizar_cuota,
+                     leer_medio_pago_por_id,
+                     leer_evidencia_pago_por_id,
+                     insertar_evidencia_pago_crud,
+                     actualizar_evidencia_pago_crud,
+                     eliminar_evidencia_pago,
+                     leer_transacciones_pago_crud,
+                     leer_transaccion_pago_por_id,
+                     insertar_transaccion_pago_crud,
+                     actualizar_transaccion_pago_crud,
+                     eliminar_transaccion_pago,
+                     leer_comprobantes_pago_crud,
+                     leer_comprobante_pago_por_id,
+                     insertar_comprobante_pago_crud,
+                     actualizar_comprobante_pago_crud,
+                     eliminar_comprobante_pago,
+                     leer_configuraciones_mercado_pago_crud,
+                     leer_configuracion_mercado_pago_por_id,
+                     insertar_configuracion_mercado_pago_crud,
+                     actualizar_configuracion_mercado_pago_crud,
+                     eliminar_configuracion_mercado_pago,
+                     leer_ordenes_mercado_pago_crud,
+                     leer_orden_mercado_pago_por_id,
+                     insertar_orden_mercado_pago_crud,
+                     actualizar_orden_mercado_pago_crud,
+                     eliminar_orden_mercado_pago,
+                     leer_configuraciones_facturacion_crud,
+                     leer_configuracion_facturacion_por_id,
+                     insertar_configuracion_facturacion_crud,
+                     actualizar_configuracion_facturacion_crud,
+                     eliminar_configuracion_facturacion,
+                     insertar_comprobante_fiscal_crud,
+                     actualizar_comprobante_fiscal_crud,
+                     eliminar_comprobante_fiscal,
+                     leer_comprobantes_fiscales_detalle_crud,
+                     leer_comprobante_fiscal_detalle_por_id,
+                     insertar_comprobante_fiscal_detalle_crud,
+                     actualizar_comprobante_fiscal_detalle_crud,
+                     eliminar_comprobante_fiscal_detalle,
+                     leer_facturacion_sunat_logs_crud,
+                     leer_facturacion_sunat_log_por_id,
+                     insertar_facturacion_sunat_log_crud,
+                     actualizar_facturacion_sunat_log_crud,
+                     eliminar_facturacion_sunat_log,
+                     leer_curso_admin_por_id,
+                     leer_inscripcion_curso_por_id,
+                     actualizar_inscripcion_curso_crud,
+                     eliminar_inscripcion_curso)
 from ponenteAD import (leer_cursos_ponente, leer_curso_ponente,
                        leer_curso_por_id, leer_inscripcion_detalle,
                        leer_matriculas_inscritos_curso,
@@ -112,7 +177,12 @@ from ponenteAD import (leer_cursos_ponente, leer_curso_ponente,
                        resumir_seguimiento_ponente,
                        actualizar_progreso_curso_ponente,
                        leer_notificaciones_ponente,
-                       contar_notificaciones_ponente)
+                       contar_notificaciones_ponente,
+                       leer_contenidos_curso_crud,
+                       leer_contenido_curso_por_id,
+                       insertar_contenido_curso_crud,
+                       actualizar_contenido_curso_crud,
+                       eliminar_contenido_curso)
 
 
 # ============================================================
@@ -356,6 +426,7 @@ def _generar_token_jwt(usuario):
         "rol": usuario.get("rol"),
         "nombre": usuario.get("nombre"),
         "iat": ahora,
+        "nbf": ahora,
         "exp": ahora + timedelta(hours=8),
     }
     token = jwt.encode(payload, app.config["SECRET_KEY"], algorithm="HS256")
@@ -4962,8 +5033,21 @@ def admin_estado_ticket(tid):
 
 
 # ============================================================
-# APIS
+# APIS ESTILO CLASE CON JWT
 # ============================================================
+
+def _api_serializar_datos(p_datos):
+    return json.loads(json.dumps(p_datos, default=str))
+
+
+def _api_body_json():
+    return request.get_json(silent=True) or {}
+
+
+def _api_id_desde_peticion():
+    data = request.get_json(silent=True) or {}
+    return data.get("id") or request.form.get("id") or request.args.get("id")
+
 
 @app.route("/api/token", methods=["POST"], endpoint="api_token")
 def api_token():
@@ -4977,44 +5061,25 @@ def api_token():
         ).strip()
         password = (data.get("password") or data.get("clave") or "").strip()
         if not username or not password:
-            return _respuesta_api(
-                0,
-                "Ingrese usuario/matricula y password para generar el token.",
-                status=400
-            )
+            return jsonify({"code": 0, "data": {}, "message": "Ingrese usuario y password."})
 
         usuario = autenticar_usuario(username, password)
         if not usuario:
-            return _respuesta_api(0, "Credenciales incorrectas.", status=401)
+            return jsonify({"code": 0, "data": {}, "message": "Credenciales incorrectas."})
         if usuario.get("rol") != "admin":
-            return _respuesta_api(
-                0,
-                "Solo el administrador puede generar token para las APIs.",
-                status=403
-            )
+            return jsonify({"code": 0, "data": {}, "message": "Solo el administrador puede generar token para las APIs."})
 
         token = _generar_token_jwt(usuario)
-        token_data = {
+        return jsonify({
             "access_token": token,
-            "token_type": "Bearer",
-            "expires_in": 28800,
-            "usuario": {
-                "matricula": usuario.get("matricula"),
-                "nombre": usuario.get("nombre"),
-                "rol": usuario.get("rol"),
-            }
-        }
-        respuesta = jsonify({
-            "access_token": token,
-            "token_type": "Bearer",
+            "token_type": "JWT",
             "code": 1,
-            "data": token_data,
+            "data": {"token": token},
             "message": "Token generado correctamente."
         })
-        return respuesta, 200
     except Exception as e:
-        print("Error en /api/token:", repr(e))
-        return _respuesta_api(0, str(e), status=500)
+        return jsonify({"code": 0, "data": {}, "message": "Excepcion superior: " + repr(e)})
+
 
 @app.route("/api/colegiados/buscar", endpoint="api_buscar_colegiados")
 def api_buscar_colegiados():
@@ -5022,1380 +5087,1451 @@ def api_buscar_colegiados():
         busqueda = request.args.get("q", "").strip()
         if len(busqueda) < 2:
             return jsonify({"code": 1, "data": [], "message": "Ingrese al menos 2 caracteres."})
-
         resultado = buscar_colegiados(busqueda, 15) or []
-        return jsonify({"code": 1, "data": resultado, "message": ""})
+        return jsonify({"code": 1, "data": _api_serializar_datos(resultado), "message": ""})
     except Exception as e:
-        print("Error en /api/colegiados/buscar:", repr(e))
-        return jsonify({"code": 0, "data": [], "message": "No se pudo buscar colegiados."}), 500
+        return jsonify({"code": 0, "data": [], "message": "Excepcion superior: " + repr(e)})
 
 
-@app.route("/api_listar_colegiados")
-def api_listar_colegiados():
-    try:
-        resultado = leer_colegiados()
-        return jsonify(resultado)
-    except Exception:
-        return {"error": "Error al listar colegiados"}
-
-
-@app.route("/api_guardar_colegiado", methods=["POST"])
-def api_guardar_colegiado():
-    try:
-        obj = clsColegiado(0,
-                           request.json["nombre"],
-                           request.json["matricula"],
-                           request.json["documento"],
-                           request.json.get("especialidad"),
-                           request.json["correo"],
-                           request.json.get("telefono", ""),
-                           p_direccion=request.json.get("direccion", "Sin registrar"),
-                           p_especialidad_id=request.json.get("especialidad_id"))
-        password = request.json.get("password", "cpc123")
-        if insertar_colegiado(obj, password):
-            return jsonify({"code": 1, "data": {}, "message": "Colegiado insertado correctamente"})
-        return jsonify({"code": 0, "data": {}, "message": "Error al insertar colegiado"})
-    except Exception as e:
-        return jsonify({"code": 0, "data": {}, "message": "Excepcion superior: " + repr(e)})
-
-
-@app.route("/api_listar_usuarios")
-def api_listar_usuarios():
-    try:
-        resultado = leer_usuarios()
-        return jsonify(resultado)
-    except Exception:
-        return {"error": "Error al listar usuarios"}
-
-
-@app.route("/api_guardar_usuario", methods=["POST"])
-def api_guardar_usuario():
-    try:
-        obj = clsUsuario(0,
-                         request.json["matricula"],
-                         request.json["password"],
-                         request.json.get("rol", "colegiado"),
-                         request.json.get("activo", 1))
-        if insertar_usuario(obj):
-            return jsonify({"code": 1, "data": {}, "message": "Usuario insertado correctamente"})
-        return jsonify({"code": 0, "data": {}, "message": "Error al insertar usuario"})
-    except Exception as e:
-        return jsonify({"code": 0, "data": {}, "message": "Excepcion superior: " + repr(e)})
-
-
-@app.route("/api_listar_cuotas")
-def api_listar_cuotas():
-    try:
-        matricula = request.args.get("matricula", "")
-        resultado = leer_cuotas(matricula)
-        return jsonify(resultado)
-    except Exception:
-        return {"error": "Error al listar cuotas"}
-
-
-@app.route("/api_guardar_cuota", methods=["POST"])
-def api_guardar_cuota():
-    try:
-        obj = clsCuota(0,
-                       request.json["matricula"],
-                       request.json["fecha"],
-                       request.json["concepto"],
-                       request.json["monto"],
-                       request.json.get("estado", "Pendiente"))
-        if insertar_cuota(obj):
-            return jsonify({"code": 1, "data": {}, "message": "Cuota insertada correctamente"})
-        return jsonify({"code": 0, "data": {}, "message": "Error al insertar cuota"})
-    except Exception as e:
-        return jsonify({"code": 0, "data": {}, "message": "Excepcion superior: " + repr(e)})
-
-
-@app.route("/api_listar_medios_pago")
-def api_listar_medios_pago():
-    try:
-        solo_activos = request.args.get("solo_activos", "0")
-        resultado = leer_medios_pago(solo_activos == "1")
-        return jsonify(resultado)
-    except Exception:
-        return {"error": "Error al listar medios de pago"}
-
-
-@app.route("/api_guardar_medio_pago", methods=["POST"])
-def api_guardar_medio_pago():
-    try:
-        obj = clsMedioPago(0,
-                           request.json["nombre"],
-                           request.json.get("descripcion", ""),
-                           request.json["numero_cuenta"],
-                           request.json["titular"],
-                           request.json.get("activo", 1))
-        if insertar_medio_pago(obj):
-            return jsonify({"code": 1, "data": {}, "message": "Medio de pago insertado correctamente"})
-        return jsonify({"code": 0, "data": {}, "message": "Error al insertar medio de pago"})
-    except Exception as e:
-        return jsonify({"code": 0, "data": {}, "message": "Excepcion superior: " + repr(e)})
-
-
-@app.route("/api_listar_evidencias_pago")
-def api_listar_evidencias_pago():
-    try:
-        matricula = request.args.get("matricula", "")
-        estado = request.args.get("estado", "")
-        resultado = leer_evidencias_pago(matricula, estado)
-        return jsonify(resultado)
-    except Exception:
-        return {"error": "Error al listar evidencias de pago"}
-
-
-@app.route("/api_guardar_evidencia_pago", methods=["POST"])
-def api_guardar_evidencia_pago():
-    try:
-        resultado = registrar_evidencia_pago(request.json["matricula"],
-                                            request.json["cuota_id"],
-                                            request.json["medio_pago_id"],
-                                            request.json["numero_operacion"],
-                                            request.json["fecha_pago"],
-                                            request.json["monto"],
-                                            request.json.get("comentario", ""))
-        if resultado == "ok":
-            return jsonify({"code": 1, "data": {}, "message": "Evidencia de pago insertada correctamente"})
-        return jsonify({"code": 0, "data": {}, "message": resultado})
-    except Exception as e:
-        return jsonify({"code": 0, "data": {}, "message": "Excepcion superior: " + repr(e)})
-
-
-@app.route("/api_listar_cursos")
-def api_listar_cursos():
-    try:
-        estado = request.args.get("estado", "")
-        resultado = leer_cursos(estado)
-        return jsonify(resultado)
-    except Exception:
-        return {"error": "Error al listar cursos"}
-
-
-@app.route("/api_guardar_curso", methods=["POST"])
-def api_guardar_curso():
-    try:
-        fecha_inicio = request.json.get("fecha_inicio", "")
-        fecha_fin = request.json.get("fecha_fin", "")
-        fecha_evento = request.json.get("fecha_evento", "")
-        if not fecha_evento and fecha_inicio and fecha_fin:
-            fecha_evento = _resumen_fecha_curso(fecha_inicio, fecha_fin)
-
-        obj = clsCurso(0,
-                       request.json["categoria"],
-                       request.json["titulo"],
-                       request.json.get("descripcion", ""),
-                       fecha_evento,
-                       request.json.get("estado", "Activo"),
-                       request.json.get("monto", 0),
-                       request.json.get("ponente", ""),
-                       request.json.get("modalidad", "Virtual"),
-                       request.json.get("duracion_horas", 1),
-                       fecha_inicio,
-                       fecha_fin,
-                       request.json.get("cupos", 1),
-                       request.json.get(
-                           "monto_inhabil",
-                           request.json.get("monto", 0)
-                       ))
-        if insertar_curso(obj):
-            return jsonify({"code": 1, "data": {}, "message": "Curso insertado correctamente"})
-        return jsonify({"code": 0, "data": {}, "message": "Error al insertar curso"})
-    except Exception as e:
-        return jsonify({"code": 0, "data": {}, "message": "Excepcion superior: " + repr(e)})
-
-
-@app.route("/api_listar_inscripciones_curso")
-def api_listar_inscripciones_curso():
-    try:
-        matricula = request.args.get("matricula", "")
-        resultado = leer_inscripciones_curso(matricula)
-        return jsonify(resultado)
-    except Exception:
-        return {"error": "Error al listar inscripciones de curso"}
-
-
-@app.route("/api_listar_tramites")
-def api_listar_tramites():
-    try:
-        estado = request.args.get("estado", "")
-        matricula = request.args.get("matricula", "")
-        tipo = request.args.get("tipo", "")
-        resultado = leer_tramites(estado, matricula, tipo)
-        return jsonify(resultado)
-    except Exception:
-        return {"error": "Error al listar tramites"}
-
-
-@app.route("/api_guardar_tramite", methods=["POST"])
-def api_guardar_tramite():
-    try:
-        tipo_tramite = request.json["tipo_tramite"]
-        archivo_solicitud = request.json.get("archivo_solicitud", "")
-        if tramite_requiere_sustento(tipo_tramite) and not archivo_solicitud:
-            return jsonify({
-                "code": 0,
-                "data": {},
-                "message": "Para baja o traslado debe registrar el documento sustentatorio"
-            })
-        obj = clsTramite(0,
-                         request.json["matricula"],
-                         request.json["nombre"],
-                         tipo_tramite,
-                         request.json["asunto"],
-                         request.json["descripcion"],
-                         archivo_solicitud,
-                         request.json.get("estado", "Pendiente"),
-                         request.json["fecha_solicitud"])
-        if insertar_tramite(obj):
-            return jsonify({"code": 1, "data": {}, "message": "Tramite insertado correctamente"})
-        return jsonify({"code": 0, "data": {}, "message": "Error al insertar tramite"})
-    except Exception as e:
-        return jsonify({"code": 0, "data": {}, "message": "Excepcion superior: " + repr(e)})
-
-
-@app.route("/api_guardar_ticket", methods=["POST"])
-def api_guardar_ticket():
-    try:
-        if insertar_ticket(request.json["matricula"],
-                           request.json.get("categoria", "general"),
-                           request.json["asunto"],
-                           request.json["descripcion"]):
-            return jsonify({"code": 1, "data": {}, "message": "Ticket insertado correctamente"})
-        return jsonify({"code": 0, "data": {}, "message": "Error al insertar ticket"})
-    except Exception as e:
-        return jsonify({"code": 0, "data": {}, "message": "Excepcion superior: " + repr(e)})
-
-
-# ============================================================
-# APIS CRUD POR TABLA CON JWT
-# ============================================================
-
-API_COLUMNAS_CACHE = {}
 API_COLECCION_TABLAS = [
-    ("Colegiados", "especialidades_colegiado", "especialidadcolegiado", "especialidadescolegiado"),
+    ("Colegiados", "especialidades_colegiado", "especialidad_colegiado", "especialidades_colegiado"),
     ("Colegiados", "colegiados", "colegiado", "colegiados"),
     ("Colegiados", "usuarios", "usuario", "usuarios"),
-    ("Colegiados", "recuperacion_password", "recuperacionpassword", "recuperacionespassword"),
+    ("Colegiados", "recuperacion_password", "recuperacion_password", "recuperaciones_password"),
     ("Pagos", "cuotas", "cuota", "cuotas"),
-    ("Pagos", "medios_pago", "mediopago", "mediospago"),
-    ("Pagos", "evidencias_pago", "evidenciapago", "evidenciaspago"),
-    ("Pagos", "transacciones_pago", "transaccionpago", "transaccionespago"),
-    ("Pagos", "comprobantes_pago", "comprobantepago", "comprobantespago"),
-    ("Mercado Pago", "configuracion_mercado_pago", "configuracionmercadopago", "configuracionesmercadopago"),
-    ("Mercado Pago", "ordenes_mercado_pago", "ordenmercadopago", "ordenesmercadopago"),
-    ("Facturacion", "configuracion_facturacion", "configuracionfacturacion", "configuracionesfacturacion"),
-    ("Facturacion", "comprobantes_fiscales", "comprobantefiscal", "comprobantesfiscales"),
-    ("Facturacion", "comprobante_fiscal_detalle", "comprobantefiscaldetalle", "comprobantesfiscalesdetalle"),
-    ("Facturacion", "facturacion_sunat_logs", "facturacionsunatlog", "facturacionsunatlogs"),
+    ("Pagos", "medios_pago", "medio_pago", "medios_pago"),
+    ("Pagos", "evidencias_pago", "evidencia_pago", "evidencias_pago"),
+    ("Pagos", "transacciones_pago", "transaccion_pago", "transacciones_pago"),
+    ("Pagos", "comprobantes_pago", "comprobante_pago", "comprobantes_pago"),
+    ("Mercado Pago", "configuracion_mercado_pago", "configuracion_mercado_pago", "configuraciones_mercado_pago"),
+    ("Mercado Pago", "ordenes_mercado_pago", "orden_mercado_pago", "ordenes_mercado_pago"),
+    ("Facturacion", "configuracion_facturacion", "configuracion_facturacion", "configuraciones_facturacion"),
+    ("Facturacion", "comprobantes_fiscales", "comprobante_fiscal", "comprobantes_fiscales"),
+    ("Facturacion", "comprobante_fiscal_detalle", "comprobante_fiscal_detalle", "comprobantes_fiscales_detalle"),
+    ("Facturacion", "facturacion_sunat_logs", "facturacion_sunat_log", "facturacion_sunat_logs"),
     ("Cursos", "cursos", "curso", "cursos"),
-    ("Cursos", "contenido_curso", "contenidocurso", "contenidoscurso"),
-    ("Cursos", "inscripciones_curso", "inscripcioncurso", "inscripcionescurso"),
+    ("Cursos", "contenido_curso", "contenido_curso", "contenidos_curso"),
+    ("Cursos", "inscripciones_curso", "inscripcion_curso", "inscripciones_curso"),
     ("Tramites y soporte", "tramites", "tramite", "tramites"),
     ("Tramites y soporte", "tickets", "ticket", "tickets"),
     ("Tramites y soporte", "notificaciones", "notificacion", "notificaciones"),
 ]
 
 
-def _api_nombre_seguro(nombre):
-    if not re.fullmatch(r"[A-Za-z0-9_]+", nombre or ""):
-        raise ValueError("Nombre de tabla o columna no permitido.")
-    return f"`{nombre}`"
-
-
-def _api_info_tabla(tabla):
-    if tabla in API_COLUMNAS_CACHE:
-        return API_COLUMNAS_CACHE[tabla]
-
-    conn = obtenerconexion()
-    with conn:
-        with conn.cursor() as cursor:
-            cursor.execute(
-                """
-                SELECT COLUMN_NAME, COLUMN_KEY, EXTRA
-                  FROM INFORMATION_SCHEMA.COLUMNS
-                 WHERE TABLE_SCHEMA = DATABASE()
-                   AND TABLE_NAME = %s
-                 ORDER BY ORDINAL_POSITION
-                """,
-                (tabla,)
-            )
-            columnas = cursor.fetchall() or []
-
-    if not columnas:
-        return None
-
-    pk = "id"
-    for columna in columnas:
-        if columna.get("COLUMN_KEY") == "PRI":
-            pk = columna["COLUMN_NAME"]
-            break
-
-    info = {
-        "tabla": tabla,
-        "pk": pk,
-        "columnas": [col["COLUMN_NAME"] for col in columnas],
-        "auto": {
-            col["COLUMN_NAME"]
-            for col in columnas
-            if "auto_increment" in (col.get("EXTRA") or "")
-        },
-    }
-    API_COLUMNAS_CACHE[tabla] = info
-    return info
-
-
-def _api_valor_json(valor):
-    if isinstance(valor, Decimal):
-        return float(valor)
-    if isinstance(valor, (datetime, date)):
-        return valor.isoformat()
-    return valor
-
-
-def _api_serializar_fila(fila):
-    return {clave: _api_valor_json(valor) for clave, valor in dict(fila).items()}
-
-
-def _api_body_json():
-    data = request.get_json(silent=True)
-    if data is None:
-        data = request.form.to_dict()
-    return data or {}
-
-
-def _api_id_registro(registro_id=None):
-    if registro_id is not None:
-        return registro_id
-    data = _api_body_json()
-    return data.get("id") or request.args.get("id")
-
-
-def _api_columnas_insertables(info, data):
-    excluidas = set(info["auto"])
-    excluidas.update([
-        "creado_en", "actualizado_en", "revisado_en", "firmado_en",
-        "anulado_en", "pagado_en", "enviado_en", "respondido_en",
-        "leido_en", "usado_en"
-    ])
-    return [col for col in info["columnas"] if col in data and col not in excluidas]
-
-
-def _api_columnas_actualizables(info, data):
-    excluidas = set(info["auto"])
-    excluidas.add(info["pk"])
-    excluidas.add("creado_en")
-    return [col for col in info["columnas"] if col in data and col not in excluidas]
-
-
-def _api_leer_tabla(tabla):
-    info = _api_info_tabla(tabla)
-    if not info:
-        return _respuesta_api(0, "La tabla solicitada no existe.", status=404)
-
-    limite = request.args.get("limit", "").strip()
-    sql = (
-        f"SELECT * FROM {_api_nombre_seguro(info['tabla'])} "
-        f"ORDER BY {_api_nombre_seguro(info['pk'])} DESC"
-    )
-    params = []
-    if limite:
-        try:
-            limite_num = max(1, min(int(limite), 500))
-            sql += " LIMIT %s"
-            params.append(limite_num)
-        except ValueError:
-            return _respuesta_api(0, "El parametro limit debe ser numerico.", status=400)
-
-    conn = obtenerconexion()
-    with conn:
-        with conn.cursor() as cursor:
-            cursor.execute(sql, params)
-            filas = cursor.fetchall() or []
-
-    return _respuesta_api(
-        1,
-        "Listado correcto.",
-        [_api_serializar_fila(fila) for fila in filas]
-    )
-
-
-def _api_leer_tabla_xid(tabla, registro_id=None):
-    info = _api_info_tabla(tabla)
-    if not info:
-        return _respuesta_api(0, "La tabla solicitada no existe.", status=404)
-
-    registro_id = _api_id_registro(registro_id)
-    if not registro_id:
-        return _respuesta_api(0, "Debe enviar el id del registro.", status=400)
-
-    sql = (
-        f"SELECT * FROM {_api_nombre_seguro(info['tabla'])} "
-        f"WHERE {_api_nombre_seguro(info['pk'])} = %s"
-    )
-    conn = obtenerconexion()
-    with conn:
-        with conn.cursor() as cursor:
-            cursor.execute(sql, (registro_id,))
-            fila = cursor.fetchone()
-
-    if not fila:
-        return _respuesta_api(0, "No se encontro el registro.", status=404)
-    return _respuesta_api(1, "Registro encontrado.", _api_serializar_fila(fila))
-
-
-def _api_guardar_tabla(tabla):
-    info = _api_info_tabla(tabla)
-    if not info:
-        return _respuesta_api(0, "La tabla solicitada no existe.", status=404)
-
-    data = _api_body_json()
-    columnas = _api_columnas_insertables(info, data)
-    if not columnas:
-        return _respuesta_api(0, "No se recibieron campos validos para guardar.", status=400)
-
-    sql_columnas = ", ".join(_api_nombre_seguro(col) for col in columnas)
-    placeholders = ", ".join(["%s"] * len(columnas))
-    sql = (
-        f"INSERT INTO {_api_nombre_seguro(info['tabla'])} "
-        f"({sql_columnas}) VALUES ({placeholders})"
-    )
-    valores = [data.get(col) for col in columnas]
-
-    try:
-        conn = obtenerconexion()
-        with conn:
-            with conn.cursor() as cursor:
-                cursor.execute(sql, valores)
-                nuevo_id = cursor.lastrowid
-            conn.commit()
-        return _respuesta_api(1, "Registro guardado correctamente.", {"id": nuevo_id})
-    except pymysql.err.IntegrityError as e:
-        return _respuesta_api(0, "Regla de integridad: " + str(e), status=400)
-    except Exception as e:
-        return _respuesta_api(0, "No se pudo guardar: " + repr(e), status=500)
-
-
-def _api_actualizar_tabla(tabla, registro_id=None):
-    info = _api_info_tabla(tabla)
-    if not info:
-        return _respuesta_api(0, "La tabla solicitada no existe.", status=404)
-
-    data = _api_body_json()
-    registro_id = _api_id_registro(registro_id)
-    if not registro_id:
-        return _respuesta_api(0, "Debe enviar el id del registro.", status=400)
-
-    columnas = _api_columnas_actualizables(info, data)
-    if not columnas:
-        return _respuesta_api(0, "No se recibieron campos validos para actualizar.", status=400)
-
-    asignaciones = ", ".join(f"{_api_nombre_seguro(col)} = %s" for col in columnas)
-    sql = (
-        f"UPDATE {_api_nombre_seguro(info['tabla'])} "
-        f"SET {asignaciones} "
-        f"WHERE {_api_nombre_seguro(info['pk'])} = %s"
-    )
-    valores = [data.get(col) for col in columnas] + [registro_id]
-
-    try:
-        conn = obtenerconexion()
-        with conn:
-            with conn.cursor() as cursor:
-                cursor.execute(sql, valores)
-                filas = cursor.rowcount
-            conn.commit()
-        return _respuesta_api(1, "Registro actualizado correctamente.", {"filas_afectadas": filas})
-    except pymysql.err.IntegrityError as e:
-        return _respuesta_api(0, "Regla de integridad: " + str(e), status=400)
-    except Exception as e:
-        return _respuesta_api(0, "No se pudo actualizar: " + repr(e), status=500)
-
-
-def _api_eliminar_tabla(tabla, registro_id=None):
-    info = _api_info_tabla(tabla)
-    if not info:
-        return _respuesta_api(0, "La tabla solicitada no existe.", status=404)
-
-    registro_id = _api_id_registro(registro_id)
-    if not registro_id:
-        return _respuesta_api(0, "Debe enviar el id del registro.", status=400)
-
-    sql = (
-        f"DELETE FROM {_api_nombre_seguro(info['tabla'])} "
-        f"WHERE {_api_nombre_seguro(info['pk'])} = %s"
-    )
-    try:
-        conn = obtenerconexion()
-        with conn:
-            with conn.cursor() as cursor:
-                cursor.execute(sql, (registro_id,))
-                filas = cursor.rowcount
-            conn.commit()
-        return _respuesta_api(1, "Registro eliminado correctamente.", {"filas_afectadas": filas})
-    except pymysql.err.IntegrityError as e:
-        return _respuesta_api(0, "No se puede eliminar porque tiene registros relacionados: " + str(e), status=400)
-    except Exception as e:
-        return _respuesta_api(0, "No se pudo eliminar: " + repr(e), status=500)
-
-
-# ============================================================
-# APIS - ESPECIALIDADES_COLEGIADO
-# ============================================================
-
-@app.route("/api_guardarespecialidadcolegiado", methods=["POST"])
-@jwt_required()
-def api_guardarespecialidadcolegiado():
-    return _api_guardar_tabla("especialidades_colegiado")
-
-
-@app.route("/api_actualizarespecialidadcolegiado", methods=["PUT", "POST"])
-@app.route("/api_actualizarespecialidadcolegiado/<int:registro_id>", methods=["PUT", "POST"])
-@jwt_required()
-def api_actualizarespecialidadcolegiado(registro_id=None):
-    return _api_actualizar_tabla("especialidades_colegiado", registro_id)
-
-
-@app.route("/api_eliminarespecialidadcolegiado", methods=["DELETE", "POST"])
-@app.route("/api_eliminarespecialidadcolegiado/<int:registro_id>", methods=["DELETE", "POST"])
-@jwt_required()
-def api_eliminarespecialidadcolegiado(registro_id=None):
-    return _api_eliminar_tabla("especialidades_colegiado", registro_id)
-
-
-@app.route("/api_leerespecialidadcolegiadoxid", methods=["GET", "POST"])
-@app.route("/api_leerespecialidadcolegiadoxid/<int:registro_id>", methods=["GET", "POST"])
-@jwt_required()
-def api_leerespecialidadcolegiadoxid(registro_id=None):
-    return _api_leer_tabla_xid("especialidades_colegiado", registro_id)
-
-
-@app.route("/api_leerespecialidadescolegiado")
-@jwt_required()
-def api_leerespecialidadescolegiado():
-    return _api_leer_tabla("especialidades_colegiado")
-
-
 # ============================================================
 # APIS - COLEGIADOS
 # ============================================================
 
-@app.route("/api_guardarcolegiado", methods=["POST"])
+# Tabla: especialidades_colegiado
+@app.route("/api_guardar_especialidad_colegiado", methods=["POST"])
 @jwt_required()
-def api_guardarcolegiado():
-    return _api_guardar_tabla("colegiados")
+def api_guardar_especialidad_colegiado():
+    try:
+        data = _api_body_json()
+        if insertar_especialidad_colegiado_crud(data):
+            return jsonify({"code": 1, "data": {}, "message": "Especialidad del colegiado insertado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al insertar especialidad del colegiado."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_actualizarcolegiado", methods=["PUT", "POST"])
-@app.route("/api_actualizarcolegiado/<int:registro_id>", methods=["PUT", "POST"])
+@app.route("/api_actualizar_especialidad_colegiado", methods=["POST"])
 @jwt_required()
-def api_actualizarcolegiado(registro_id=None):
-    return _api_actualizar_tabla("colegiados", registro_id)
+def api_actualizar_especialidad_colegiado():
+    try:
+        data = _api_body_json()
+        if not data.get("id"):
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        if actualizar_especialidad_colegiado_crud(data):
+            return jsonify({"code": 1, "data": {}, "message": "Especialidad del colegiado actualizado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al actualizar especialidad del colegiado."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_eliminarcolegiado", methods=["DELETE", "POST"])
-@app.route("/api_eliminarcolegiado/<int:registro_id>", methods=["DELETE", "POST"])
+@app.route("/api_eliminar_especialidad_colegiado", methods=["POST"])
 @jwt_required()
-def api_eliminarcolegiado(registro_id=None):
-    return _api_eliminar_tabla("colegiados", registro_id)
+def api_eliminar_especialidad_colegiado():
+    try:
+        registro_id = _api_id_desde_peticion()
+        if not registro_id:
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        if eliminar_especialidad_colegiado(registro_id):
+            return jsonify({"code": 1, "data": {}, "message": "Especialidad del colegiado eliminado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al eliminar especialidad del colegiado."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_leercolegiadoxid", methods=["GET", "POST"])
-@app.route("/api_leercolegiadoxid/<int:registro_id>", methods=["GET", "POST"])
+@app.route("/api_leer_especialidad_colegiado_xid", methods=["GET", "POST"])
 @jwt_required()
-def api_leercolegiadoxid(registro_id=None):
-    return _api_leer_tabla_xid("colegiados", registro_id)
+def api_leer_especialidad_colegiado_xid():
+    try:
+        registro_id = _api_id_desde_peticion()
+        if not registro_id:
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        resultado = leer_especialidad_colegiado_por_id(registro_id)
+        return jsonify(_api_serializar_datos(resultado or {}))
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_leercolegiados")
+@app.route("/api_leer_especialidades_colegiado", methods=["GET"])
 @jwt_required()
-def api_leercolegiados():
-    return _api_leer_tabla("colegiados")
+def api_leer_especialidades_colegiado():
+    try:
+        resultado = leer_especialidades_colegiados()
+        return jsonify(_api_serializar_datos(resultado or []))
+    except Exception as e:
+        return jsonify({"code": -1, "data": [], "message": "Excepcion superior: " + repr(e)})
+
+
+# Tabla: colegiados
+@app.route("/api_guardar_colegiado", methods=["POST"])
+@jwt_required()
+def api_guardar_colegiado():
+    try:
+        data = _api_body_json()
+        objColegiado = clsColegiado(
+            0, data["nombre"], data["matricula"], data["documento"],
+            data.get("especialidad"), data["correo"], data.get("telefono", ""),
+            data.get("vigencia", "31 de Diciembre de 2026"),
+            data.get("estado", "Vigente"), data.get("epc_points", 0),
+            data.get("direccion", "Sin registrar"),
+            data.get("especialidad_id"), data.get("fecha_colegiatura")
+        )
+        if insertar_colegiado(objColegiado, data.get("password", "cpc123")):
+            return jsonify({"code": 1, "data": {}, "message": "Colegiado insertado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al insertar colegiado."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+
+@app.route("/api_actualizar_colegiado", methods=["POST"])
+@jwt_required()
+def api_actualizar_colegiado():
+    try:
+        data = _api_body_json()
+        if not data.get("id"):
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        objColegiado = clsColegiado(
+            data["id"], data["nombre"], data.get("matricula"),
+            data.get("documento"), data.get("especialidad"), data["correo"],
+            data.get("telefono", ""), data.get("vigencia"),
+            data.get("estado"), data.get("epc_points", 0),
+            data.get("direccion", "Sin registrar"),
+            data.get("especialidad_id"), data.get("fecha_colegiatura")
+        )
+        if actualizar_colegiado(objColegiado):
+            return jsonify({"code": 1, "data": {}, "message": "Colegiado actualizado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al actualizar colegiado."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+
+@app.route("/api_eliminar_colegiado", methods=["POST"])
+@jwt_required()
+def api_eliminar_colegiado():
+    try:
+        registro_id = _api_id_desde_peticion()
+        if not registro_id:
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        if eliminar_colegiado(registro_id):
+            return jsonify({"code": 1, "data": {}, "message": "Colegiado eliminado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al eliminar colegiado."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+
+@app.route("/api_leer_colegiado_xid", methods=["GET", "POST"])
+@jwt_required()
+def api_leer_colegiado_xid():
+    try:
+        registro_id = _api_id_desde_peticion()
+        if not registro_id:
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        resultado = leer_colegiado_por_id(registro_id)
+        return jsonify(_api_serializar_datos(resultado or {}))
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+
+@app.route("/api_leer_colegiados", methods=["GET"])
+@jwt_required()
+def api_leer_colegiados():
+    try:
+        resultado = leer_colegiados()
+        return jsonify(_api_serializar_datos(resultado or []))
+    except Exception as e:
+        return jsonify({"code": -1, "data": [], "message": "Excepcion superior: " + repr(e)})
+
+
+# Tabla: usuarios
+@app.route("/api_guardar_usuario", methods=["POST"])
+@jwt_required()
+def api_guardar_usuario():
+    try:
+        data = _api_body_json()
+        objUsuario = clsUsuario(0, data["matricula"], data["password"], data.get("rol", "colegiado"), data.get("activo", 1))
+        if insertar_usuario(objUsuario):
+            return jsonify({"code": 1, "data": {}, "message": "Usuario insertado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al insertar usuario."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+
+@app.route("/api_actualizar_usuario", methods=["POST"])
+@jwt_required()
+def api_actualizar_usuario():
+    try:
+        data = _api_body_json()
+        if not data.get("id"):
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        objUsuario = clsUsuario(data["id"], data.get("matricula"), data.get("password", ""), data.get("rol", "colegiado"), data.get("activo", 1))
+        if actualizar_usuario(objUsuario):
+            return jsonify({"code": 1, "data": {}, "message": "Usuario actualizado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al actualizar usuario."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+
+@app.route("/api_eliminar_usuario", methods=["POST"])
+@jwt_required()
+def api_eliminar_usuario():
+    try:
+        registro_id = _api_id_desde_peticion()
+        if not registro_id:
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        if eliminar_usuario(registro_id):
+            return jsonify({"code": 1, "data": {}, "message": "Usuario eliminado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al eliminar usuario."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+
+@app.route("/api_leer_usuario_xid", methods=["GET", "POST"])
+@jwt_required()
+def api_leer_usuario_xid():
+    try:
+        registro_id = _api_id_desde_peticion()
+        if not registro_id:
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        resultado = leer_usuario_por_id(registro_id)
+        return jsonify(_api_serializar_datos(resultado or {}))
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+
+@app.route("/api_leer_usuarios", methods=["GET"])
+@jwt_required()
+def api_leer_usuarios():
+    try:
+        resultado = leer_usuarios()
+        return jsonify(_api_serializar_datos(resultado or []))
+    except Exception as e:
+        return jsonify({"code": -1, "data": [], "message": "Excepcion superior: " + repr(e)})
+
+
+# Tabla: recuperacion_password
+@app.route("/api_guardar_recuperacion_password", methods=["POST"])
+@jwt_required()
+def api_guardar_recuperacion_password():
+    try:
+        data = _api_body_json()
+        if insertar_recuperacion_password_crud(data):
+            return jsonify({"code": 1, "data": {}, "message": "Recuperacion de password insertado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al insertar recuperacion de password."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+
+@app.route("/api_actualizar_recuperacion_password", methods=["POST"])
+@jwt_required()
+def api_actualizar_recuperacion_password():
+    try:
+        data = _api_body_json()
+        if not data.get("id"):
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        if actualizar_recuperacion_password_crud(data):
+            return jsonify({"code": 1, "data": {}, "message": "Recuperacion de password actualizado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al actualizar recuperacion de password."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+
+@app.route("/api_eliminar_recuperacion_password", methods=["POST"])
+@jwt_required()
+def api_eliminar_recuperacion_password():
+    try:
+        registro_id = _api_id_desde_peticion()
+        if not registro_id:
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        if eliminar_recuperacion_password(registro_id):
+            return jsonify({"code": 1, "data": {}, "message": "Recuperacion de password eliminado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al eliminar recuperacion de password."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+
+@app.route("/api_leer_recuperacion_password_xid", methods=["GET", "POST"])
+@jwt_required()
+def api_leer_recuperacion_password_xid():
+    try:
+        registro_id = _api_id_desde_peticion()
+        if not registro_id:
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        resultado = leer_recuperacion_password_por_id(registro_id)
+        return jsonify(_api_serializar_datos(resultado or {}))
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+
+@app.route("/api_leer_recuperaciones_password", methods=["GET"])
+@jwt_required()
+def api_leer_recuperaciones_password():
+    try:
+        resultado = leer_recuperaciones_password()
+        return jsonify(_api_serializar_datos(resultado or []))
+    except Exception as e:
+        return jsonify({"code": -1, "data": [], "message": "Excepcion superior: " + repr(e)})
 
 
 # ============================================================
-# APIS - USUARIOS
+# APIS - PAGOS
 # ============================================================
 
-@app.route("/api_guardarusuario", methods=["POST"])
+# Tabla: cuotas
+@app.route("/api_guardar_cuota", methods=["POST"])
 @jwt_required()
-def api_guardarusuario():
-    return _api_guardar_tabla("usuarios")
+def api_guardar_cuota():
+    try:
+        data = _api_body_json()
+        objCuota = clsCuota(
+            0, data["matricula"], data["fecha"], data["concepto"],
+            data["monto"], data.get("estado", "Pendiente"),
+            data.get("tipo", "otro"), data.get("periodo_mes"),
+            data.get("periodo_anio"), data.get("fecha_vencimiento")
+        )
+        if insertar_cuota(objCuota):
+            return jsonify({"code": 1, "data": {}, "message": "Cuota insertado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al insertar cuota."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_actualizarusuario", methods=["PUT", "POST"])
-@app.route("/api_actualizarusuario/<int:registro_id>", methods=["PUT", "POST"])
+@app.route("/api_actualizar_cuota", methods=["POST"])
 @jwt_required()
-def api_actualizarusuario(registro_id=None):
-    return _api_actualizar_tabla("usuarios", registro_id)
+def api_actualizar_cuota():
+    try:
+        data = _api_body_json()
+        if not data.get("id"):
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        objCuota = clsCuota(
+            data["id"], data.get("matricula"), data.get("fecha"),
+            data.get("concepto"), data.get("monto"), data.get("estado"),
+            data.get("tipo", "otro"), data.get("periodo_mes"),
+            data.get("periodo_anio"), data.get("fecha_vencimiento")
+        )
+        if actualizar_cuota(objCuota):
+            return jsonify({"code": 1, "data": {}, "message": "Cuota actualizado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al actualizar cuota."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_eliminarusuario", methods=["DELETE", "POST"])
-@app.route("/api_eliminarusuario/<int:registro_id>", methods=["DELETE", "POST"])
+@app.route("/api_eliminar_cuota", methods=["POST"])
 @jwt_required()
-def api_eliminarusuario(registro_id=None):
-    return _api_eliminar_tabla("usuarios", registro_id)
+def api_eliminar_cuota():
+    try:
+        registro_id = _api_id_desde_peticion()
+        if not registro_id:
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        if eliminar_cuota(registro_id):
+            return jsonify({"code": 1, "data": {}, "message": "Cuota eliminado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al eliminar cuota."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_leerusuarioxid", methods=["GET", "POST"])
-@app.route("/api_leerusuarioxid/<int:registro_id>", methods=["GET", "POST"])
+@app.route("/api_leer_cuota_xid", methods=["GET", "POST"])
 @jwt_required()
-def api_leerusuarioxid(registro_id=None):
-    return _api_leer_tabla_xid("usuarios", registro_id)
+def api_leer_cuota_xid():
+    try:
+        registro_id = _api_id_desde_peticion()
+        if not registro_id:
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        resultado = leer_cuota_por_id(registro_id)
+        return jsonify(_api_serializar_datos(resultado or {}))
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_leerusuarios")
+@app.route("/api_leer_cuotas", methods=["GET"])
 @jwt_required()
-def api_leerusuarios():
-    return _api_leer_tabla("usuarios")
+def api_leer_cuotas():
+    try:
+        resultado = leer_cuotas()
+        return jsonify(_api_serializar_datos(resultado or []))
+    except Exception as e:
+        return jsonify({"code": -1, "data": [], "message": "Excepcion superior: " + repr(e)})
 
 
-# ============================================================
-# APIS - RECUPERACION_PASSWORD
-# ============================================================
-
-@app.route("/api_guardarrecuperacionpassword", methods=["POST"])
+# Tabla: medios_pago
+@app.route("/api_guardar_medio_pago", methods=["POST"])
 @jwt_required()
-def api_guardarrecuperacionpassword():
-    return _api_guardar_tabla("recuperacion_password")
+def api_guardar_medio_pago():
+    try:
+        data = _api_body_json()
+        objMedioPago = clsMedioPago(0, data["nombre"], data.get("descripcion", ""), data.get("numero_cuenta", ""), data.get("titular", ""), data.get("activo", 1))
+        if insertar_medio_pago(objMedioPago):
+            return jsonify({"code": 1, "data": {}, "message": "Medio de pago insertado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al insertar medio de pago."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_actualizarrecuperacionpassword", methods=["PUT", "POST"])
-@app.route("/api_actualizarrecuperacionpassword/<int:registro_id>", methods=["PUT", "POST"])
+@app.route("/api_actualizar_medio_pago", methods=["POST"])
 @jwt_required()
-def api_actualizarrecuperacionpassword(registro_id=None):
-    return _api_actualizar_tabla("recuperacion_password", registro_id)
+def api_actualizar_medio_pago():
+    try:
+        data = _api_body_json()
+        if not data.get("id"):
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        objMedioPago = clsMedioPago(data["id"], data["nombre"], data.get("descripcion", ""), data.get("numero_cuenta", ""), data.get("titular", ""), data.get("activo", 1))
+        if actualizar_medio_pago(objMedioPago):
+            return jsonify({"code": 1, "data": {}, "message": "Medio de pago actualizado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al actualizar medio de pago."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_eliminarrecuperacionpassword", methods=["DELETE", "POST"])
-@app.route("/api_eliminarrecuperacionpassword/<int:registro_id>", methods=["DELETE", "POST"])
+@app.route("/api_eliminar_medio_pago", methods=["POST"])
 @jwt_required()
-def api_eliminarrecuperacionpassword(registro_id=None):
-    return _api_eliminar_tabla("recuperacion_password", registro_id)
+def api_eliminar_medio_pago():
+    try:
+        registro_id = _api_id_desde_peticion()
+        if not registro_id:
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        if eliminar_medio_pago(registro_id):
+            return jsonify({"code": 1, "data": {}, "message": "Medio de pago eliminado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al eliminar medio de pago."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_leerrecuperacionpasswordxid", methods=["GET", "POST"])
-@app.route("/api_leerrecuperacionpasswordxid/<int:registro_id>", methods=["GET", "POST"])
+@app.route("/api_leer_medio_pago_xid", methods=["GET", "POST"])
 @jwt_required()
-def api_leerrecuperacionpasswordxid(registro_id=None):
-    return _api_leer_tabla_xid("recuperacion_password", registro_id)
+def api_leer_medio_pago_xid():
+    try:
+        registro_id = _api_id_desde_peticion()
+        if not registro_id:
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        resultado = leer_medio_pago_por_id(registro_id)
+        return jsonify(_api_serializar_datos(resultado or {}))
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_leerrecuperacionespassword")
+@app.route("/api_leer_medios_pago", methods=["GET"])
 @jwt_required()
-def api_leerrecuperacionespassword():
-    return _api_leer_tabla("recuperacion_password")
+def api_leer_medios_pago():
+    try:
+        resultado = leer_medios_pago()
+        return jsonify(_api_serializar_datos(resultado or []))
+    except Exception as e:
+        return jsonify({"code": -1, "data": [], "message": "Excepcion superior: " + repr(e)})
 
 
-# ============================================================
-# APIS - CUOTAS
-# ============================================================
-
-@app.route("/api_guardarcuota", methods=["POST"])
+# Tabla: evidencias_pago
+@app.route("/api_guardar_evidencia_pago", methods=["POST"])
 @jwt_required()
-def api_guardarcuota():
-    return _api_guardar_tabla("cuotas")
+def api_guardar_evidencia_pago():
+    try:
+        data = _api_body_json()
+        if insertar_evidencia_pago_crud(data):
+            return jsonify({"code": 1, "data": {}, "message": "Evidencia de pago insertado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al insertar evidencia de pago."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_actualizarcuota", methods=["PUT", "POST"])
-@app.route("/api_actualizarcuota/<int:registro_id>", methods=["PUT", "POST"])
+@app.route("/api_actualizar_evidencia_pago", methods=["POST"])
 @jwt_required()
-def api_actualizarcuota(registro_id=None):
-    return _api_actualizar_tabla("cuotas", registro_id)
+def api_actualizar_evidencia_pago():
+    try:
+        data = _api_body_json()
+        if not data.get("id"):
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        if actualizar_evidencia_pago_crud(data):
+            return jsonify({"code": 1, "data": {}, "message": "Evidencia de pago actualizado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al actualizar evidencia de pago."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_eliminarcuota", methods=["DELETE", "POST"])
-@app.route("/api_eliminarcuota/<int:registro_id>", methods=["DELETE", "POST"])
+@app.route("/api_eliminar_evidencia_pago", methods=["POST"])
 @jwt_required()
-def api_eliminarcuota(registro_id=None):
-    return _api_eliminar_tabla("cuotas", registro_id)
+def api_eliminar_evidencia_pago():
+    try:
+        registro_id = _api_id_desde_peticion()
+        if not registro_id:
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        if eliminar_evidencia_pago(registro_id):
+            return jsonify({"code": 1, "data": {}, "message": "Evidencia de pago eliminado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al eliminar evidencia de pago."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_leercuotaxid", methods=["GET", "POST"])
-@app.route("/api_leercuotaxid/<int:registro_id>", methods=["GET", "POST"])
+@app.route("/api_leer_evidencia_pago_xid", methods=["GET", "POST"])
 @jwt_required()
-def api_leercuotaxid(registro_id=None):
-    return _api_leer_tabla_xid("cuotas", registro_id)
+def api_leer_evidencia_pago_xid():
+    try:
+        registro_id = _api_id_desde_peticion()
+        if not registro_id:
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        resultado = leer_evidencia_pago_por_id(registro_id)
+        return jsonify(_api_serializar_datos(resultado or {}))
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_leercuotas")
+@app.route("/api_leer_evidencias_pago", methods=["GET"])
 @jwt_required()
-def api_leercuotas():
-    return _api_leer_tabla("cuotas")
+def api_leer_evidencias_pago():
+    try:
+        resultado = leer_evidencias_pago()
+        return jsonify(_api_serializar_datos(resultado or []))
+    except Exception as e:
+        return jsonify({"code": -1, "data": [], "message": "Excepcion superior: " + repr(e)})
 
 
-# ============================================================
-# APIS - MEDIOS_PAGO
-# ============================================================
-
-@app.route("/api_guardarmediopago", methods=["POST"])
+# Tabla: transacciones_pago
+@app.route("/api_guardar_transaccion_pago", methods=["POST"])
 @jwt_required()
-def api_guardarmediopago():
-    return _api_guardar_tabla("medios_pago")
+def api_guardar_transaccion_pago():
+    try:
+        data = _api_body_json()
+        if insertar_transaccion_pago_crud(data):
+            return jsonify({"code": 1, "data": {}, "message": "Transaccion de pago insertado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al insertar transaccion de pago."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_actualizarmediopago", methods=["PUT", "POST"])
-@app.route("/api_actualizarmediopago/<int:registro_id>", methods=["PUT", "POST"])
+@app.route("/api_actualizar_transaccion_pago", methods=["POST"])
 @jwt_required()
-def api_actualizarmediopago(registro_id=None):
-    return _api_actualizar_tabla("medios_pago", registro_id)
+def api_actualizar_transaccion_pago():
+    try:
+        data = _api_body_json()
+        if not data.get("id"):
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        if actualizar_transaccion_pago_crud(data):
+            return jsonify({"code": 1, "data": {}, "message": "Transaccion de pago actualizado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al actualizar transaccion de pago."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_eliminarmediopago", methods=["DELETE", "POST"])
-@app.route("/api_eliminarmediopago/<int:registro_id>", methods=["DELETE", "POST"])
+@app.route("/api_eliminar_transaccion_pago", methods=["POST"])
 @jwt_required()
-def api_eliminarmediopago(registro_id=None):
-    return _api_eliminar_tabla("medios_pago", registro_id)
+def api_eliminar_transaccion_pago():
+    try:
+        registro_id = _api_id_desde_peticion()
+        if not registro_id:
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        if eliminar_transaccion_pago(registro_id):
+            return jsonify({"code": 1, "data": {}, "message": "Transaccion de pago eliminado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al eliminar transaccion de pago."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_leermediopagoxid", methods=["GET", "POST"])
-@app.route("/api_leermediopagoxid/<int:registro_id>", methods=["GET", "POST"])
+@app.route("/api_leer_transaccion_pago_xid", methods=["GET", "POST"])
 @jwt_required()
-def api_leermediopagoxid(registro_id=None):
-    return _api_leer_tabla_xid("medios_pago", registro_id)
+def api_leer_transaccion_pago_xid():
+    try:
+        registro_id = _api_id_desde_peticion()
+        if not registro_id:
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        resultado = leer_transaccion_pago_por_id(registro_id)
+        return jsonify(_api_serializar_datos(resultado or {}))
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_leermediospago")
+@app.route("/api_leer_transacciones_pago", methods=["GET"])
 @jwt_required()
-def api_leermediospago():
-    return _api_leer_tabla("medios_pago")
+def api_leer_transacciones_pago():
+    try:
+        resultado = leer_transacciones_pago_crud()
+        return jsonify(_api_serializar_datos(resultado or []))
+    except Exception as e:
+        return jsonify({"code": -1, "data": [], "message": "Excepcion superior: " + repr(e)})
 
 
-# ============================================================
-# APIS - EVIDENCIAS_PAGO
-# ============================================================
-
-@app.route("/api_guardarevidenciapago", methods=["POST"])
+# Tabla: comprobantes_pago
+@app.route("/api_guardar_comprobante_pago", methods=["POST"])
 @jwt_required()
-def api_guardarevidenciapago():
-    return _api_guardar_tabla("evidencias_pago")
+def api_guardar_comprobante_pago():
+    try:
+        data = _api_body_json()
+        if insertar_comprobante_pago_crud(data):
+            return jsonify({"code": 1, "data": {}, "message": "Comprobante de pago insertado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al insertar comprobante de pago."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_actualizarevidenciapago", methods=["PUT", "POST"])
-@app.route("/api_actualizarevidenciapago/<int:registro_id>", methods=["PUT", "POST"])
+@app.route("/api_actualizar_comprobante_pago", methods=["POST"])
 @jwt_required()
-def api_actualizarevidenciapago(registro_id=None):
-    return _api_actualizar_tabla("evidencias_pago", registro_id)
+def api_actualizar_comprobante_pago():
+    try:
+        data = _api_body_json()
+        if not data.get("id"):
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        if actualizar_comprobante_pago_crud(data):
+            return jsonify({"code": 1, "data": {}, "message": "Comprobante de pago actualizado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al actualizar comprobante de pago."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_eliminarevidenciapago", methods=["DELETE", "POST"])
-@app.route("/api_eliminarevidenciapago/<int:registro_id>", methods=["DELETE", "POST"])
+@app.route("/api_eliminar_comprobante_pago", methods=["POST"])
 @jwt_required()
-def api_eliminarevidenciapago(registro_id=None):
-    return _api_eliminar_tabla("evidencias_pago", registro_id)
+def api_eliminar_comprobante_pago():
+    try:
+        registro_id = _api_id_desde_peticion()
+        if not registro_id:
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        if eliminar_comprobante_pago(registro_id):
+            return jsonify({"code": 1, "data": {}, "message": "Comprobante de pago eliminado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al eliminar comprobante de pago."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_leerevidenciapagoxid", methods=["GET", "POST"])
-@app.route("/api_leerevidenciapagoxid/<int:registro_id>", methods=["GET", "POST"])
+@app.route("/api_leer_comprobante_pago_xid", methods=["GET", "POST"])
 @jwt_required()
-def api_leerevidenciapagoxid(registro_id=None):
-    return _api_leer_tabla_xid("evidencias_pago", registro_id)
+def api_leer_comprobante_pago_xid():
+    try:
+        registro_id = _api_id_desde_peticion()
+        if not registro_id:
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        resultado = leer_comprobante_pago_por_id(registro_id)
+        return jsonify(_api_serializar_datos(resultado or {}))
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_leerevidenciaspago")
+@app.route("/api_leer_comprobantes_pago", methods=["GET"])
 @jwt_required()
-def api_leerevidenciaspago():
-    return _api_leer_tabla("evidencias_pago")
-
-
-# ============================================================
-# APIS - TRANSACCIONES_PAGO
-# ============================================================
-
-@app.route("/api_guardartransaccionpago", methods=["POST"])
-@jwt_required()
-def api_guardartransaccionpago():
-    return _api_guardar_tabla("transacciones_pago")
-
-
-@app.route("/api_actualizartransaccionpago", methods=["PUT", "POST"])
-@app.route("/api_actualizartransaccionpago/<int:registro_id>", methods=["PUT", "POST"])
-@jwt_required()
-def api_actualizartransaccionpago(registro_id=None):
-    return _api_actualizar_tabla("transacciones_pago", registro_id)
-
-
-@app.route("/api_eliminartransaccionpago", methods=["DELETE", "POST"])
-@app.route("/api_eliminartransaccionpago/<int:registro_id>", methods=["DELETE", "POST"])
-@jwt_required()
-def api_eliminartransaccionpago(registro_id=None):
-    return _api_eliminar_tabla("transacciones_pago", registro_id)
-
-
-@app.route("/api_leertransaccionpagoxid", methods=["GET", "POST"])
-@app.route("/api_leertransaccionpagoxid/<int:registro_id>", methods=["GET", "POST"])
-@jwt_required()
-def api_leertransaccionpagoxid(registro_id=None):
-    return _api_leer_tabla_xid("transacciones_pago", registro_id)
-
-
-@app.route("/api_leertransaccionespago")
-@jwt_required()
-def api_leertransaccionespago():
-    return _api_leer_tabla("transacciones_pago")
-
-
-# ============================================================
-# APIS - COMPROBANTES_PAGO
-# ============================================================
-
-@app.route("/api_guardarcomprobantepago", methods=["POST"])
-@jwt_required()
-def api_guardarcomprobantepago():
-    return _api_guardar_tabla("comprobantes_pago")
-
-
-@app.route("/api_actualizarcomprobantepago", methods=["PUT", "POST"])
-@app.route("/api_actualizarcomprobantepago/<int:registro_id>", methods=["PUT", "POST"])
-@jwt_required()
-def api_actualizarcomprobantepago(registro_id=None):
-    return _api_actualizar_tabla("comprobantes_pago", registro_id)
-
-
-@app.route("/api_eliminarcomprobantepago", methods=["DELETE", "POST"])
-@app.route("/api_eliminarcomprobantepago/<int:registro_id>", methods=["DELETE", "POST"])
-@jwt_required()
-def api_eliminarcomprobantepago(registro_id=None):
-    return _api_eliminar_tabla("comprobantes_pago", registro_id)
-
-
-@app.route("/api_leercomprobantepagoxid", methods=["GET", "POST"])
-@app.route("/api_leercomprobantepagoxid/<int:registro_id>", methods=["GET", "POST"])
-@jwt_required()
-def api_leercomprobantepagoxid(registro_id=None):
-    return _api_leer_tabla_xid("comprobantes_pago", registro_id)
-
-
-@app.route("/api_leercomprobantespago")
-@jwt_required()
-def api_leercomprobantespago():
-    return _api_leer_tabla("comprobantes_pago")
-
-
-# ============================================================
-# APIS - CONFIGURACION_MERCADO_PAGO
-# ============================================================
-
-@app.route("/api_guardarconfiguracionmercadopago", methods=["POST"])
-@jwt_required()
-def api_guardarconfiguracionmercadopago():
-    return _api_guardar_tabla("configuracion_mercado_pago")
-
-
-@app.route("/api_actualizarconfiguracionmercadopago", methods=["PUT", "POST"])
-@app.route("/api_actualizarconfiguracionmercadopago/<int:registro_id>", methods=["PUT", "POST"])
-@jwt_required()
-def api_actualizarconfiguracionmercadopago(registro_id=None):
-    return _api_actualizar_tabla("configuracion_mercado_pago", registro_id)
-
-
-@app.route("/api_eliminarconfiguracionmercadopago", methods=["DELETE", "POST"])
-@app.route("/api_eliminarconfiguracionmercadopago/<int:registro_id>", methods=["DELETE", "POST"])
-@jwt_required()
-def api_eliminarconfiguracionmercadopago(registro_id=None):
-    return _api_eliminar_tabla("configuracion_mercado_pago", registro_id)
-
-
-@app.route("/api_leerconfiguracionmercadopagoxid", methods=["GET", "POST"])
-@app.route("/api_leerconfiguracionmercadopagoxid/<int:registro_id>", methods=["GET", "POST"])
-@jwt_required()
-def api_leerconfiguracionmercadopagoxid(registro_id=None):
-    return _api_leer_tabla_xid("configuracion_mercado_pago", registro_id)
-
-
-@app.route("/api_leerconfiguracionesmercadopago")
-@jwt_required()
-def api_leerconfiguracionesmercadopago():
-    return _api_leer_tabla("configuracion_mercado_pago")
-
-
-# ============================================================
-# APIS - ORDENES_MERCADO_PAGO
-# ============================================================
-
-@app.route("/api_guardarordenmercadopago", methods=["POST"])
-@jwt_required()
-def api_guardarordenmercadopago():
-    return _api_guardar_tabla("ordenes_mercado_pago")
-
-
-@app.route("/api_actualizarordenmercadopago", methods=["PUT", "POST"])
-@app.route("/api_actualizarordenmercadopago/<int:registro_id>", methods=["PUT", "POST"])
-@jwt_required()
-def api_actualizarordenmercadopago(registro_id=None):
-    return _api_actualizar_tabla("ordenes_mercado_pago", registro_id)
-
-
-@app.route("/api_eliminarordenmercadopago", methods=["DELETE", "POST"])
-@app.route("/api_eliminarordenmercadopago/<int:registro_id>", methods=["DELETE", "POST"])
-@jwt_required()
-def api_eliminarordenmercadopago(registro_id=None):
-    return _api_eliminar_tabla("ordenes_mercado_pago", registro_id)
-
-
-@app.route("/api_leerordenmercadopagoxid", methods=["GET", "POST"])
-@app.route("/api_leerordenmercadopagoxid/<int:registro_id>", methods=["GET", "POST"])
-@jwt_required()
-def api_leerordenmercadopagoxid(registro_id=None):
-    return _api_leer_tabla_xid("ordenes_mercado_pago", registro_id)
-
-
-@app.route("/api_leerordenesmercadopago")
-@jwt_required()
-def api_leerordenesmercadopago():
-    return _api_leer_tabla("ordenes_mercado_pago")
+def api_leer_comprobantes_pago():
+    try:
+        resultado = leer_comprobantes_pago_crud()
+        return jsonify(_api_serializar_datos(resultado or []))
+    except Exception as e:
+        return jsonify({"code": -1, "data": [], "message": "Excepcion superior: " + repr(e)})
 
 
 # ============================================================
-# APIS - CONFIGURACION_FACTURACION
+# APIS - MERCADO PAGO
 # ============================================================
 
-@app.route("/api_guardarconfiguracionfacturacion", methods=["POST"])
+# Tabla: configuracion_mercado_pago
+@app.route("/api_guardar_configuracion_mercado_pago", methods=["POST"])
 @jwt_required()
-def api_guardarconfiguracionfacturacion():
-    return _api_guardar_tabla("configuracion_facturacion")
+def api_guardar_configuracion_mercado_pago():
+    try:
+        data = _api_body_json()
+        if insertar_configuracion_mercado_pago_crud(data):
+            return jsonify({"code": 1, "data": {}, "message": "Configuracion mercado pago insertado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al insertar configuracion Mercado Pago."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_actualizarconfiguracionfacturacion", methods=["PUT", "POST"])
-@app.route("/api_actualizarconfiguracionfacturacion/<int:registro_id>", methods=["PUT", "POST"])
+@app.route("/api_actualizar_configuracion_mercado_pago", methods=["POST"])
 @jwt_required()
-def api_actualizarconfiguracionfacturacion(registro_id=None):
-    return _api_actualizar_tabla("configuracion_facturacion", registro_id)
+def api_actualizar_configuracion_mercado_pago():
+    try:
+        data = _api_body_json()
+        if not data.get("id"):
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        if actualizar_configuracion_mercado_pago_crud(data):
+            return jsonify({"code": 1, "data": {}, "message": "Configuracion mercado pago actualizado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al actualizar configuracion Mercado Pago."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_eliminarconfiguracionfacturacion", methods=["DELETE", "POST"])
-@app.route("/api_eliminarconfiguracionfacturacion/<int:registro_id>", methods=["DELETE", "POST"])
+@app.route("/api_eliminar_configuracion_mercado_pago", methods=["POST"])
 @jwt_required()
-def api_eliminarconfiguracionfacturacion(registro_id=None):
-    return _api_eliminar_tabla("configuracion_facturacion", registro_id)
+def api_eliminar_configuracion_mercado_pago():
+    try:
+        registro_id = _api_id_desde_peticion()
+        if not registro_id:
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        if eliminar_configuracion_mercado_pago(registro_id):
+            return jsonify({"code": 1, "data": {}, "message": "Configuracion mercado pago eliminado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al eliminar configuracion Mercado Pago."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_leerconfiguracionfacturacionxid", methods=["GET", "POST"])
-@app.route("/api_leerconfiguracionfacturacionxid/<int:registro_id>", methods=["GET", "POST"])
+@app.route("/api_leer_configuracion_mercado_pago_xid", methods=["GET", "POST"])
 @jwt_required()
-def api_leerconfiguracionfacturacionxid(registro_id=None):
-    return _api_leer_tabla_xid("configuracion_facturacion", registro_id)
+def api_leer_configuracion_mercado_pago_xid():
+    try:
+        registro_id = _api_id_desde_peticion()
+        if not registro_id:
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        resultado = leer_configuracion_mercado_pago_por_id(registro_id)
+        return jsonify(_api_serializar_datos(resultado or {}))
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_leerconfiguracionesfacturacion")
+@app.route("/api_leer_configuraciones_mercado_pago", methods=["GET"])
 @jwt_required()
-def api_leerconfiguracionesfacturacion():
-    return _api_leer_tabla("configuracion_facturacion")
+def api_leer_configuraciones_mercado_pago():
+    try:
+        resultado = leer_configuraciones_mercado_pago_crud()
+        return jsonify(_api_serializar_datos(resultado or []))
+    except Exception as e:
+        return jsonify({"code": -1, "data": [], "message": "Excepcion superior: " + repr(e)})
+
+
+# Tabla: ordenes_mercado_pago
+@app.route("/api_guardar_orden_mercado_pago", methods=["POST"])
+@jwt_required()
+def api_guardar_orden_mercado_pago():
+    try:
+        data = _api_body_json()
+        if insertar_orden_mercado_pago_crud(data):
+            return jsonify({"code": 1, "data": {}, "message": "Orden mercado pago insertado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al insertar orden Mercado Pago."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+
+@app.route("/api_actualizar_orden_mercado_pago", methods=["POST"])
+@jwt_required()
+def api_actualizar_orden_mercado_pago():
+    try:
+        data = _api_body_json()
+        if not data.get("id"):
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        if actualizar_orden_mercado_pago_crud(data):
+            return jsonify({"code": 1, "data": {}, "message": "Orden mercado pago actualizado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al actualizar orden Mercado Pago."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+
+@app.route("/api_eliminar_orden_mercado_pago", methods=["POST"])
+@jwt_required()
+def api_eliminar_orden_mercado_pago():
+    try:
+        registro_id = _api_id_desde_peticion()
+        if not registro_id:
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        if eliminar_orden_mercado_pago(registro_id):
+            return jsonify({"code": 1, "data": {}, "message": "Orden mercado pago eliminado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al eliminar orden Mercado Pago."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+
+@app.route("/api_leer_orden_mercado_pago_xid", methods=["GET", "POST"])
+@jwt_required()
+def api_leer_orden_mercado_pago_xid():
+    try:
+        registro_id = _api_id_desde_peticion()
+        if not registro_id:
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        resultado = leer_orden_mercado_pago_por_id(registro_id)
+        return jsonify(_api_serializar_datos(resultado or {}))
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+
+@app.route("/api_leer_ordenes_mercado_pago", methods=["GET"])
+@jwt_required()
+def api_leer_ordenes_mercado_pago():
+    try:
+        resultado = leer_ordenes_mercado_pago_crud()
+        return jsonify(_api_serializar_datos(resultado or []))
+    except Exception as e:
+        return jsonify({"code": -1, "data": [], "message": "Excepcion superior: " + repr(e)})
 
 
 # ============================================================
-# APIS - COMPROBANTES_FISCALES
+# APIS - FACTURACION
 # ============================================================
 
-@app.route("/api_guardarcomprobantefiscal", methods=["POST"])
+# Tabla: configuracion_facturacion
+@app.route("/api_guardar_configuracion_facturacion", methods=["POST"])
 @jwt_required()
-def api_guardarcomprobantefiscal():
-    return _api_guardar_tabla("comprobantes_fiscales")
+def api_guardar_configuracion_facturacion():
+    try:
+        data = _api_body_json()
+        if insertar_configuracion_facturacion_crud(data):
+            return jsonify({"code": 1, "data": {}, "message": "Configuracion de facturacion insertado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al insertar configuracion de facturacion."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_actualizarcomprobantefiscal", methods=["PUT", "POST"])
-@app.route("/api_actualizarcomprobantefiscal/<int:registro_id>", methods=["PUT", "POST"])
+@app.route("/api_actualizar_configuracion_facturacion", methods=["POST"])
 @jwt_required()
-def api_actualizarcomprobantefiscal(registro_id=None):
-    return _api_actualizar_tabla("comprobantes_fiscales", registro_id)
+def api_actualizar_configuracion_facturacion():
+    try:
+        data = _api_body_json()
+        if not data.get("id"):
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        if actualizar_configuracion_facturacion_crud(data):
+            return jsonify({"code": 1, "data": {}, "message": "Configuracion de facturacion actualizado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al actualizar configuracion de facturacion."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_eliminarcomprobantefiscal", methods=["DELETE", "POST"])
-@app.route("/api_eliminarcomprobantefiscal/<int:registro_id>", methods=["DELETE", "POST"])
+@app.route("/api_eliminar_configuracion_facturacion", methods=["POST"])
 @jwt_required()
-def api_eliminarcomprobantefiscal(registro_id=None):
-    return _api_eliminar_tabla("comprobantes_fiscales", registro_id)
+def api_eliminar_configuracion_facturacion():
+    try:
+        registro_id = _api_id_desde_peticion()
+        if not registro_id:
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        if eliminar_configuracion_facturacion(registro_id):
+            return jsonify({"code": 1, "data": {}, "message": "Configuracion de facturacion eliminado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al eliminar configuracion de facturacion."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_leercomprobantefiscalxid", methods=["GET", "POST"])
-@app.route("/api_leercomprobantefiscalxid/<int:registro_id>", methods=["GET", "POST"])
+@app.route("/api_leer_configuracion_facturacion_xid", methods=["GET", "POST"])
 @jwt_required()
-def api_leercomprobantefiscalxid(registro_id=None):
-    return _api_leer_tabla_xid("comprobantes_fiscales", registro_id)
+def api_leer_configuracion_facturacion_xid():
+    try:
+        registro_id = _api_id_desde_peticion()
+        if not registro_id:
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        resultado = leer_configuracion_facturacion_por_id(registro_id)
+        return jsonify(_api_serializar_datos(resultado or {}))
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_leercomprobantesfiscales")
+@app.route("/api_leer_configuraciones_facturacion", methods=["GET"])
 @jwt_required()
-def api_leercomprobantesfiscales():
-    return _api_leer_tabla("comprobantes_fiscales")
+def api_leer_configuraciones_facturacion():
+    try:
+        resultado = leer_configuraciones_facturacion_crud()
+        return jsonify(_api_serializar_datos(resultado or []))
+    except Exception as e:
+        return jsonify({"code": -1, "data": [], "message": "Excepcion superior: " + repr(e)})
 
 
-# ============================================================
-# APIS - COMPROBANTE_FISCAL_DETALLE
-# ============================================================
-
-@app.route("/api_guardarcomprobantefiscaldetalle", methods=["POST"])
+# Tabla: comprobantes_fiscales
+@app.route("/api_guardar_comprobante_fiscal", methods=["POST"])
 @jwt_required()
-def api_guardarcomprobantefiscaldetalle():
-    return _api_guardar_tabla("comprobante_fiscal_detalle")
+def api_guardar_comprobante_fiscal():
+    try:
+        data = _api_body_json()
+        if insertar_comprobante_fiscal_crud(data):
+            return jsonify({"code": 1, "data": {}, "message": "Comprobante fiscal insertado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al insertar comprobante fiscal."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_actualizarcomprobantefiscaldetalle", methods=["PUT", "POST"])
-@app.route("/api_actualizarcomprobantefiscaldetalle/<int:registro_id>", methods=["PUT", "POST"])
+@app.route("/api_actualizar_comprobante_fiscal", methods=["POST"])
 @jwt_required()
-def api_actualizarcomprobantefiscaldetalle(registro_id=None):
-    return _api_actualizar_tabla("comprobante_fiscal_detalle", registro_id)
+def api_actualizar_comprobante_fiscal():
+    try:
+        data = _api_body_json()
+        if not data.get("id"):
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        if actualizar_comprobante_fiscal_crud(data):
+            return jsonify({"code": 1, "data": {}, "message": "Comprobante fiscal actualizado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al actualizar comprobante fiscal."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_eliminarcomprobantefiscaldetalle", methods=["DELETE", "POST"])
-@app.route("/api_eliminarcomprobantefiscaldetalle/<int:registro_id>", methods=["DELETE", "POST"])
+@app.route("/api_eliminar_comprobante_fiscal", methods=["POST"])
 @jwt_required()
-def api_eliminarcomprobantefiscaldetalle(registro_id=None):
-    return _api_eliminar_tabla("comprobante_fiscal_detalle", registro_id)
+def api_eliminar_comprobante_fiscal():
+    try:
+        registro_id = _api_id_desde_peticion()
+        if not registro_id:
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        if eliminar_comprobante_fiscal(registro_id):
+            return jsonify({"code": 1, "data": {}, "message": "Comprobante fiscal eliminado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al eliminar comprobante fiscal."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_leercomprobantefiscaldetallexid", methods=["GET", "POST"])
-@app.route("/api_leercomprobantefiscaldetallexid/<int:registro_id>", methods=["GET", "POST"])
+@app.route("/api_leer_comprobante_fiscal_xid", methods=["GET", "POST"])
 @jwt_required()
-def api_leercomprobantefiscaldetallexid(registro_id=None):
-    return _api_leer_tabla_xid("comprobante_fiscal_detalle", registro_id)
+def api_leer_comprobante_fiscal_xid():
+    try:
+        registro_id = _api_id_desde_peticion()
+        if not registro_id:
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        resultado = leer_comprobante_fiscal_admin(registro_id)
+        return jsonify(_api_serializar_datos(resultado or {}))
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_leercomprobantesfiscalesdetalle")
+@app.route("/api_leer_comprobantes_fiscales", methods=["GET"])
 @jwt_required()
-def api_leercomprobantesfiscalesdetalle():
-    return _api_leer_tabla("comprobante_fiscal_detalle")
+def api_leer_comprobantes_fiscales():
+    try:
+        resultado = leer_comprobantes_fiscales()
+        return jsonify(_api_serializar_datos(resultado or []))
+    except Exception as e:
+        return jsonify({"code": -1, "data": [], "message": "Excepcion superior: " + repr(e)})
 
 
-# ============================================================
-# APIS - FACTURACION_SUNAT_LOGS
-# ============================================================
-
-@app.route("/api_guardarfacturacionsunatlog", methods=["POST"])
+# Tabla: comprobante_fiscal_detalle
+@app.route("/api_guardar_comprobante_fiscal_detalle", methods=["POST"])
 @jwt_required()
-def api_guardarfacturacionsunatlog():
-    return _api_guardar_tabla("facturacion_sunat_logs")
+def api_guardar_comprobante_fiscal_detalle():
+    try:
+        data = _api_body_json()
+        if insertar_comprobante_fiscal_detalle_crud(data):
+            return jsonify({"code": 1, "data": {}, "message": "Detalle de comprobante fiscal insertado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al insertar detalle de comprobante fiscal."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_actualizarfacturacionsunatlog", methods=["PUT", "POST"])
-@app.route("/api_actualizarfacturacionsunatlog/<int:registro_id>", methods=["PUT", "POST"])
+@app.route("/api_actualizar_comprobante_fiscal_detalle", methods=["POST"])
 @jwt_required()
-def api_actualizarfacturacionsunatlog(registro_id=None):
-    return _api_actualizar_tabla("facturacion_sunat_logs", registro_id)
+def api_actualizar_comprobante_fiscal_detalle():
+    try:
+        data = _api_body_json()
+        if not data.get("id"):
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        if actualizar_comprobante_fiscal_detalle_crud(data):
+            return jsonify({"code": 1, "data": {}, "message": "Detalle de comprobante fiscal actualizado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al actualizar detalle de comprobante fiscal."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_eliminarfacturacionsunatlog", methods=["DELETE", "POST"])
-@app.route("/api_eliminarfacturacionsunatlog/<int:registro_id>", methods=["DELETE", "POST"])
+@app.route("/api_eliminar_comprobante_fiscal_detalle", methods=["POST"])
 @jwt_required()
-def api_eliminarfacturacionsunatlog(registro_id=None):
-    return _api_eliminar_tabla("facturacion_sunat_logs", registro_id)
+def api_eliminar_comprobante_fiscal_detalle():
+    try:
+        registro_id = _api_id_desde_peticion()
+        if not registro_id:
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        if eliminar_comprobante_fiscal_detalle(registro_id):
+            return jsonify({"code": 1, "data": {}, "message": "Detalle de comprobante fiscal eliminado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al eliminar detalle de comprobante fiscal."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_leerfacturacionsunatlogxid", methods=["GET", "POST"])
-@app.route("/api_leerfacturacionsunatlogxid/<int:registro_id>", methods=["GET", "POST"])
+@app.route("/api_leer_comprobante_fiscal_detalle_xid", methods=["GET", "POST"])
 @jwt_required()
-def api_leerfacturacionsunatlogxid(registro_id=None):
-    return _api_leer_tabla_xid("facturacion_sunat_logs", registro_id)
+def api_leer_comprobante_fiscal_detalle_xid():
+    try:
+        registro_id = _api_id_desde_peticion()
+        if not registro_id:
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        resultado = leer_comprobante_fiscal_detalle_por_id(registro_id)
+        return jsonify(_api_serializar_datos(resultado or {}))
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_leerfacturacionsunatlogs")
+@app.route("/api_leer_comprobantes_fiscales_detalle", methods=["GET"])
 @jwt_required()
-def api_leerfacturacionsunatlogs():
-    return _api_leer_tabla("facturacion_sunat_logs")
+def api_leer_comprobantes_fiscales_detalle():
+    try:
+        resultado = leer_comprobantes_fiscales_detalle_crud()
+        return jsonify(_api_serializar_datos(resultado or []))
+    except Exception as e:
+        return jsonify({"code": -1, "data": [], "message": "Excepcion superior: " + repr(e)})
+
+
+# Tabla: facturacion_sunat_logs
+@app.route("/api_guardar_facturacion_sunat_log", methods=["POST"])
+@jwt_required()
+def api_guardar_facturacion_sunat_log():
+    try:
+        data = _api_body_json()
+        if insertar_facturacion_sunat_log_crud(data):
+            return jsonify({"code": 1, "data": {}, "message": "Log sunat insertado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al insertar log SUNAT."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+
+@app.route("/api_actualizar_facturacion_sunat_log", methods=["POST"])
+@jwt_required()
+def api_actualizar_facturacion_sunat_log():
+    try:
+        data = _api_body_json()
+        if not data.get("id"):
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        if actualizar_facturacion_sunat_log_crud(data):
+            return jsonify({"code": 1, "data": {}, "message": "Log sunat actualizado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al actualizar log SUNAT."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+
+@app.route("/api_eliminar_facturacion_sunat_log", methods=["POST"])
+@jwt_required()
+def api_eliminar_facturacion_sunat_log():
+    try:
+        registro_id = _api_id_desde_peticion()
+        if not registro_id:
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        if eliminar_facturacion_sunat_log(registro_id):
+            return jsonify({"code": 1, "data": {}, "message": "Log sunat eliminado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al eliminar log SUNAT."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+
+@app.route("/api_leer_facturacion_sunat_log_xid", methods=["GET", "POST"])
+@jwt_required()
+def api_leer_facturacion_sunat_log_xid():
+    try:
+        registro_id = _api_id_desde_peticion()
+        if not registro_id:
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        resultado = leer_facturacion_sunat_log_por_id(registro_id)
+        return jsonify(_api_serializar_datos(resultado or {}))
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+
+@app.route("/api_leer_facturacion_sunat_logs", methods=["GET"])
+@jwt_required()
+def api_leer_facturacion_sunat_logs():
+    try:
+        resultado = leer_facturacion_sunat_logs_crud()
+        return jsonify(_api_serializar_datos(resultado or []))
+    except Exception as e:
+        return jsonify({"code": -1, "data": [], "message": "Excepcion superior: " + repr(e)})
 
 
 # ============================================================
 # APIS - CURSOS
 # ============================================================
 
-@app.route("/api_guardarcurso", methods=["POST"])
+# Tabla: cursos
+@app.route("/api_guardar_curso", methods=["POST"])
 @jwt_required()
-def api_guardarcurso():
-    return _api_guardar_tabla("cursos")
+def api_guardar_curso():
+    try:
+        data = _api_body_json()
+        objCurso = clsCurso(
+            0, data["categoria"], data["titulo"], data.get("descripcion", ""),
+            data.get("fecha_evento"), data.get("estado", "Activo"),
+            data.get("monto", 0), data.get("ponente"), data.get("modalidad"),
+            data.get("duracion_horas", 0), data.get("fecha_inicio"),
+            data.get("fecha_fin"), data.get("cupos", 0), data.get("monto_inhabil")
+        )
+        if insertar_curso(objCurso):
+            return jsonify({"code": 1, "data": {}, "message": "Curso insertado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al insertar curso."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_actualizarcurso", methods=["PUT", "POST"])
-@app.route("/api_actualizarcurso/<int:registro_id>", methods=["PUT", "POST"])
+@app.route("/api_actualizar_curso", methods=["POST"])
 @jwt_required()
-def api_actualizarcurso(registro_id=None):
-    return _api_actualizar_tabla("cursos", registro_id)
+def api_actualizar_curso():
+    try:
+        data = _api_body_json()
+        if not data.get("id"):
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        objCurso = clsCurso(
+            data["id"], data["categoria"], data["titulo"], data.get("descripcion", ""),
+            data.get("fecha_evento"), data.get("estado", "Activo"),
+            data.get("monto", 0), data.get("ponente"), data.get("modalidad"),
+            data.get("duracion_horas", 0), data.get("fecha_inicio"),
+            data.get("fecha_fin"), data.get("cupos", 0), data.get("monto_inhabil")
+        )
+        if actualizar_curso(objCurso):
+            return jsonify({"code": 1, "data": {}, "message": "Curso actualizado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al actualizar curso."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_eliminarcurso", methods=["DELETE", "POST"])
-@app.route("/api_eliminarcurso/<int:registro_id>", methods=["DELETE", "POST"])
+@app.route("/api_eliminar_curso", methods=["POST"])
 @jwt_required()
-def api_eliminarcurso(registro_id=None):
-    return _api_eliminar_tabla("cursos", registro_id)
+def api_eliminar_curso():
+    try:
+        registro_id = _api_id_desde_peticion()
+        if not registro_id:
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        if eliminar_curso(registro_id):
+            return jsonify({"code": 1, "data": {}, "message": "Curso eliminado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al eliminar curso."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_leercursoxid", methods=["GET", "POST"])
-@app.route("/api_leercursoxid/<int:registro_id>", methods=["GET", "POST"])
+@app.route("/api_leer_curso_xid", methods=["GET", "POST"])
 @jwt_required()
-def api_leercursoxid(registro_id=None):
-    return _api_leer_tabla_xid("cursos", registro_id)
+def api_leer_curso_xid():
+    try:
+        registro_id = _api_id_desde_peticion()
+        if not registro_id:
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        resultado = leer_curso_admin_por_id(registro_id)
+        return jsonify(_api_serializar_datos(resultado or {}))
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_leercursos")
+@app.route("/api_leer_cursos", methods=["GET"])
 @jwt_required()
-def api_leercursos():
-    return _api_leer_tabla("cursos")
+def api_leer_cursos():
+    try:
+        resultado = leer_cursos()
+        return jsonify(_api_serializar_datos(resultado or []))
+    except Exception as e:
+        return jsonify({"code": -1, "data": [], "message": "Excepcion superior: " + repr(e)})
+
+
+# Tabla: contenido_curso
+@app.route("/api_guardar_contenido_curso", methods=["POST"])
+@jwt_required()
+def api_guardar_contenido_curso():
+    try:
+        data = _api_body_json()
+        if insertar_contenido_curso_crud(data):
+            return jsonify({"code": 1, "data": {}, "message": "Contenido de curso insertado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al insertar contenido de curso."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+
+@app.route("/api_actualizar_contenido_curso", methods=["POST"])
+@jwt_required()
+def api_actualizar_contenido_curso():
+    try:
+        data = _api_body_json()
+        if not data.get("id"):
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        if actualizar_contenido_curso_crud(data):
+            return jsonify({"code": 1, "data": {}, "message": "Contenido de curso actualizado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al actualizar contenido de curso."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+
+@app.route("/api_eliminar_contenido_curso", methods=["POST"])
+@jwt_required()
+def api_eliminar_contenido_curso():
+    try:
+        registro_id = _api_id_desde_peticion()
+        if not registro_id:
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        if eliminar_contenido_curso(registro_id):
+            return jsonify({"code": 1, "data": {}, "message": "Contenido de curso eliminado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al eliminar contenido de curso."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+
+@app.route("/api_leer_contenido_curso_xid", methods=["GET", "POST"])
+@jwt_required()
+def api_leer_contenido_curso_xid():
+    try:
+        registro_id = _api_id_desde_peticion()
+        if not registro_id:
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        resultado = leer_contenido_curso_por_id(registro_id)
+        return jsonify(_api_serializar_datos(resultado or {}))
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+
+@app.route("/api_leer_contenidos_curso", methods=["GET"])
+@jwt_required()
+def api_leer_contenidos_curso():
+    try:
+        resultado = leer_contenidos_curso_crud()
+        return jsonify(_api_serializar_datos(resultado or []))
+    except Exception as e:
+        return jsonify({"code": -1, "data": [], "message": "Excepcion superior: " + repr(e)})
+
+
+# Tabla: inscripciones_curso
+@app.route("/api_guardar_inscripcion_curso", methods=["POST"])
+@jwt_required()
+def api_guardar_inscripcion_curso():
+    try:
+        data = _api_body_json()
+        if insertar_inscripcion_curso(data["matricula"], data["curso_id"], data.get("estado_pago", "Pendiente")):
+            return jsonify({"code": 1, "data": {}, "message": "Inscripcion de curso insertado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al insertar inscripcion de curso."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+
+@app.route("/api_actualizar_inscripcion_curso", methods=["POST"])
+@jwt_required()
+def api_actualizar_inscripcion_curso():
+    try:
+        data = _api_body_json()
+        if not data.get("id"):
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        if actualizar_inscripcion_curso_crud(data):
+            return jsonify({"code": 1, "data": {}, "message": "Inscripcion de curso actualizado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al actualizar inscripcion de curso."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+
+@app.route("/api_eliminar_inscripcion_curso", methods=["POST"])
+@jwt_required()
+def api_eliminar_inscripcion_curso():
+    try:
+        registro_id = _api_id_desde_peticion()
+        if not registro_id:
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        if eliminar_inscripcion_curso(registro_id):
+            return jsonify({"code": 1, "data": {}, "message": "Inscripcion de curso eliminado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al eliminar inscripcion de curso."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+
+@app.route("/api_leer_inscripcion_curso_xid", methods=["GET", "POST"])
+@jwt_required()
+def api_leer_inscripcion_curso_xid():
+    try:
+        registro_id = _api_id_desde_peticion()
+        if not registro_id:
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        resultado = leer_inscripcion_curso_por_id(registro_id)
+        return jsonify(_api_serializar_datos(resultado or {}))
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+
+@app.route("/api_leer_inscripciones_curso", methods=["GET"])
+@jwt_required()
+def api_leer_inscripciones_curso():
+    try:
+        resultado = leer_inscripciones_curso()
+        return jsonify(_api_serializar_datos(resultado or []))
+    except Exception as e:
+        return jsonify({"code": -1, "data": [], "message": "Excepcion superior: " + repr(e)})
 
 
 # ============================================================
-# APIS - CONTENIDO_CURSO
+# APIS - TRAMITES Y SOPORTE
 # ============================================================
 
-@app.route("/api_guardarcontenidocurso", methods=["POST"])
+# Tabla: tramites
+@app.route("/api_guardar_tramite", methods=["POST"])
 @jwt_required()
-def api_guardarcontenidocurso():
-    return _api_guardar_tabla("contenido_curso")
+def api_guardar_tramite():
+    try:
+        data = _api_body_json()
+        objTramite = clsTramite(
+            0, data["matricula"], data["nombre"], data["tipo_tramite"],
+            data["asunto"], data["descripcion"], data.get("archivo_solicitud"),
+            data.get("estado", "Pendiente"), data.get("fecha_solicitud")
+        )
+        if insertar_tramite(objTramite):
+            return jsonify({"code": 1, "data": {}, "message": "Tramite insertado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al insertar tramite."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_actualizarcontenidocurso", methods=["PUT", "POST"])
-@app.route("/api_actualizarcontenidocurso/<int:registro_id>", methods=["PUT", "POST"])
+@app.route("/api_actualizar_tramite", methods=["POST"])
 @jwt_required()
-def api_actualizarcontenidocurso(registro_id=None):
-    return _api_actualizar_tabla("contenido_curso", registro_id)
+def api_actualizar_tramite():
+    try:
+        data = _api_body_json()
+        if not data.get("id"):
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        if actualizar_tramite_crud(data):
+            return jsonify({"code": 1, "data": {}, "message": "Tramite actualizado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al actualizar tramite."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_eliminarcontenidocurso", methods=["DELETE", "POST"])
-@app.route("/api_eliminarcontenidocurso/<int:registro_id>", methods=["DELETE", "POST"])
+@app.route("/api_eliminar_tramite", methods=["POST"])
 @jwt_required()
-def api_eliminarcontenidocurso(registro_id=None):
-    return _api_eliminar_tabla("contenido_curso", registro_id)
+def api_eliminar_tramite():
+    try:
+        registro_id = _api_id_desde_peticion()
+        if not registro_id:
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        if eliminar_tramite(registro_id):
+            return jsonify({"code": 1, "data": {}, "message": "Tramite eliminado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al eliminar tramite."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_leercontenidocursoxid", methods=["GET", "POST"])
-@app.route("/api_leercontenidocursoxid/<int:registro_id>", methods=["GET", "POST"])
+@app.route("/api_leer_tramite_xid", methods=["GET", "POST"])
 @jwt_required()
-def api_leercontenidocursoxid(registro_id=None):
-    return _api_leer_tabla_xid("contenido_curso", registro_id)
+def api_leer_tramite_xid():
+    try:
+        registro_id = _api_id_desde_peticion()
+        if not registro_id:
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        resultado = leer_tramite_por_id(registro_id)
+        return jsonify(_api_serializar_datos(resultado or {}))
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
 
-
-@app.route("/api_leercontenidoscurso")
+@app.route("/api_leer_tramites", methods=["GET"])
 @jwt_required()
-def api_leercontenidoscurso():
-    return _api_leer_tabla("contenido_curso")
+def api_leer_tramites():
+    try:
+        resultado = leer_tramites()
+        return jsonify(_api_serializar_datos(resultado or []))
+    except Exception as e:
+        return jsonify({"code": -1, "data": [], "message": "Excepcion superior: " + repr(e)})
+
+
+# Tabla: tickets
+@app.route("/api_guardar_ticket", methods=["POST"])
+@jwt_required()
+def api_guardar_ticket():
+    try:
+        data = _api_body_json()
+        if insertar_ticket(data["matricula"], data.get("categoria", "general"), data["asunto"], data["descripcion"]):
+            return jsonify({"code": 1, "data": {}, "message": "Ticket insertado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al insertar ticket."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+
+@app.route("/api_actualizar_ticket", methods=["POST"])
+@jwt_required()
+def api_actualizar_ticket():
+    try:
+        data = _api_body_json()
+        if not data.get("id"):
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        if actualizar_ticket_crud(data):
+            return jsonify({"code": 1, "data": {}, "message": "Ticket actualizado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al actualizar ticket."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+
+@app.route("/api_eliminar_ticket", methods=["POST"])
+@jwt_required()
+def api_eliminar_ticket():
+    try:
+        registro_id = _api_id_desde_peticion()
+        if not registro_id:
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        if eliminar_ticket(registro_id):
+            return jsonify({"code": 1, "data": {}, "message": "Ticket eliminado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al eliminar ticket."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+
+@app.route("/api_leer_ticket_xid", methods=["GET", "POST"])
+@jwt_required()
+def api_leer_ticket_xid():
+    try:
+        registro_id = _api_id_desde_peticion()
+        if not registro_id:
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        resultado = leer_ticket_por_id(registro_id)
+        return jsonify(_api_serializar_datos(resultado or {}))
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+
+@app.route("/api_leer_tickets", methods=["GET"])
+@jwt_required()
+def api_leer_tickets():
+    try:
+        resultado = leer_tickets()
+        return jsonify(_api_serializar_datos(resultado or []))
+    except Exception as e:
+        return jsonify({"code": -1, "data": [], "message": "Excepcion superior: " + repr(e)})
+
+
+# Tabla: notificaciones
+@app.route("/api_guardar_notificacion", methods=["POST"])
+@jwt_required()
+def api_guardar_notificacion():
+    try:
+        data = _api_body_json()
+        if insertar_notificacion_crud(data):
+            return jsonify({"code": 1, "data": {}, "message": "Notificacion insertado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al insertar notificacion."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+
+@app.route("/api_actualizar_notificacion", methods=["POST"])
+@jwt_required()
+def api_actualizar_notificacion():
+    try:
+        data = _api_body_json()
+        if not data.get("id"):
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        if actualizar_notificacion_crud(data):
+            return jsonify({"code": 1, "data": {}, "message": "Notificacion actualizado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al actualizar notificacion."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+
+@app.route("/api_eliminar_notificacion", methods=["POST"])
+@jwt_required()
+def api_eliminar_notificacion():
+    try:
+        registro_id = _api_id_desde_peticion()
+        if not registro_id:
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        if eliminar_notificacion(registro_id):
+            return jsonify({"code": 1, "data": {}, "message": "Notificacion eliminado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al eliminar notificacion."})
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+
+@app.route("/api_leer_notificacion_xid", methods=["GET", "POST"])
+@jwt_required()
+def api_leer_notificacion_xid():
+    try:
+        registro_id = _api_id_desde_peticion()
+        if not registro_id:
+            return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
+        resultado = leer_notificacion_por_id(registro_id)
+        return jsonify(_api_serializar_datos(resultado or {}))
+    except Exception as e:
+        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+
+@app.route("/api_leer_notificaciones", methods=["GET"])
+@jwt_required()
+def api_leer_notificaciones():
+    try:
+        resultado = leer_notificaciones_crud()
+        return jsonify(_api_serializar_datos(resultado or []))
+    except Exception as e:
+        return jsonify({"code": -1, "data": [], "message": "Excepcion superior: " + repr(e)})
 
 
 # ============================================================
-# APIS - INSCRIPCIONES_CURSO
+# COLECCION POSTMAN
 # ============================================================
-
-@app.route("/api_guardarinscripcioncurso", methods=["POST"])
-@jwt_required()
-def api_guardarinscripcioncurso():
-    return _api_guardar_tabla("inscripciones_curso")
-
-
-@app.route("/api_actualizarinscripcioncurso", methods=["PUT", "POST"])
-@app.route("/api_actualizarinscripcioncurso/<int:registro_id>", methods=["PUT", "POST"])
-@jwt_required()
-def api_actualizarinscripcioncurso(registro_id=None):
-    return _api_actualizar_tabla("inscripciones_curso", registro_id)
-
-
-@app.route("/api_eliminarinscripcioncurso", methods=["DELETE", "POST"])
-@app.route("/api_eliminarinscripcioncurso/<int:registro_id>", methods=["DELETE", "POST"])
-@jwt_required()
-def api_eliminarinscripcioncurso(registro_id=None):
-    return _api_eliminar_tabla("inscripciones_curso", registro_id)
-
-
-@app.route("/api_leerinscripcioncursoxid", methods=["GET", "POST"])
-@app.route("/api_leerinscripcioncursoxid/<int:registro_id>", methods=["GET", "POST"])
-@jwt_required()
-def api_leerinscripcioncursoxid(registro_id=None):
-    return _api_leer_tabla_xid("inscripciones_curso", registro_id)
-
-
-@app.route("/api_leerinscripcionescurso")
-@jwt_required()
-def api_leerinscripcionescurso():
-    return _api_leer_tabla("inscripciones_curso")
-
-
-# ============================================================
-# APIS - TRAMITES
-# ============================================================
-
-@app.route("/api_guardartramite", methods=["POST"])
-@jwt_required()
-def api_guardartramite():
-    return _api_guardar_tabla("tramites")
-
-
-@app.route("/api_actualizartramite", methods=["PUT", "POST"])
-@app.route("/api_actualizartramite/<int:registro_id>", methods=["PUT", "POST"])
-@jwt_required()
-def api_actualizartramite(registro_id=None):
-    return _api_actualizar_tabla("tramites", registro_id)
-
-
-@app.route("/api_eliminartramite", methods=["DELETE", "POST"])
-@app.route("/api_eliminartramite/<int:registro_id>", methods=["DELETE", "POST"])
-@jwt_required()
-def api_eliminartramite(registro_id=None):
-    return _api_eliminar_tabla("tramites", registro_id)
-
-
-@app.route("/api_leertramitexid", methods=["GET", "POST"])
-@app.route("/api_leertramitexid/<int:registro_id>", methods=["GET", "POST"])
-@jwt_required()
-def api_leertramitexid(registro_id=None):
-    return _api_leer_tabla_xid("tramites", registro_id)
-
-
-@app.route("/api_leertramites")
-@jwt_required()
-def api_leertramites():
-    return _api_leer_tabla("tramites")
-
-
-# ============================================================
-# APIS - TICKETS
-# ============================================================
-
-@app.route("/api_guardarticket", methods=["POST"])
-@jwt_required()
-def api_guardarticket():
-    return _api_guardar_tabla("tickets")
-
-
-@app.route("/api_actualizarticket", methods=["PUT", "POST"])
-@app.route("/api_actualizarticket/<int:registro_id>", methods=["PUT", "POST"])
-@jwt_required()
-def api_actualizarticket(registro_id=None):
-    return _api_actualizar_tabla("tickets", registro_id)
-
-
-@app.route("/api_eliminarticket", methods=["DELETE", "POST"])
-@app.route("/api_eliminarticket/<int:registro_id>", methods=["DELETE", "POST"])
-@jwt_required()
-def api_eliminarticket(registro_id=None):
-    return _api_eliminar_tabla("tickets", registro_id)
-
-
-@app.route("/api_leerticketxid", methods=["GET", "POST"])
-@app.route("/api_leerticketxid/<int:registro_id>", methods=["GET", "POST"])
-@jwt_required()
-def api_leerticketxid(registro_id=None):
-    return _api_leer_tabla_xid("tickets", registro_id)
-
-
-@app.route("/api_leertickets")
-@jwt_required()
-def api_leertickets():
-    return _api_leer_tabla("tickets")
-
-
-# ============================================================
-# APIS - NOTIFICACIONES
-# ============================================================
-
-@app.route("/api_guardarnotificacion", methods=["POST"])
-@jwt_required()
-def api_guardarnotificacion():
-    return _api_guardar_tabla("notificaciones")
-
-
-@app.route("/api_actualizarnotificacion", methods=["PUT", "POST"])
-@app.route("/api_actualizarnotificacion/<int:registro_id>", methods=["PUT", "POST"])
-@jwt_required()
-def api_actualizarnotificacion(registro_id=None):
-    return _api_actualizar_tabla("notificaciones", registro_id)
-
-
-@app.route("/api_eliminarnotificacion", methods=["DELETE", "POST"])
-@app.route("/api_eliminarnotificacion/<int:registro_id>", methods=["DELETE", "POST"])
-@jwt_required()
-def api_eliminarnotificacion(registro_id=None):
-    return _api_eliminar_tabla("notificaciones", registro_id)
-
-
-@app.route("/api_leernotificacionxid", methods=["GET", "POST"])
-@app.route("/api_leernotificacionxid/<int:registro_id>", methods=["GET", "POST"])
-@jwt_required()
-def api_leernotificacionxid(registro_id=None):
-    return _api_leer_tabla_xid("notificaciones", registro_id)
-
-
-@app.route("/api_leernotificaciones")
-@jwt_required()
-def api_leernotificaciones():
-    return _api_leer_tabla("notificaciones")
-
 
 @app.route("/api/postman-collection", endpoint="api_postman_collection")
 def api_postman_collection():
     base_url = request.url_root.rstrip("/")
     items = [
         {
-            "name": "01 - Generar token JWT",
+            "name": "Obtener token JWT",
             "request": {
                 "method": "POST",
                 "header": [{"key": "Content-Type", "value": "application/json"}],
-                "body": {
-                    "mode": "raw",
-                    "raw": json.dumps({
-                        "username": "admin",
-                        "password": "admin2024"
-                    }, indent=2)
-                },
-                "url": "{{base_url}}/auth"
+                "body": {"mode": "raw", "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin2024\"\n}"},
+                "url": "{{base_url}}/api/token"
             }
         }
     ]
-
-    carpetas = {}
     for modulo, tabla, singular, plural in API_COLECCION_TABLAS:
-        carpetas.setdefault(modulo, {"name": modulo, "item": []})
-        carpetas[modulo]["item"].extend([
-            {
-                "name": f"api_leer{plural}",
-                "request": {
-                    "method": "GET",
-                    "header": [{"key": "Authorization", "value": "JWT {{token}}"}],
-                    "url": f"{{{{base_url}}}}/api_leer{plural}"
-                }
-            },
-            {
-                "name": f"api_leer{singular}xid",
-                "request": {
-                    "method": "GET",
-                    "header": [{"key": "Authorization", "value": "JWT {{token}}"}],
-                    "url": f"{{{{base_url}}}}/api_leer{singular}xid/1"
-                }
-            },
-            {
-                "name": f"api_guardar{singular}",
-                "request": {
-                    "method": "POST",
-                    "header": [
-                        {"key": "Authorization", "value": "JWT {{token}}"},
-                        {"key": "Content-Type", "value": "application/json"}
-                    ],
-                    "body": {"mode": "raw", "raw": "{}"},
-                    "url": f"{{{{base_url}}}}/api_guardar{singular}"
-                }
-            },
-            {
-                "name": f"api_actualizar{singular}",
-                "request": {
-                    "method": "PUT",
-                    "header": [
-                        {"key": "Authorization", "value": "JWT {{token}}"},
-                        {"key": "Content-Type", "value": "application/json"}
-                    ],
-                    "body": {"mode": "raw", "raw": "{\n  \"id\": 1\n}"},
-                    "url": f"{{{{base_url}}}}/api_actualizar{singular}/1"
-                }
-            },
-            {
-                "name": f"api_eliminar{singular}",
-                "request": {
-                    "method": "DELETE",
-                    "header": [{"key": "Authorization", "value": "JWT {{token}}"}],
-                    "url": f"{{{{base_url}}}}/api_eliminar{singular}/1"
-                }
-            },
-        ])
-
-    items.extend(carpetas.values())
+        items.append({
+            "name": tabla,
+            "item": [
+                {
+                    "name": f"api_guardar_{singular} [POST]",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {"key": "Authorization", "value": "JWT {{token}}"},
+                            {"key": "Content-Type", "value": "application/json"}
+                        ],
+                        "body": {"mode": "raw", "raw": "{}"},
+                        "url": f"{{{{base_url}}}}/api_guardar_{singular}"
+                    }
+                },
+                {
+                    "name": f"api_actualizar_{singular} [POST]",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {"key": "Authorization", "value": "JWT {{token}}"},
+                            {"key": "Content-Type", "value": "application/json"}
+                        ],
+                        "body": {"mode": "raw", "raw": "{\n  \"id\": 1\n}"},
+                        "url": f"{{{{base_url}}}}/api_actualizar_{singular}"
+                    }
+                },
+                {
+                    "name": f"api_eliminar_{singular} [POST]",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {"key": "Authorization", "value": "JWT {{token}}"},
+                            {"key": "Content-Type", "value": "application/json"}
+                        ],
+                        "body": {"mode": "raw", "raw": "{\n  \"id\": 1\n}"},
+                        "url": f"{{{{base_url}}}}/api_eliminar_{singular}"
+                    }
+                },
+                {
+                    "name": f"api_leer_{singular}_xid [GET/POST]",
+                    "request": {
+                        "method": "GET",
+                        "header": [{"key": "Authorization", "value": "JWT {{token}}"}],
+                        "url": f"{{{{base_url}}}}/api_leer_{singular}_xid?id=1"
+                    }
+                },
+                {
+                    "name": f"api_leer_{plural} [GET]",
+                    "request": {
+                        "method": "GET",
+                        "header": [{"key": "Authorization", "value": "JWT {{token}}"}],
+                        "url": f"{{{{base_url}}}}/api_leer_{plural}"
+                    }
+                },
+            ]
+        })
     return jsonify({
         "info": {
-            "name": "CCPL Intranet - APIs JWT",
+            "name": "CCPL Intranet - APIs CRUD JWT",
             "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
         },
         "variable": [

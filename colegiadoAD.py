@@ -2223,3 +2223,252 @@ def eliminar_notificaciones_leidas(p_matricula):
     except Exception as e:
         print(repr(e))
         return False
+
+
+# ============================================================
+# FUNCIONES CRUD - AYUDANTES COLEGIADO
+# ============================================================
+
+def _columnas_presentes_crud_colegiado(p_datos, p_columnas):
+    datos = p_datos or {}
+    return {
+        columna: datos[columna]
+        for columna in p_columnas
+        if columna in datos and columna != "id"
+    }
+
+
+def _insertar_registro_crud_colegiado(p_tabla, p_datos, p_columnas):
+    valores = _columnas_presentes_crud_colegiado(p_datos, p_columnas)
+    if not valores:
+        return False
+
+    columnas_sql = ", ".join(valores.keys())
+    marcas_sql = ", ".join(["%s"] * len(valores))
+    sql = f"INSERT INTO {p_tabla} ({columnas_sql}) VALUES ({marcas_sql})"
+
+    try:
+        conn = obtenerconexion()
+        if conn:
+            with conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(sql, tuple(valores.values()))
+                conn.commit()
+            return True
+        return False
+    except Exception as e:
+        print(repr(e))
+        return False
+
+
+def _actualizar_registro_crud_colegiado(p_tabla, p_datos, p_columnas, p_id=None):
+    registro_id = p_id or (p_datos or {}).get("id")
+    if not registro_id:
+        return False
+
+    valores = _columnas_presentes_crud_colegiado(p_datos, p_columnas)
+    if not valores:
+        return False
+
+    set_sql = ", ".join([f"{columna} = %s" for columna in valores.keys()])
+    sql = f"UPDATE {p_tabla} SET {set_sql} WHERE id = %s"
+    parametros = list(valores.values())
+    parametros.append(registro_id)
+
+    try:
+        conn = obtenerconexion()
+        if conn:
+            with conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(sql, tuple(parametros))
+                    filas = cursor.rowcount
+                conn.commit()
+            return filas > 0
+        return False
+    except Exception as e:
+        print(repr(e))
+        return False
+
+
+def _eliminar_registro_crud_colegiado(p_tabla, p_id):
+    if not p_id:
+        return False
+
+    try:
+        conn = obtenerconexion()
+        if conn:
+            with conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(f"DELETE FROM {p_tabla} WHERE id = %s", (p_id,))
+                    filas = cursor.rowcount
+                conn.commit()
+            return filas > 0
+        return False
+    except Exception as e:
+        print(repr(e))
+        return False
+
+
+def _leer_registro_por_id_colegiado(p_tabla, p_id):
+    try:
+        conn = obtenerconexion()
+        if conn:
+            with conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(f"SELECT * FROM {p_tabla} WHERE id = %s", (p_id,))
+                    return cursor.fetchone()
+        return None
+    except Exception:
+        raise
+
+
+def _leer_registros_crud_colegiado(p_tabla, p_orden="id DESC"):
+    try:
+        conn = obtenerconexion()
+        result = []
+        if conn:
+            with conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(f"SELECT * FROM {p_tabla} ORDER BY {p_orden}")
+                    result = cursor.fetchall()
+        return result
+    except Exception:
+        raise
+
+
+# ============================================================
+# FUNCIONES CRUD - ESPECIALIDADES DEL COLEGIADO
+# ============================================================
+
+ESPECIALIDAD_COLEGIADO_CRUD_COLUMNAS = [
+    "nombre", "activo",
+]
+
+
+def leer_especialidad_colegiado_por_id(p_id):
+    return _leer_registro_por_id_colegiado("especialidades_colegiado", p_id)
+
+
+def insertar_especialidad_colegiado_crud(p_datos):
+    return _insertar_registro_crud_colegiado(
+        "especialidades_colegiado",
+        p_datos,
+        ESPECIALIDAD_COLEGIADO_CRUD_COLUMNAS
+    )
+
+
+def actualizar_especialidad_colegiado_crud(p_datos):
+    return _actualizar_registro_crud_colegiado(
+        "especialidades_colegiado",
+        p_datos,
+        ESPECIALIDAD_COLEGIADO_CRUD_COLUMNAS
+    )
+
+
+def eliminar_especialidad_colegiado(p_id):
+    return _eliminar_registro_crud_colegiado("especialidades_colegiado", p_id)
+
+
+# ============================================================
+# FUNCIONES CRUD - COLEGIADOS
+# ============================================================
+
+COLEGIADO_CRUD_COLUMNAS = [
+    "nombre", "matricula", "documento", "especialidad_id", "especialidad",
+    "correo", "telefono", "direccion", "fecha_colegiatura", "vigencia",
+    "estado", "epc_points",
+]
+
+
+def leer_colegiado_por_id(p_id):
+    return _leer_registro_por_id_colegiado("colegiados", p_id)
+
+
+def eliminar_colegiado(p_id):
+    return _eliminar_registro_crud_colegiado("colegiados", p_id)
+
+
+# ============================================================
+# FUNCIONES CRUD - TRAMITES
+# ============================================================
+
+TRAMITE_CRUD_COLUMNAS = [
+    "matricula", "nombre", "tipo_tramite", "asunto", "descripcion",
+    "archivo_solicitud", "archivo_respuesta", "estado", "accion_revision",
+    "revisado_por_matricula", "revisado_por_nombre", "detalle_revision",
+    "fecha_solicitud", "fecha_respuesta", "estado_firma", "tipo_firma",
+    "firmado_por_matricula", "firmado_por_nombre", "detalle_firma",
+]
+
+
+def actualizar_tramite_crud(p_datos):
+    return _actualizar_registro_crud_colegiado(
+        "tramites",
+        p_datos,
+        TRAMITE_CRUD_COLUMNAS
+    )
+
+
+def eliminar_tramite(p_id):
+    return _eliminar_registro_crud_colegiado("tramites", p_id)
+
+
+# ============================================================
+# FUNCIONES CRUD - TICKETS
+# ============================================================
+
+TICKET_CRUD_COLUMNAS = [
+    "matricula", "categoria", "asunto", "descripcion", "estado",
+    "respuesta_admin",
+]
+
+
+def actualizar_ticket_crud(p_datos):
+    return _actualizar_registro_crud_colegiado(
+        "tickets",
+        p_datos,
+        TICKET_CRUD_COLUMNAS
+    )
+
+
+def eliminar_ticket(p_id):
+    return _eliminar_registro_crud_colegiado("tickets", p_id)
+
+
+# ============================================================
+# FUNCIONES CRUD - NOTIFICACIONES
+# ============================================================
+
+NOTIFICACION_CRUD_COLUMNAS = [
+    "colegiado_id", "tipo", "titulo", "mensaje", "link_endpoint",
+    "link_url", "link_text", "relacion_tipo", "relacion_id", "leido",
+    "leido_en",
+]
+
+
+def leer_notificaciones_crud():
+    return _leer_registros_crud_colegiado("notificaciones", "creado_en DESC, id DESC")
+
+
+def leer_notificacion_por_id(p_id):
+    return _leer_registro_por_id_colegiado("notificaciones", p_id)
+
+
+def insertar_notificacion_crud(p_datos):
+    return _insertar_registro_crud_colegiado(
+        "notificaciones",
+        p_datos,
+        NOTIFICACION_CRUD_COLUMNAS
+    )
+
+
+def actualizar_notificacion_crud(p_datos):
+    return _actualizar_registro_crud_colegiado(
+        "notificaciones",
+        p_datos,
+        NOTIFICACION_CRUD_COLUMNAS
+    )
+
+
+def eliminar_notificacion(p_id):
+    return _eliminar_registro_crud_colegiado("notificaciones", p_id)

@@ -3866,3 +3866,451 @@ def leer_dashboard_admin():
         return data
     except Exception:
         raise
+
+
+# ============================================================
+# FUNCIONES CRUD - AYUDANTES ADMINISTRATIVOS
+# ============================================================
+
+def _columnas_presentes_crud(p_datos, p_columnas):
+    datos = p_datos or {}
+    return [col for col in p_columnas if col in datos]
+
+
+def _insertar_registro_crud(p_tabla, p_datos, p_columnas):
+    try:
+        columnas = _columnas_presentes_crud(p_datos, p_columnas)
+        if not columnas:
+            return False
+        campos = ", ".join([f"`{col}`" for col in columnas])
+        marcas = ", ".join(["%s"] * len(columnas))
+        valores = [p_datos.get(col) for col in columnas]
+        conn = obtenerconexion()
+        if conn:
+            with conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(
+                        f"INSERT INTO `{p_tabla}` ({campos}) VALUES ({marcas})",
+                        tuple(valores)
+                    )
+                conn.commit()
+            return True
+        return False
+    except Exception as e:
+        print(repr(e))
+        return False
+
+
+def _actualizar_registro_crud(p_tabla, p_datos, p_columnas):
+    try:
+        datos = p_datos or {}
+        registro_id = datos.get("id")
+        columnas = _columnas_presentes_crud(datos, p_columnas)
+        if not registro_id or not columnas:
+            return False
+        campos = ", ".join([f"`{col}` = %s" for col in columnas])
+        valores = [datos.get(col) for col in columnas]
+        valores.append(registro_id)
+        conn = obtenerconexion()
+        if conn:
+            with conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(
+                        f"UPDATE `{p_tabla}` SET {campos} WHERE `id` = %s",
+                        tuple(valores)
+                    )
+                conn.commit()
+            return True
+        return False
+    except Exception as e:
+        print(repr(e))
+        return False
+
+
+def _eliminar_registro_crud(p_tabla, p_id):
+    try:
+        conn = obtenerconexion()
+        if conn:
+            with conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(f"DELETE FROM `{p_tabla}` WHERE `id` = %s", (p_id,))
+                conn.commit()
+            return True
+        return False
+    except Exception as e:
+        print(repr(e))
+        return False
+
+
+def _leer_registro_por_id(p_tabla, p_id):
+    try:
+        conn = obtenerconexion()
+        if conn:
+            with conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(f"SELECT * FROM `{p_tabla}` WHERE `id` = %s", (p_id,))
+                    return cursor.fetchone()
+        return None
+    except Exception:
+        raise
+
+
+def _leer_registros_crud(p_tabla):
+    try:
+        conn = obtenerconexion()
+        if conn:
+            with conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(f"SELECT * FROM `{p_tabla}` ORDER BY `id` DESC")
+                    return cursor.fetchall()
+        return []
+    except Exception:
+        raise
+
+
+# ============================================================
+# FUNCIONES CRUD - USUARIOS
+# ============================================================
+
+def leer_usuario_por_id(p_id):
+    return _leer_registro_por_id("usuarios", p_id)
+
+
+def eliminar_usuario(p_id):
+    return _eliminar_registro_crud("usuarios", p_id)
+
+
+# ============================================================
+# FUNCIONES CRUD - CUOTAS
+# ============================================================
+
+def leer_cuota_por_id(p_id):
+    return _leer_registro_por_id("cuotas", p_id)
+
+
+def actualizar_cuota(p_cuota):
+    try:
+        datos = {
+            "id": p_cuota.id,
+            "fecha": p_cuota.fecha,
+            "fecha_vencimiento": p_cuota.fecha_vencimiento,
+            "concepto": p_cuota.concepto,
+            "monto": p_cuota.monto,
+            "estado": p_cuota.estado,
+            "tipo": p_cuota.tipo,
+            "periodo_mes": p_cuota.periodo_mes,
+            "periodo_anio": p_cuota.periodo_anio,
+        }
+        columnas = [
+            "fecha", "fecha_vencimiento", "concepto", "monto", "estado",
+            "tipo", "periodo_mes", "periodo_anio"
+        ]
+        return _actualizar_registro_crud("cuotas", datos, columnas)
+    except Exception as e:
+        print(repr(e))
+        return False
+
+
+# ============================================================
+# FUNCIONES CRUD - MEDIOS Y EVIDENCIAS DE PAGO
+# ============================================================
+
+def leer_medio_pago_por_id(p_id):
+    return _leer_registro_por_id("medios_pago", p_id)
+
+
+def leer_evidencia_pago_por_id(p_id):
+    return _leer_registro_por_id("evidencias_pago", p_id)
+
+
+def insertar_evidencia_pago_crud(p_datos):
+    columnas = [
+        "cuota_id", "colegiado_id", "medio_pago_id", "fecha_pago",
+        "numero_operacion", "monto", "comentario", "archivo", "estado",
+        "accion_revision", "revisado_por_matricula", "revisado_por_nombre",
+        "detalle_revision", "revisado_en"
+    ]
+    return _insertar_registro_crud("evidencias_pago", p_datos, columnas)
+
+
+def actualizar_evidencia_pago_crud(p_datos):
+    columnas = [
+        "cuota_id", "colegiado_id", "medio_pago_id", "fecha_pago",
+        "numero_operacion", "monto", "comentario", "archivo", "estado",
+        "accion_revision", "revisado_por_matricula", "revisado_por_nombre",
+        "detalle_revision", "revisado_en"
+    ]
+    return _actualizar_registro_crud("evidencias_pago", p_datos, columnas)
+
+
+def eliminar_evidencia_pago(p_id):
+    return _eliminar_registro_crud("evidencias_pago", p_id)
+
+
+# ============================================================
+# FUNCIONES CRUD - TRANSACCIONES Y COMPROBANTES INTERNOS
+# ============================================================
+
+def leer_transacciones_pago_crud():
+    return _leer_registros_crud("transacciones_pago")
+
+
+def leer_transaccion_pago_por_id(p_id):
+    return _leer_registro_por_id("transacciones_pago", p_id)
+
+
+def insertar_transaccion_pago_crud(p_datos):
+    columnas = [
+        "cuota_id", "colegiado_id", "evidencia_id", "proveedor", "metodo",
+        "codigo_transaccion", "codigo_autorizacion", "monto", "moneda",
+        "estado", "respuesta_pasarela", "pagado_en"
+    ]
+    return _insertar_registro_crud("transacciones_pago", p_datos, columnas)
+
+
+def actualizar_transaccion_pago_crud(p_datos):
+    columnas = [
+        "cuota_id", "colegiado_id", "evidencia_id", "proveedor", "metodo",
+        "codigo_transaccion", "codigo_autorizacion", "monto", "moneda",
+        "estado", "respuesta_pasarela", "pagado_en"
+    ]
+    return _actualizar_registro_crud("transacciones_pago", p_datos, columnas)
+
+
+def eliminar_transaccion_pago(p_id):
+    return _eliminar_registro_crud("transacciones_pago", p_id)
+
+
+def leer_comprobantes_pago_crud():
+    return _leer_registros_crud("comprobantes_pago")
+
+
+def leer_comprobante_pago_por_id(p_id):
+    return _leer_registro_por_id("comprobantes_pago", p_id)
+
+
+def insertar_comprobante_pago_crud(p_datos):
+    columnas = [
+        "transaccion_id", "cuota_id", "colegiado_id", "evidencia_id",
+        "tipo_comprobante", "serie", "numero", "fecha_emision", "concepto",
+        "subtotal", "igv", "total", "moneda", "estado", "codigo_hash",
+        "anulado_por_matricula", "anulado_por_nombre", "motivo_anulacion",
+        "anulado_en"
+    ]
+    return _insertar_registro_crud("comprobantes_pago", p_datos, columnas)
+
+
+def actualizar_comprobante_pago_crud(p_datos):
+    columnas = [
+        "transaccion_id", "cuota_id", "colegiado_id", "evidencia_id",
+        "tipo_comprobante", "serie", "numero", "fecha_emision", "concepto",
+        "subtotal", "igv", "total", "moneda", "estado", "codigo_hash",
+        "anulado_por_matricula", "anulado_por_nombre", "motivo_anulacion",
+        "anulado_en"
+    ]
+    return _actualizar_registro_crud("comprobantes_pago", p_datos, columnas)
+
+
+def eliminar_comprobante_pago(p_id):
+    return _eliminar_registro_crud("comprobantes_pago", p_id)
+
+
+# ============================================================
+# FUNCIONES CRUD - MERCADO PAGO
+# ============================================================
+
+def leer_configuraciones_mercado_pago_crud():
+    return _leer_registros_crud("configuracion_mercado_pago")
+
+
+def leer_configuracion_mercado_pago_por_id(p_id):
+    return _leer_registro_por_id("configuracion_mercado_pago", p_id)
+
+
+def insertar_configuracion_mercado_pago_crud(p_datos):
+    columnas = ["access_token", "public_key", "modo", "activo", "actualizado_en"]
+    return _insertar_registro_crud("configuracion_mercado_pago", p_datos, columnas)
+
+
+def actualizar_configuracion_mercado_pago_crud(p_datos):
+    columnas = ["access_token", "public_key", "modo", "activo", "actualizado_en"]
+    return _actualizar_registro_crud("configuracion_mercado_pago", p_datos, columnas)
+
+
+def eliminar_configuracion_mercado_pago(p_id):
+    return _eliminar_registro_crud("configuracion_mercado_pago", p_id)
+
+
+def leer_ordenes_mercado_pago_crud():
+    return _leer_registros_crud("ordenes_mercado_pago")
+
+
+def leer_orden_mercado_pago_por_id(p_id):
+    return _leer_registro_por_id("ordenes_mercado_pago", p_id)
+
+
+def insertar_orden_mercado_pago_crud(p_datos):
+    columnas = [
+        "cuota_id", "colegiado_id", "external_reference", "preference_id",
+        "init_point", "sandbox_init_point", "estado", "mp_payment_id",
+        "mp_status", "mp_status_detail", "merchant_order_id",
+        "respuesta_preferencia", "respuesta_pago", "actualizado_en"
+    ]
+    return _insertar_registro_crud("ordenes_mercado_pago", p_datos, columnas)
+
+
+def actualizar_orden_mercado_pago_crud(p_datos):
+    columnas = [
+        "cuota_id", "colegiado_id", "external_reference", "preference_id",
+        "init_point", "sandbox_init_point", "estado", "mp_payment_id",
+        "mp_status", "mp_status_detail", "merchant_order_id",
+        "respuesta_preferencia", "respuesta_pago", "actualizado_en"
+    ]
+    return _actualizar_registro_crud("ordenes_mercado_pago", p_datos, columnas)
+
+
+def eliminar_orden_mercado_pago(p_id):
+    return _eliminar_registro_crud("ordenes_mercado_pago", p_id)
+
+
+# ============================================================
+# FUNCIONES CRUD - FACTURACION
+# ============================================================
+
+def leer_configuraciones_facturacion_crud():
+    return _leer_registros_crud("configuracion_facturacion")
+
+
+def leer_configuracion_facturacion_por_id(p_id):
+    return _leer_registro_por_id("configuracion_facturacion", p_id)
+
+
+def insertar_configuracion_facturacion_crud(p_datos):
+    columnas = [
+        "ruc", "razon_social", "nombre_comercial", "direccion",
+        "serie_boleta", "serie_factura", "correlativo_boleta",
+        "correlativo_factura", "modo_envio", "usuario_sol", "clave_sol",
+        "certificado_ruta", "certificado_clave", "endpoint_beta",
+        "activo", "actualizado_en"
+    ]
+    return _insertar_registro_crud("configuracion_facturacion", p_datos, columnas)
+
+
+def actualizar_configuracion_facturacion_crud(p_datos):
+    columnas = [
+        "ruc", "razon_social", "nombre_comercial", "direccion",
+        "serie_boleta", "serie_factura", "correlativo_boleta",
+        "correlativo_factura", "modo_envio", "usuario_sol", "clave_sol",
+        "certificado_ruta", "certificado_clave", "endpoint_beta",
+        "activo", "actualizado_en"
+    ]
+    return _actualizar_registro_crud("configuracion_facturacion", p_datos, columnas)
+
+
+def eliminar_configuracion_facturacion(p_id):
+    return _eliminar_registro_crud("configuracion_facturacion", p_id)
+
+
+def insertar_comprobante_fiscal_crud(p_datos):
+    columnas = [
+        "comprobante_pago_id", "transaccion_id", "cuota_id", "colegiado_id",
+        "tipo_comprobante", "serie", "numero", "fecha_emision", "enviado_en",
+        "tipo_documento_cliente", "numero_documento_cliente", "cliente_nombre",
+        "cliente_correo", "concepto", "subtotal", "igv", "total", "moneda",
+        "estado", "ticket_sunat", "codigo_sunat", "cdr_estado",
+        "cdr_descripcion", "codigo_hash", "xml_archivo", "pdf_archivo",
+        "json_envio", "respuesta_sunat", "emitido_por_matricula",
+        "emitido_por_nombre", "anulado_por_matricula", "anulado_por_nombre",
+        "motivo_anulacion", "anulado_en"
+    ]
+    return _insertar_registro_crud("comprobantes_fiscales", p_datos, columnas)
+
+
+def actualizar_comprobante_fiscal_crud(p_datos):
+    columnas = [
+        "comprobante_pago_id", "transaccion_id", "cuota_id", "colegiado_id",
+        "tipo_comprobante", "serie", "numero", "fecha_emision", "enviado_en",
+        "tipo_documento_cliente", "numero_documento_cliente", "cliente_nombre",
+        "cliente_correo", "concepto", "subtotal", "igv", "total", "moneda",
+        "estado", "ticket_sunat", "codigo_sunat", "cdr_estado",
+        "cdr_descripcion", "codigo_hash", "xml_archivo", "pdf_archivo",
+        "json_envio", "respuesta_sunat", "emitido_por_matricula",
+        "emitido_por_nombre", "anulado_por_matricula", "anulado_por_nombre",
+        "motivo_anulacion", "anulado_en"
+    ]
+    return _actualizar_registro_crud("comprobantes_fiscales", p_datos, columnas)
+
+
+def eliminar_comprobante_fiscal(p_id):
+    return _eliminar_registro_crud("comprobantes_fiscales", p_id)
+
+
+def leer_comprobantes_fiscales_detalle_crud():
+    return _leer_registros_crud("comprobante_fiscal_detalle")
+
+
+def leer_comprobante_fiscal_detalle_por_id(p_id):
+    return _leer_registro_por_id("comprobante_fiscal_detalle", p_id)
+
+
+def insertar_comprobante_fiscal_detalle_crud(p_datos):
+    columnas = [
+        "comprobante_fiscal_id", "descripcion", "cantidad", "valor_unitario",
+        "subtotal", "igv", "total"
+    ]
+    return _insertar_registro_crud("comprobante_fiscal_detalle", p_datos, columnas)
+
+
+def actualizar_comprobante_fiscal_detalle_crud(p_datos):
+    columnas = [
+        "comprobante_fiscal_id", "descripcion", "cantidad", "valor_unitario",
+        "subtotal", "igv", "total"
+    ]
+    return _actualizar_registro_crud("comprobante_fiscal_detalle", p_datos, columnas)
+
+
+def eliminar_comprobante_fiscal_detalle(p_id):
+    return _eliminar_registro_crud("comprobante_fiscal_detalle", p_id)
+
+
+def leer_facturacion_sunat_logs_crud():
+    return _leer_registros_crud("facturacion_sunat_logs")
+
+
+def leer_facturacion_sunat_log_por_id(p_id):
+    return _leer_registro_por_id("facturacion_sunat_logs", p_id)
+
+
+def insertar_facturacion_sunat_log_crud(p_datos):
+    columnas = ["comprobante_fiscal_id", "accion", "estado", "mensaje", "payload"]
+    return _insertar_registro_crud("facturacion_sunat_logs", p_datos, columnas)
+
+
+def actualizar_facturacion_sunat_log_crud(p_datos):
+    columnas = ["comprobante_fiscal_id", "accion", "estado", "mensaje", "payload"]
+    return _actualizar_registro_crud("facturacion_sunat_logs", p_datos, columnas)
+
+
+def eliminar_facturacion_sunat_log(p_id):
+    return _eliminar_registro_crud("facturacion_sunat_logs", p_id)
+
+
+# ============================================================
+# FUNCIONES CRUD - CURSOS E INSCRIPCIONES
+# ============================================================
+
+def leer_curso_admin_por_id(p_id):
+    return _leer_registro_por_id("cursos", p_id)
+
+
+def leer_inscripcion_curso_por_id(p_id):
+    return _leer_registro_por_id("inscripciones_curso", p_id)
+
+
+def actualizar_inscripcion_curso_crud(p_datos):
+    columnas = ["curso_id", "colegiado_id", "progreso", "estado_pago", "certificado"]
+    return _actualizar_registro_crud("inscripciones_curso", p_datos, columnas)
+
+
+def eliminar_inscripcion_curso(p_id):
+    return _eliminar_registro_crud("inscripciones_curso", p_id)
