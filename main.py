@@ -5071,10 +5071,9 @@ def api_token():
 
         token = _generar_token_jwt(usuario)
         return jsonify({
+            "code": 1,
             "access_token": token,
             "token_type": "JWT",
-            "code": 1,
-            "data": {"token": token},
             "message": "Token generado correctamente."
         })
     except Exception as e:
