@@ -14,7 +14,7 @@ from uuid import uuid4
 
 import pymysql
 from decimal import Decimal
-from flask import Flask, Response, flash, g, jsonify, redirect, render_template, request, session, url_for
+from flask import Flask, Response, flash, g, jsonify, redirect, render_template, request, send_file, session, url_for
 from flask_jwt import JWT, jwt_required, current_identity
 from werkzeug.utils import secure_filename
 
@@ -1096,6 +1096,37 @@ def _leer_csv_colegiados(archivo):
         if any(normalizada.values()):
             registros.append(normalizada)
     return registros
+
+
+def _limpiar_reportes_importacion_colegiados(carpeta, dias=7):
+    limite = datetime.now() - timedelta(days=dias)
+    for archivo in carpeta.glob("resultado_importacion_colegiados_*.csv"):
+        try:
+            fecha_archivo = datetime.fromtimestamp(archivo.stat().st_mtime)
+            if fecha_archivo < limite:
+                archivo.unlink()
+        except OSError:
+            continue
+
+
+def _guardar_reporte_importacion_colegiados(resumen):
+    carpeta = Path(app.root_path) / "static" / "uploads" / "importaciones"
+    carpeta.mkdir(parents=True, exist_ok=True)
+    _limpiar_reportes_importacion_colegiados(carpeta)
+    nombre = f"resultado_importacion_colegiados_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid4().hex[:8]}.csv"
+    destino = carpeta / nombre
+    with destino.open("w", encoding="utf-8-sig", newline="") as archivo:
+        writer = csv.writer(archivo, delimiter=";")
+        writer.writerow(["Fila", "Matricula", "DNI", "Estado", "Observacion"])
+        for item in resumen.get("detalles", []) or []:
+            writer.writerow([
+                item.get("fila", ""),
+                item.get("matricula", ""),
+                item.get("documento", ""),
+                item.get("estado", ""),
+                item.get("observacion", ""),
+            ])
+    return f"uploads/importaciones/{nombre}"
 
 
 # ============================================================
@@ -3271,11 +3302,14 @@ def admin_colegiados_importar():
 
         registros = _leer_csv_colegiados(archivo)
         resumen = importar_colegiados_masivo(registros)
+        reporte_ruta = _guardar_reporte_importacion_colegiados(resumen)
+        session["ultimo_reporte_importacion_colegiados"] = reporte_ruta
 
         mensaje = (
             f"Importacion finalizada. Registrados: {resumen.get('insertados', 0)}. "
             f"Omitidos: {resumen.get('omitidos', 0)}. "
-            f"Total leido: {resumen.get('total', 0)}."
+            f"Total leido: {resumen.get('total', 0)}. "
+            "Puede descargar el reporte del ultimo resultado en Colegiados."
         )
         errores = resumen.get("errores") or []
         if errores:
@@ -3292,6 +3326,20 @@ def admin_colegiados_importar():
     except Exception as e:
         print("Error en /admin/colegiados/importar:", repr(e))
         return render_template("error500.html"), 500
+
+
+@app.route("/admin/colegiados/importar/resultado", endpoint="admin_colegiados_resultado_importacion")
+def admin_colegiados_resultado_importacion():
+    ruta = session.get("ultimo_reporte_importacion_colegiados")
+    destino = _ruta_archivo_estatico_upload(ruta)
+    if not destino or not destino.is_file():
+        return mostrar_error("No hay un reporte de importacion disponible.")
+    return send_file(
+        destino,
+        as_attachment=True,
+        download_name="resultado_importacion_colegiados.csv",
+        mimetype="text/csv"
+    )
 
 
 @app.route("/admin/colegiados/nuevo", methods=["POST"], endpoint="admin_nuevo_colegiado")

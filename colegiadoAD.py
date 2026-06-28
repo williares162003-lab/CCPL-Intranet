@@ -301,27 +301,44 @@ def _resolver_especialidad_importacion(cursor, especialidad_id, especialidad_nom
     return None
 
 
+def _detalle_importacion(resumen, fila, matricula, documento, estado, observacion):
+    resumen["detalles"].append({
+        "fila": fila,
+        "matricula": matricula or "",
+        "documento": documento or "",
+        "estado": estado,
+        "observacion": observacion,
+    })
+
+
 def importar_colegiados_masivo(registros):
     resumen = {
         "total": len(registros or []),
         "insertados": 0,
         "omitidos": 0,
         "errores": [],
+        "detalles": [],
     }
     if not registros:
-        resumen["errores"].append("El archivo no contiene filas para importar.")
+        mensaje = "El archivo no contiene filas para importar."
+        resumen["errores"].append(mensaje)
+        _detalle_importacion(resumen, "", "", "", "Omitido", mensaje)
         return resumen
 
     try:
         conn = obtenerconexion()
         if not conn:
-            resumen["errores"].append("No se pudo conectar con la base de datos.")
+            mensaje = "No se pudo conectar con la base de datos."
+            resumen["errores"].append(mensaje)
+            _detalle_importacion(resumen, "", "", "", "Omitido", mensaje)
             return resumen
 
         with conn:
             with conn.cursor() as cursor:
                 if not _tabla_especialidades_existe(cursor):
-                    resumen["errores"].append("Debe existir la tabla de especialidades.")
+                    mensaje = "Debe existir la tabla de especialidades."
+                    resumen["errores"].append(mensaje)
+                    _detalle_importacion(resumen, "", "", "", "Omitido", mensaje)
                     return resumen
 
                 for indice, fila in enumerate(registros, start=2):
@@ -345,18 +362,22 @@ def importar_colegiados_masivo(registros):
                     password = _valor_importacion(fila, "password", "contrasena", "clave") or "cpc123"
 
                     if not all([nombre, matricula, documento, direccion, correo]) or not (especialidad_id or especialidad_nombre):
+                        mensaje = "Faltan nombre, matricula, DNI, especialidad, direccion o correo."
                         resumen["omitidos"] += 1
-                        resumen["errores"].append(
-                            f"Fila {indice}: faltan nombre, matricula, DNI, especialidad, direccion o correo."
-                        )
+                        resumen["errores"].append(f"Fila {indice}: {mensaje}")
+                        _detalle_importacion(resumen, indice, matricula, documento, "Omitido", mensaje)
                         continue
                     if not re.fullmatch(r"\d{8}", documento):
+                        mensaje = "DNI invalido."
                         resumen["omitidos"] += 1
-                        resumen["errores"].append(f"Fila {indice}: DNI invalido.")
+                        resumen["errores"].append(f"Fila {indice}: {mensaje}")
+                        _detalle_importacion(resumen, indice, matricula, documento, "Omitido", mensaje)
                         continue
                     if telefono and not re.fullmatch(r"9\d{8}", telefono):
+                        mensaje = "Telefono invalido."
                         resumen["omitidos"] += 1
-                        resumen["errores"].append(f"Fila {indice}: telefono invalido.")
+                        resumen["errores"].append(f"Fila {indice}: {mensaje}")
+                        _detalle_importacion(resumen, indice, matricula, documento, "Omitido", mensaje)
                         continue
                     if estado not in ["Vigente", "Inactivo"]:
                         estado = "Vigente"
@@ -367,10 +388,10 @@ def importar_colegiados_masivo(registros):
                         especialidad_nombre
                     )
                     if not especialidad:
+                        mensaje = f"Especialidad no encontrada ({especialidad_nombre or especialidad_id})."
                         resumen["omitidos"] += 1
-                        resumen["errores"].append(
-                            f"Fila {indice}: especialidad no encontrada ({especialidad_nombre or especialidad_id})."
-                        )
+                        resumen["errores"].append(f"Fila {indice}: {mensaje}")
+                        _detalle_importacion(resumen, indice, matricula, documento, "Omitido", mensaje)
                         continue
 
                     cursor.execute(
@@ -378,10 +399,10 @@ def importar_colegiados_masivo(registros):
                         (matricula, documento)
                     )
                     if cursor.fetchone():
+                        mensaje = "Matricula o DNI ya registrado."
                         resumen["omitidos"] += 1
-                        resumen["errores"].append(
-                            f"Fila {indice}: matricula o DNI ya registrado."
-                        )
+                        resumen["errores"].append(f"Fila {indice}: {mensaje}")
+                        _detalle_importacion(resumen, indice, matricula, documento, "Omitido", mensaje)
                         continue
 
                     cursor.execute(
@@ -389,10 +410,10 @@ def importar_colegiados_masivo(registros):
                         (matricula,)
                     )
                     if cursor.fetchone():
+                        mensaje = "Ya existe un usuario con esa matricula."
                         resumen["omitidos"] += 1
-                        resumen["errores"].append(
-                            f"Fila {indice}: ya existe un usuario con esa matricula."
-                        )
+                        resumen["errores"].append(f"Fila {indice}: {mensaje}")
+                        _detalle_importacion(resumen, indice, matricula, documento, "Omitido", mensaje)
                         continue
 
                     sql =  "INSERT INTO colegiados "
@@ -420,11 +441,14 @@ def importar_colegiados_masivo(registros):
                         (matricula, password)
                     )
                     resumen["insertados"] += 1
+                    _detalle_importacion(resumen, indice, matricula, documento, "Importado", "Correcto")
             conn.commit()
         return resumen
     except Exception as e:
         print("Error importar_colegiados_masivo:", repr(e))
-        resumen["errores"].append("Error general al importar colegiados: " + repr(e))
+        mensaje = "Error general al importar colegiados: " + repr(e)
+        resumen["errores"].append(mensaje)
+        _detalle_importacion(resumen, "", "", "", "Omitido", mensaje)
         return resumen
 
 
