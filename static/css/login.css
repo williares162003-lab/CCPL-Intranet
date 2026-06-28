@@ -280,37 +280,6 @@
 
 
 
-.demo-access {
-  margin-top: 32px;
-  padding: 16px;
-  background: var(--celeste-claro);
-  border: 1px solid var(--borde);
-  border-radius: var(--radio);
-}
-
-.demo-access-title {
-  margin: 0 0 12px;
-  color: var(--texto-claro);
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
-.demo-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: 8px;
-  color: var(--texto-claro);
-  font-size: 14px;
-}
-
-.demo-row strong {
-  color: var(--azul);
-}
-
-
 .login-footer {
   margin-top: 24px;
   color: var(--texto-claro);
