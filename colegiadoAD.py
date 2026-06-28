@@ -1,6 +1,8 @@
 import json
 import os
-from datetime import date, timedelta
+import re
+import unicodedata
+from datetime import date, datetime, timedelta
 from urllib import error, request
 from uuid import uuid4
 
@@ -246,6 +248,184 @@ def leer_especialidades_colegiados():
         return result
     except Exception:
         raise
+
+
+def _valor_importacion(fila, *claves):
+    for clave in claves:
+        valor = fila.get(clave)
+        if valor is not None and str(valor).strip() != "":
+            return str(valor).strip()
+    return ""
+
+
+def _fecha_importacion(valor):
+    valor = (valor or "").strip()
+    if not valor:
+        return None
+    formatos = ["%Y-%m-%d", "%d/%m/%Y", "%d-%m-%Y"]
+    for formato in formatos:
+        try:
+            return datetime.strptime(valor, formato).date()
+        except ValueError:
+            continue
+    return None
+
+
+def _entero_importacion(valor, defecto=0):
+    try:
+        return int(str(valor or "").strip())
+    except (TypeError, ValueError):
+        return defecto
+
+
+def _normalizar_texto_importacion(valor):
+    texto = " ".join(str(valor or "").strip().lower().split())
+    texto = unicodedata.normalize("NFKD", texto)
+    return "".join(c for c in texto if not unicodedata.combining(c))
+
+
+def _resolver_especialidad_importacion(cursor, especialidad_id, especialidad_nombre):
+    if especialidad_id:
+        especialidad = _especialidad_por_id(cursor, especialidad_id)
+        if especialidad:
+            return especialidad
+
+    nombre = _normalizar_texto_importacion(especialidad_nombre)
+    if not nombre:
+        return None
+
+    cursor.execute("SELECT id, nombre FROM especialidades_colegiado WHERE activo = 1")
+    for especialidad in cursor.fetchall() or []:
+        if _normalizar_texto_importacion(especialidad.get("nombre")) == nombre:
+            return especialidad
+    return None
+
+
+def importar_colegiados_masivo(registros):
+    resumen = {
+        "total": len(registros or []),
+        "insertados": 0,
+        "omitidos": 0,
+        "errores": [],
+    }
+    if not registros:
+        resumen["errores"].append("El archivo no contiene filas para importar.")
+        return resumen
+
+    try:
+        conn = obtenerconexion()
+        if not conn:
+            resumen["errores"].append("No se pudo conectar con la base de datos.")
+            return resumen
+
+        with conn:
+            with conn.cursor() as cursor:
+                if not _tabla_especialidades_existe(cursor):
+                    resumen["errores"].append("Debe existir la tabla de especialidades.")
+                    return resumen
+
+                for indice, fila in enumerate(registros, start=2):
+                    nombre = _valor_importacion(fila, "nombre", "colegiado")
+                    matricula = _valor_importacion(fila, "matricula").upper()
+                    documento = re.sub(r"\D", "", _valor_importacion(fila, "documento", "dni"))
+                    especialidad_id = _valor_importacion(fila, "especialidad_id")
+                    especialidad_nombre = _valor_importacion(fila, "especialidad")
+                    direccion = _valor_importacion(fila, "direccion")
+                    correo = _valor_importacion(fila, "correo", "email")
+                    telefono = re.sub(r"\D", "", _valor_importacion(fila, "telefono", "celular"))
+                    fecha_colegiatura = _fecha_importacion(
+                        _valor_importacion(fila, "fecha_colegiatura")
+                    )
+                    vigencia = _valor_importacion(fila, "vigencia") or "31 de Diciembre de 2025"
+                    estado = _valor_importacion(fila, "estado") or "Vigente"
+                    epc_points = _entero_importacion(
+                        _valor_importacion(fila, "epc_points", "epc"),
+                        0
+                    )
+                    password = _valor_importacion(fila, "password", "contrasena", "clave") or "cpc123"
+
+                    if not all([nombre, matricula, documento, direccion, correo]) or not (especialidad_id or especialidad_nombre):
+                        resumen["omitidos"] += 1
+                        resumen["errores"].append(
+                            f"Fila {indice}: faltan nombre, matricula, DNI, especialidad, direccion o correo."
+                        )
+                        continue
+                    if not re.fullmatch(r"\d{8}", documento):
+                        resumen["omitidos"] += 1
+                        resumen["errores"].append(f"Fila {indice}: DNI invalido.")
+                        continue
+                    if telefono and not re.fullmatch(r"9\d{8}", telefono):
+                        resumen["omitidos"] += 1
+                        resumen["errores"].append(f"Fila {indice}: telefono invalido.")
+                        continue
+                    if estado not in ["Vigente", "Inactivo"]:
+                        estado = "Vigente"
+
+                    especialidad = _resolver_especialidad_importacion(
+                        cursor,
+                        especialidad_id,
+                        especialidad_nombre
+                    )
+                    if not especialidad:
+                        resumen["omitidos"] += 1
+                        resumen["errores"].append(
+                            f"Fila {indice}: especialidad no encontrada ({especialidad_nombre or especialidad_id})."
+                        )
+                        continue
+
+                    cursor.execute(
+                        "SELECT id FROM colegiados WHERE matricula = %s OR documento = %s",
+                        (matricula, documento)
+                    )
+                    if cursor.fetchone():
+                        resumen["omitidos"] += 1
+                        resumen["errores"].append(
+                            f"Fila {indice}: matricula o DNI ya registrado."
+                        )
+                        continue
+
+                    cursor.execute(
+                        "SELECT id FROM usuarios WHERE matricula = %s",
+                        (matricula,)
+                    )
+                    if cursor.fetchone():
+                        resumen["omitidos"] += 1
+                        resumen["errores"].append(
+                            f"Fila {indice}: ya existe un usuario con esa matricula."
+                        )
+                        continue
+
+                    sql =  "INSERT INTO colegiados "
+                    sql += "(nombre, matricula, documento, especialidad_id, especialidad, "
+                    sql += " correo, telefono, direccion, fecha_colegiatura, vigencia, "
+                    sql += " estado, epc_points) "
+                    sql += "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                    cursor.execute(sql, (
+                        nombre,
+                        matricula,
+                        documento,
+                        especialidad["id"],
+                        especialidad["nombre"],
+                        correo,
+                        telefono,
+                        direccion,
+                        fecha_colegiatura,
+                        vigencia,
+                        estado,
+                        epc_points,
+                    ))
+                    cursor.execute(
+                        "INSERT INTO usuarios (matricula, password, rol, activo) "
+                        "VALUES (%s, %s, 'colegiado', 1)",
+                        (matricula, password)
+                    )
+                    resumen["insertados"] += 1
+            conn.commit()
+        return resumen
+    except Exception as e:
+        print("Error importar_colegiados_masivo:", repr(e))
+        resumen["errores"].append("Error general al importar colegiados: " + repr(e))
+        return resumen
 
 
 def buscar_colegiados(p_busqueda, p_limite=15):

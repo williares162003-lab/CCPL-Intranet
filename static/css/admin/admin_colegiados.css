@@ -27,6 +27,38 @@
   min-width: 0;
 }
 
+.importar-colegiados {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 18px;
+  padding: 14px 16px;
+  background: var(--blanco);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+}
+
+.importar-colegiados .texto-principal,
+.importar-colegiados .texto-secundario {
+  margin: 0;
+}
+
+.importar-acciones,
+.importar-form {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.importar-form .campo-formulario {
+  min-width: 260px;
+  max-width: 360px;
+}
+
 .tarjeta-encabezado {
   display: flex;
   align-items: center;
@@ -83,6 +115,17 @@
   .filtro-colegiados {
     grid-template-columns: 1fr 1fr;
   }
+
+  .importar-colegiados {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .importar-acciones,
+  .importar-form {
+    justify-content: flex-start;
+    width: 100%;
+  }
 }
 
 @media (max-width: 720px) {
@@ -91,6 +134,8 @@
   }
 
   .acciones-colegiados .boton,
+  .importar-acciones .boton,
+  .importar-form .campo-formulario,
   .filtro-colegiados .boton {
     width: 100%;
   }

@@ -66,6 +66,31 @@
     {% endif %}
   </form>
 
+  <section class="importar-colegiados no-print">
+    <div>
+      <p class="texto-principal">Importar colegiados</p>
+      <p class="texto-secundario">
+        Cargue un CSV con nombre, matricula, DNI, especialidad, direccion, correo y telefono.
+      </p>
+    </div>
+    <div class="importar-acciones">
+      <a href="{{ url_for('admin_colegiados_plantilla_importacion') }}" class="boton boton-secundario">
+        <span class="material-symbols-outlined">download</span> Plantilla CSV
+      </a>
+      <form action="{{ url_for('admin_colegiados_importar') }}"
+            method="POST"
+            enctype="multipart/form-data"
+            class="importar-form"
+            data-confirm="Desea importar colegiados desde este archivo?">
+        <input type="file" name="archivo_colegiados" accept=".csv,.txt"
+               class="campo-formulario" required>
+        <button type="submit" class="boton boton-primario">
+          <span class="material-symbols-outlined">upload_file</span> Importar
+        </button>
+      </form>
+    </div>
+  </section>
+
   <section class="tarjeta-tabla">
     <div class="tarjeta-encabezado">
       <p class="texto-secundario">Total encontrados: <strong>{{ colegiados|length }}</strong></p>

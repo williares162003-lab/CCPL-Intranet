@@ -3,6 +3,7 @@ import json
 import os
 import random
 import re
+import unicodedata
 import base64
 import hashlib
 from datetime import date, datetime, timedelta
@@ -29,6 +30,7 @@ from loginAD import (autenticar_usuario, buscar_usuario_recuperacion,
 from colegiadoAD import (clsColegiado, leer_colegiados,
                          leer_especialidades_colegiados, buscar_colegiados,
                          insertar_colegiado, actualizar_colegiado,
+                         importar_colegiados_masivo,
                          toggle_estado_colegiado,
                          colegiado_vigente_con_deuda_pendiente,
                          leer_colegiado_por_matricula,
@@ -1036,6 +1038,64 @@ def _respuesta_csv(nombre_archivo, encabezados, filas):
         content_type="text/csv; charset=utf-8",
         headers={"Content-Disposition": f"attachment; filename={nombre_archivo}"}
     )
+
+
+def _clave_importacion_csv(valor):
+    texto = str(valor or "").strip().lstrip("\ufeff").lower()
+    texto = unicodedata.normalize("NFKD", texto)
+    texto = "".join(c for c in texto if not unicodedata.combining(c))
+    texto = re.sub(r"[^a-z0-9]+", "_", texto).strip("_")
+    equivalencias = {
+        "colegiado": "nombre",
+        "nombre_completo": "nombre",
+        "nombres": "nombre",
+        "dni": "documento",
+        "documento": "documento",
+        "matricula": "matricula",
+        "especialidad": "especialidad",
+        "especialidad_id": "especialidad_id",
+        "direccion": "direccion",
+        "correo": "correo",
+        "email": "correo",
+        "telefono": "telefono",
+        "celular": "telefono",
+        "fecha_colegiatura": "fecha_colegiatura",
+        "fecha_de_colegiatura": "fecha_colegiatura",
+        "vigencia": "vigencia",
+        "estado": "estado",
+        "puntos_epc": "epc_points",
+        "epc": "epc_points",
+        "password": "password",
+        "contrasena": "password",
+        "clave": "password",
+    }
+    return equivalencias.get(texto, texto)
+
+
+def _leer_csv_colegiados(archivo):
+    contenido = archivo.read()
+    if not contenido:
+        return []
+
+    texto = contenido.decode("utf-8-sig", errors="replace")
+    muestra = texto[:2048]
+    try:
+        dialecto = csv.Sniffer().sniff(muestra, delimiters=";,")
+        delimitador = dialecto.delimiter
+    except csv.Error:
+        delimitador = ";" if muestra.count(";") >= muestra.count(",") else ","
+
+    reader = csv.DictReader(StringIO(texto), delimiter=delimitador)
+    registros = []
+    for fila in reader:
+        normalizada = {}
+        for clave, valor in (fila or {}).items():
+            if clave is None:
+                continue
+            normalizada[_clave_importacion_csv(clave)] = str(valor or "").strip()
+        if any(normalizada.values()):
+            registros.append(normalizada)
+    return registros
 
 
 # ============================================================
@@ -3179,6 +3239,58 @@ def admin_colegiados_exportar():
         )
     except Exception as e:
         print("Error en /admin/colegiados/exportar:", repr(e))
+        return render_template("error500.html"), 500
+
+
+@app.route("/admin/colegiados/plantilla-importacion", endpoint="admin_colegiados_plantilla_importacion")
+def admin_colegiados_plantilla_importacion():
+    return _respuesta_csv(
+        "plantilla_importar_colegiados.csv",
+        ["Nombre", "Matricula", "DNI", "Especialidad", "Direccion",
+         "Correo", "Telefono", "Fecha colegiatura", "Vigencia",
+         "Estado", "Puntos EPC", "Password"],
+        [
+            ["Ejemplo Colegiado Prueba", "99999-Z", "70000000",
+             "Contador Publico Colegiado", "Av. Ejemplo 123",
+             "colegiado@correo.com", "987654321", "2020-01-15",
+             "31 de Diciembre de 2026", "Vigente", "0", "cpc123"]
+        ]
+    )
+
+
+@app.route("/admin/colegiados/importar", methods=["POST"], endpoint="admin_colegiados_importar")
+def admin_colegiados_importar():
+    try:
+        archivo = request.files.get("archivo_colegiados")
+        if not archivo or not archivo.filename:
+            return mostrar_error("Seleccione un archivo CSV para importar colegiados.")
+
+        nombre_archivo = secure_filename(archivo.filename or "")
+        if not nombre_archivo.lower().endswith((".csv", ".txt")):
+            return mostrar_error("El archivo debe estar en formato CSV.")
+
+        registros = _leer_csv_colegiados(archivo)
+        resumen = importar_colegiados_masivo(registros)
+
+        mensaje = (
+            f"Importacion finalizada. Registrados: {resumen.get('insertados', 0)}. "
+            f"Omitidos: {resumen.get('omitidos', 0)}. "
+            f"Total leido: {resumen.get('total', 0)}."
+        )
+        errores = resumen.get("errores") or []
+        if errores:
+            mensaje += " Detalle: " + " | ".join(errores[:5])
+
+        if resumen.get("insertados", 0) > 0:
+            return mostrar_exito(mensaje, "admin_colegiados", "Ver colegiados")
+        return render_template(
+            "error400.html",
+            mensaje=mensaje,
+            status=400,
+            volver_endpoint="admin_colegiados"
+        ), 400
+    except Exception as e:
+        print("Error en /admin/colegiados/importar:", repr(e))
         return render_template("error500.html"), 500
 
 
