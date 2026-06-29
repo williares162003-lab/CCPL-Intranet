@@ -1,7 +1,4 @@
-/* ============================================================
-   Botones filtro: Todas, no leidas y por tipo
-   ============================================================ */
-
+/* Filtros: barra filtros */
 .barra-filtros {
   display: flex;
   flex-wrap: wrap;
@@ -9,6 +6,7 @@
   gap: 8px;
 }
 
+/* Texto: filter pill */
 .filter-pill {
   display: inline-flex;
   align-items: center;
@@ -25,10 +23,12 @@
   cursor: pointer;
 }
 
+/* Icono: filter pill */
 .filter-pill .material-symbols-outlined {
   font-size: 18px;
 }
 
+/* Filtros: contador filtro */
 .contador-filtro {
   margin-left: auto;
   color: #94a3b8;
@@ -36,33 +36,30 @@
   font-weight: 700;
 }
 
-/* ============================================================
-   Lista: Notificaciones del colegiado
-   ============================================================ */
-
+/* Lista: lista notificaciones */
 .lista-notificaciones {
   padding: 0;
   margin: 0;
   list-style: none;
 }
 
+/* Lista: lista notificaciones */
 .lista-notificaciones li + li {
   border-top: 1px solid var(--borde-claro);
 }
 
+/* Hover: notif row */
 .notif-row:hover {
   background: #f1f5f9;
   box-shadow: inset 3px 0 0 var(--azul);
 }
 
+/* Lista: notif row */
 .notif-row.unread {
   background: #eff6ff;
 }
 
-/* ============================================================
-   Tarjeta: Icono, titulo, mensaje y boton Ver
-   ============================================================ */
-
+/* Notificaciones: contenido principal */
 .notif-contenido {
   display: flex;
   align-items: flex-start;
@@ -70,11 +67,13 @@
   padding: 16px 24px;
 }
 
+/* Texto: notif icono */
 .notif-icon-wrap {
   flex: 0 0 auto;
   margin-top: 2px;
 }
 
+/* Notificaciones: icono del aviso */
 .notif-icon {
   display: flex;
   align-items: center;
@@ -84,11 +83,13 @@
   border-radius: 12px;
 }
 
+/* Texto: notif cuerpo */
 .notif-cuerpo {
   flex: 1;
   min-width: 0;
 }
 
+/* Notificaciones: cabecera del aviso */
 .notif-cabecera {
   display: flex;
   align-items: flex-start;
@@ -96,6 +97,7 @@
   gap: 12px;
 }
 
+/* Estado: notif estado */
 .notif-estado {
   display: inline-flex;
   align-items: center;
@@ -105,6 +107,7 @@
   white-space: nowrap;
 }
 
+/* Notificaciones: punto de no leida */
 .unread-dot {
   width: 8px;
   height: 8px;
@@ -112,6 +115,7 @@
   border-radius: 999px;
 }
 
+/* Notificaciones: mensaje del aviso */
 .notif-mensaje {
   margin: 6px 0 0;
   color: var(--texto-claro);
@@ -119,6 +123,7 @@
   line-height: 1.5;
 }
 
+/* Botones: notif acciones */
 .notif-acciones {
   display: flex;
   flex-wrap: wrap;
@@ -126,10 +131,7 @@
   margin-top: 12px;
 }
 
-/* ============================================================
-   Mensaje: Sin notificaciones y boton Marcar todas
-   ============================================================ */
-
+/* Notificaciones: mensaje sin notificaciones */
 .estado-vacio-notif {
   display: none;
   flex-direction: column;
@@ -139,21 +141,25 @@
   text-align: center;
 }
 
+/* Notificaciones: mensaje sin notificaciones */
 .estado-vacio-notif.show {
   display: flex;
 }
 
+/* Texto: estado vacio notif */
 .estado-vacio-notif p {
   margin: 0;
   color: var(--texto-suave);
   font-weight: 800;
 }
 
+/* Texto: estado vacio notif */
 .estado-vacio-notif small {
   margin-top: 6px;
   color: #94a3b8;
 }
 
+/* Notificaciones: resumen superior */
 .resumen-notificaciones {
   margin: 0;
   padding-bottom: 8px;
@@ -162,6 +168,7 @@
   text-align: center;
 }
 
+/* Deshabilitado: boton mark all */
 #btn-mark-all:disabled {
   opacity: 0.45;
   cursor: not-allowed;

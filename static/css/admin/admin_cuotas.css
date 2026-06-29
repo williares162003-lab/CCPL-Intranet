@@ -1,7 +1,4 @@
-/* ============================================================
-   Filtros: Colegiado, Tipo de cuota, Cantidad y boton Filtrar
-   ============================================================ */
-
+/* Filtros: filtro formulario */
 .filtro-formulario {
   display: flex;
   flex-wrap: wrap;
@@ -9,23 +6,23 @@
   gap: 12px;
 }
 
+/* Filtros: filtro campo */
 .filtro-campo {
   flex: 1;
   min-width: 200px;
 }
 
+/* Filtros: filtro campo tipo */
 .filtro-campo-tipo {
   flex: 0 0 190px;
 }
 
+/* Filtros: filtro campo cantidad */
 .filtro-campo-cantidad {
   flex: 0 0 100px;
 }
 
-/* ============================================================
-   Botones: Procesar cuotas, Generar periodo y Pago anual
-   ============================================================ */
-
+/* Texto: procesamiento contenedor */
 .procesamiento-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -33,6 +30,7 @@
   margin-bottom: 18px;
 }
 
+/* Tarjeta: proceso tarjeta */
 .proceso-card {
   background: #ffffff;
   border: 1px solid #d7e3ee;
@@ -41,6 +39,7 @@
   box-shadow: 0 14px 30px rgba(0, 43, 91, .06);
 }
 
+/* Texto: proceso cabecera */
 .proceso-header {
   display: flex;
   align-items: center;
@@ -48,6 +47,7 @@
   margin-bottom: 14px;
 }
 
+/* Icono: proceso cabecera */
 .proceso-header > .material-symbols-outlined {
   display: grid;
   width: 42px;
@@ -59,6 +59,7 @@
   border: 1px solid #b9e3ee;
 }
 
+/* Texto: proceso label */
 .proceso-label {
   margin: 0 0 4px;
   color: #d49a00;
@@ -68,6 +69,7 @@
   text-transform: uppercase;
 }
 
+/* Titulo: proceso cabecera */
 .proceso-header h3 {
   margin: 0;
   color: #002b5b;
@@ -75,6 +77,7 @@
   line-height: 1.2;
 }
 
+/* Texto: proceso datos */
 .proceso-datos {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -82,6 +85,7 @@
   margin-bottom: 14px;
 }
 
+/* Texto: proceso datos */
 .proceso-datos div {
   padding: 10px;
   border: 1px solid #e4edf5;
@@ -89,6 +93,7 @@
   background: #f8fbfd;
 }
 
+/* Texto: proceso datos */
 .proceso-datos span {
   display: block;
   color: #60748e;
@@ -97,6 +102,7 @@
   text-transform: uppercase;
 }
 
+/* Texto: proceso datos */
 .proceso-datos strong {
   display: block;
   margin-top: 5px;
@@ -104,10 +110,12 @@
   font-size: 15px;
 }
 
+/* Formulario: proceso formulario */
 .proceso-form {
   margin-top: 4px;
 }
 
+/* Formulario: proceso campos */
 .proceso-campos {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -115,6 +123,7 @@
   margin-top: 10px;
 }
 
+/* Botones: proceso accion */
 .proceso-accion {
   display: grid;
   grid-template-columns: minmax(120px, 1fr) auto;
@@ -122,6 +131,7 @@
   align-items: center;
 }
 
+/* Texto: proceso total */
 .proceso-total {
   display: flex;
   justify-content: space-between;
@@ -136,10 +146,12 @@
   font-weight: 800;
 }
 
+/* Texto: proceso total */
 .proceso-total strong {
   color: #004b8d;
 }
 
+/* Texto: nota proceso */
 .nota-proceso,
 .proceso-texto {
   margin: 12px 0 0;
@@ -148,20 +160,19 @@
   line-height: 1.5;
 }
 
+/* Botones: boton full */
 .boton-full {
   width: 100%;
   justify-content: center;
   margin-top: 12px;
 }
 
-/* ============================================================
-   Tarjetas resumen y Tabla de cuotas
-   ============================================================ */
-
+/* Contenedor: resumen contenedor */
 .resumen-grid {
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
 }
 
+/* Tabla: tabla toolbar */
 .tabla-toolbar {
   display: flex;
   justify-content: space-between;
@@ -173,15 +184,18 @@
   font-weight: 700;
 }
 
+/* Texto: tabla toolbar */
 .tabla-toolbar p {
   margin: 0;
 }
 
+/* Tabla: tabla cuotas */
 .tabla-cuotas th:nth-child(4),
 .tabla-cuotas td:nth-child(4) {
   min-width: 230px;
 }
 
+/* Botones: tabla datos */
 .tabla-datos .acciones-tabla .boton {
   min-height: 30px;
   padding: 5px 10px;
@@ -190,27 +204,28 @@
   gap: 4px;
 }
 
+/* Icono: tabla datos */
 .tabla-datos .acciones-tabla .boton .material-symbols-outlined {
   font-size: 20px;
 }
 
-/* ============================================================
-   Badges: Mensual, Curso, Pagado, Pendiente y Vencida
-   ============================================================ */
-
+/* Bloque de auditoria o revision administrativa */
 .revision-auditoria {
   min-width: 170px;
   max-width: 220px;
 }
 
+/* Texto: revision auditoria */
 .revision-auditoria p {
   margin: 0;
 }
 
+/* Texto: revision auditoria */
 .revision-auditoria p + p {
   margin-top: 3px;
 }
 
+/* Estado: tipo badge */
 .tipo-badge {
   display: inline-flex;
   align-items: center;
@@ -222,63 +237,71 @@
   font-weight: 800;
 }
 
+/* Texto: tipo mensual */
 .tipo-mensual {
   color: #004b8d;
   background: #e7f6fb;
 }
 
+/* Texto: tipo curso */
 .tipo-curso {
   color: #006b4f;
   background: #dff8ed;
 }
 
+/* Texto: tipo otro */
 .tipo-otro {
   color: #6b4e00;
   background: #fff4cf;
 }
 
+/* Estado de cuota vencida */
 .estado-vencida {
   color: #b42318;
   background: #fee4e2;
 }
 
+/* Estado: resumen tarjeta */
 .resumen-card.pendiente {
   background: #fffbeb;
   border-color: #fde68a;
 }
 
+/* Estado: resumen tarjeta */
 .resumen-card.pagado {
   background: #ecfdf5;
   border-color: #a7f3d0;
 }
 
+/* Texto: resumen tarjeta */
 .resumen-card.pendiente .resumen-label,
 .resumen-card.pendiente .resumen-valor {
   color: #92400e;
 }
 
+/* Texto: resumen tarjeta */
 .resumen-card.pagado .resumen-label,
 .resumen-card.pagado .resumen-valor {
   color: #065f46;
 }
 
+/* Texto: resumen valor */
 .resumen-valor.compacto {
   font-size: 18px;
   line-height: 1.25;
 }
 
-/* ============================================================
-   Paneles: Pagos demo, Mercado Pago, SUNAT y boton Anular
-   ============================================================ */
-
+/* Texto: pagos demo resumen */
 .pagos-demo-resumen {
   margin-bottom: 18px;
 }
 
+/* Texto: pagos demo contenedor */
 .pagos-demo-grid {
   grid-template-columns: minmax(0, 1fr) minmax(280px, .75fr);
 }
 
+/* Contenedor: config contenedor */
 .config-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -286,14 +309,17 @@
   padding: 18px;
 }
 
+/* Texto: config span */
 .config-span {
   grid-column: 1 / -1;
 }
 
+/* Texto: config separador */
 .config-separador {
   border-top: 1px solid #e4edf5;
 }
 
+/* Botones: config acciones */
 .config-acciones {
   display: flex;
   justify-content: flex-end;
@@ -301,11 +327,13 @@
   padding: 0 18px 18px;
 }
 
+/* Lista: metodo lista */
 .metodo-lista {
   display: grid;
   gap: 10px;
 }
 
+/* Lista: metodo item */
 .metodo-item {
   display: flex;
   justify-content: space-between;
@@ -317,52 +345,58 @@
   background: #f8fbfd;
 }
 
+/* Texto: metodo item */
 .metodo-item p {
   margin: 0;
 }
 
+/* Texto: metodo item */
 .metodo-item strong {
   color: #004b8d;
   white-space: nowrap;
 }
 
+/* Campo de detalle para anular cuota */
 .anular-detalle {
   min-width: 180px;
 }
 
+/* Botones: anular detalle */
 .anular-detalle summary {
   cursor: pointer;
   list-style: none;
 }
 
+/* Marcador oculto: anular detalle */
 .anular-detalle summary::-webkit-details-marker {
   display: none;
 }
 
+/* Formulario: anular formulario */
 .anular-form {
   display: grid;
   gap: 8px;
   margin-top: 8px;
 }
 
+/* Formulario: anular formulario */
 .anular-form textarea {
   min-width: 180px;
   resize: vertical;
 }
 
+/* Deshabilitado: boton */
 .boton:disabled {
   cursor: not-allowed;
   opacity: .55;
 }
 
-/* ============================================================
-   Buscador: Autocompletar colegiado
-   ============================================================ */
-
+/* Filtros: buscador colegiado */
 .buscador-colegiado {
   position: relative;
 }
 
+/* Lista de resultados al buscar colegiado */
 .resultados-colegiado {
   position: absolute;
   left: 0;
@@ -377,6 +411,7 @@
   box-shadow: 0 18px 35px rgba(0, 43, 91, .16);
 }
 
+/* Item de colegiado encontrado */
 .resultado-colegiado {
   display: flex;
   width: 100%;
@@ -391,15 +426,18 @@
   cursor: pointer;
 }
 
+/* Hover: resultado colegiado */
 .resultado-colegiado:hover {
   background: #e7f6fb;
 }
 
+/* Nombre del colegiado encontrado */
 .resultado-nombre {
   font-size: 13px;
   font-weight: 800;
 }
 
+/* Detalle del colegiado encontrado */
 .resultado-detalle,
 .resultado-vacio,
 .ayuda-busqueda {
@@ -407,15 +445,13 @@
   font-size: 12px;
 }
 
+/* Mensaje cuando no hay colegiados encontrados */
 .resultado-vacio {
   margin: 0;
   padding: 12px;
 }
 
-/* ============================================================
-   Botones: Paginacion anterior, numeros y siguiente
-   ============================================================ */
-
+/* Paginacion: paginacion */
 .paginacion {
   display: flex;
   flex-wrap: wrap;
@@ -425,6 +461,7 @@
   border-top: 1px solid #e4edf5;
 }
 
+/* Paginacion: paginacion link */
 .paginacion-link,
 .paginacion-numero {
   display: inline-flex;
@@ -442,23 +479,24 @@
   text-decoration: none;
 }
 
+/* Activo: paginacion numero */
 .paginacion-numero.activo {
   color: #ffffff;
   border-color: #004b8d;
   background: #004b8d;
 }
 
+/* Deshabilitado: paginacion link */
 .paginacion-link.disabled {
   pointer-events: none;
   color: #9aaabe;
   background: #f3f6f9;
 }
 
-/* ============================================================
-   Responsive: Cuotas
-   ============================================================ */
-
+/* Responsive: ajustes para pantallas pequenas */
 @media (max-width: 900px) {
+
+  /* Formulario: procesamiento contenedor */
   .procesamiento-grid,
   .proceso-datos,
   .proceso-campos,
@@ -466,26 +504,32 @@
     grid-template-columns: 1fr;
   }
 
+  /* Texto: config span */
   .config-span {
     grid-column: auto;
   }
 
+  /* Botones: proceso accion */
   .proceso-accion {
     grid-template-columns: 1fr;
   }
 
+  /* Filtros: filtro campo tipo */
   .filtro-campo-tipo {
     flex: 1;
   }
 
+  /* Filtros: filtro campo cantidad */
   .filtro-campo-cantidad {
     flex: 1;
   }
 
+  /* Tabla: tabla toolbar */
   .tabla-toolbar {
     flex-direction: column;
   }
 
+  /* Paginacion: paginacion */
   .paginacion {
     justify-content: center;
   }

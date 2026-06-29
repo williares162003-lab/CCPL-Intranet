@@ -1,7 +1,4 @@
-/* ============================================================
-   Documento: Hoja de constancia y franjas superior/inferior
-   ============================================================ */
-
+/* Certificado: constancia doc */
 .constancia-doc {
   overflow: hidden;
   background: var(--blanco);
@@ -10,31 +7,28 @@
   box-shadow: var(--sombra);
 }
 
+/* Texto: franja superior */
 .franja-superior,
 .franja-inferior {
   height: 12px;
 }
 
+/* Texto: franja superior */
 .franja-superior {
   background: linear-gradient(90deg, var(--azul), var(--azul), var(--dorado));
 }
 
+/* Constancia: franja inferior del documento */
 .franja-inferior {
   background: linear-gradient(90deg, var(--dorado), var(--azul), var(--azul));
 }
 
-/* ============================================================
-   Cuerpo: Margenes internos de la constancia
-   ============================================================ */
-
+/* Certificado: constancia cuerpo */
 .constancia-cuerpo {
   padding: 40px;
 }
 
-/* ============================================================
-   Contenido: Logo, titulo, datos, firmas y pie
-   ============================================================ */
-
+/* Certificado: constancia cabecera */
 .constancia-header {
   padding-bottom: 32px;
   margin-bottom: 32px;
@@ -42,6 +36,7 @@
   border-bottom: 2px solid var(--azul);
 }
 
+/* Certificado: constancia logo */
 .constancia-logo {
   display: inline-flex;
   align-items: center;
@@ -54,10 +49,12 @@
   border-radius: 16px;
 }
 
+/* Icono: constancia logo */
 .constancia-logo .material-symbols-outlined {
   font-size: 34px;
 }
 
+/* Titulo: constancia cabecera */
 .constancia-header h1,
 .constancia-header h2 {
   margin: 4px 0 0;
@@ -65,27 +62,32 @@
   text-transform: uppercase;
 }
 
+/* Titulo: constancia cabecera */
 .constancia-header h1 {
   font-size: 20px;
   font-weight: 800;
   letter-spacing: 0.04em;
 }
 
+/* Titulo: constancia cabecera */
 .constancia-header h2 {
   font-size: 18px;
 }
 
+/* Ultimo elemento: constancia cabecera */
 .constancia-header > p:last-child {
   margin: 6px 0 0;
   color: var(--texto-claro);
   font-size: 14px;
 }
 
+/* Texto: documento titulo */
 .documento-titulo {
   margin-bottom: 40px;
   text-align: center;
 }
 
+/* Titulo: documento titulo */
 .documento-titulo h2 {
   margin: 0;
   color: var(--azul);
@@ -95,6 +97,7 @@
   text-transform: uppercase;
 }
 
+/* Texto: documento titulo */
 .documento-titulo div {
   width: 96px;
   height: 4px;
@@ -103,6 +106,7 @@
   border-radius: 999px;
 }
 
+/* Texto: documento texto */
 .documento-texto {
   display: grid;
   gap: 16px;
@@ -111,14 +115,17 @@
   text-align: justify;
 }
 
+/* Texto: documento texto */
 .documento-texto p {
   margin: 0;
 }
 
+/* Texto: documento texto */
 .documento-texto strong {
   color: var(--azul);
 }
 
+/* Constancia: texto CERTIFICA */
 .certifica {
   color: var(--azul);
   font-size: 18px;
@@ -126,6 +133,7 @@
   text-align: center;
 }
 
+/* Constancia: bloque de datos del documento */
 .datos-documento {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -136,26 +144,31 @@
   border-radius: 12px;
 }
 
+/* Texto: datos documento */
 .datos-documento p {
   margin: 0;
 }
 
+/* Ultimo elemento: datos documento */
 .datos-documento p:last-child {
   margin-top: 6px;
   color: var(--azul);
   font-weight: 800;
 }
 
+/* Certificado: certificado link */
 .certificado-link {
   justify-content: flex-start;
   margin-top: 6px;
   font-size: 13px;
 }
 
+/* Estado: texto ok */
 .texto-ok {
   color: #047857 !important;
 }
 
+/* Firma eDNI: firmas */
 .firmas {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -164,11 +177,13 @@
   text-align: center;
 }
 
+/* Firma eDNI: firmas */
 .firmas > div > div {
   padding-top: 12px;
   border-top: 2px solid #94a3b8;
 }
 
+/* Texto: firmas */
 .firmas p {
   margin: 0;
   color: var(--azul);
@@ -176,10 +191,12 @@
   font-weight: 800;
 }
 
+/* Texto: firmas */
 .firmas small {
   color: var(--texto-claro);
 }
 
+/* Texto: pie documento */
 .pie-documento {
   margin-top: 40px;
   padding-top: 24px;
@@ -189,15 +206,20 @@
   border-top: 1px solid var(--borde);
 }
 
+/* Texto: pie documento */
 .pie-documento p {
   margin: 4px 0;
 }
 
+/* Responsive: ajustes para pantallas pequenas */
 @media (max-width: 640px) {
+
+  /* Certificado: constancia cuerpo */
   .constancia-cuerpo {
     padding: 24px;
   }
 
+  /* Firma eDNI: datos documento */
   .datos-documento,
   .firmas {
     grid-template-columns: 1fr;

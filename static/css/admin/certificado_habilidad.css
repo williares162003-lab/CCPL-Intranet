@@ -1,18 +1,17 @@
+﻿/* Impresion: tamano de pagina */
 @page {
   size: A4 portrait;
   margin: 0;
 }
 
-/* ============================================================
-   Hoja: Configuracion A4 y fondo del certificado
-   ============================================================ */
-
+/* Certificado de habilidad: reset general de impresion */
 * {
   box-sizing: border-box;
   print-color-adjust: exact;
   -webkit-print-color-adjust: exact;
 }
 
+/* Certificado de habilidad: fondo del documento */
 body {
   margin: 0;
   background: #e8edf3;
@@ -20,10 +19,7 @@ body {
   font-family: "Times New Roman", Times, serif;
 }
 
-/* ============================================================
-   Botones: Volver a tramites, Abrir PDF e Imprimir
-   ============================================================ */
-
+/* Certificado: certificado toolbar */
 .certificado-toolbar {
   display: flex;
   justify-content: center;
@@ -32,6 +28,7 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Botones: boton volver */
 .boton-volver,
 .boton-imprimir {
   min-height: 40px;
@@ -44,6 +41,7 @@ body {
   cursor: pointer;
 }
 
+/* Botones: boton volver */
 .boton-volver {
   display: inline-flex;
   align-items: center;
@@ -52,6 +50,7 @@ body {
   border: 1px solid #cbd5e1;
 }
 
+/* Botones: boton imprimir */
 .boton-imprimir {
   display: inline-flex;
   align-items: center;
@@ -59,10 +58,7 @@ body {
   background: #0b3f78;
 }
 
-/* ============================================================
-   Plantilla: Imagen base del certificado
-   ============================================================ */
-
+/* Certificado: certificado hoja */
 .certificado-hoja {
   position: relative;
   width: 210mm;
@@ -74,6 +70,7 @@ body {
   box-shadow: 0 18px 45px rgba(15, 23, 42, 0.18);
 }
 
+/* Certificado: certificado base */
 .certificado-base {
   position: absolute;
   inset: 0;
@@ -83,15 +80,13 @@ body {
   object-fit: cover;
 }
 
+/* Certificado: certificado overlay */
 .certificado-overlay {
   position: absolute;
   z-index: 1;
 }
 
-/* ============================================================
-   Dato: Numero de certificado
-   ============================================================ */
-
+/* Certificado: certificado numero chip */
 .certificado-numero-chip {
   top: 50.1mm;
   right: 21.6mm;
@@ -107,10 +102,7 @@ body {
   letter-spacing: .03em;
 }
 
-/* ============================================================
-   Dato: Nombre y matricula del colegiado
-   ============================================================ */
-
+/* Certificado: certificado identidad */
 .certificado-identidad {
   left: 31.5mm;
   top: 130.1mm;
@@ -119,6 +111,7 @@ body {
   color: #111111;
 }
 
+/* Texto: certificado identidad */
 .certificado-identidad p,
 .certificado-identidad span {
   display: block;
@@ -127,19 +120,18 @@ body {
   line-height: 1.2;
 }
 
+/* Texto: certificado identidad */
 .certificado-identidad p {
   font-size: 16pt;
 }
 
+/* Certificado: certificado identidad */
 .certificado-identidad span {
   margin-top: 5.8mm;
   font-size: 15.5pt;
 }
 
-/* ============================================================
-   Dato: Fecha de emision
-   ============================================================ */
-
+/* Certificado: certificado fecha */
 .certificado-fecha {
   top: 188.5mm;
   right: 30mm;
@@ -151,10 +143,7 @@ body {
   line-height: 1.2;
 }
 
-/* ============================================================
-   Dato: Habil hasta / vigencia del certificado
-   ============================================================ */
-
+/* Certificado: certificado vigencia real */
 .certificado-vigencia-real {
   left: 31mm;
   top: 247.2mm;
@@ -172,19 +161,20 @@ body {
   line-height: 1.1;
 }
 
-/* ============================================================
-   Impresion: Ocultar botones y ajustar hoja
-   ============================================================ */
-
+/* Impresion: ajustes para imprimir */
 @media print {
+
+  /* Certificado de habilidad: fondo del documento */
   body {
     background: #ffffff;
   }
 
+  /* Certificado: certificado toolbar */
   .certificado-toolbar {
     display: none;
   }
 
+  /* Certificado: certificado hoja */
   .certificado-hoja {
     width: 210mm;
     height: 297mm;
@@ -193,3 +183,4 @@ body {
     box-shadow: none;
   }
 }
+

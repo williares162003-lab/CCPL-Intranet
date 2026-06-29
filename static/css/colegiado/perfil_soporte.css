@@ -1,7 +1,4 @@
-/* ============================================================
-   Perfil: Datos personales, preferencias y botones de soporte
-   ============================================================ */
-
+/* Texto: perfil contenedor */
 .perfil-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -9,6 +6,7 @@
   margin-top: 24px;
 }
 
+/* Texto: dato valor */
 .dato-valor {
   margin: 8px 0 0;
   color: var(--azul);
@@ -16,14 +14,17 @@
   font-weight: 800;
 }
 
+/* Formulario: formulario perfil */
 .formulario-perfil {
   margin-top: 24px;
 }
 
+/* Lista: preferencias lista */
 .preferencias-lista {
   margin-top: 16px;
 }
 
+/* Lista: preferencia item */
 .preferencia-item {
   display: flex;
   align-items: center;
@@ -33,16 +34,19 @@
   border-bottom: 1px solid var(--borde-claro);
 }
 
+/* Lista: preferencia item */
 .preferencia-item.sin-borde {
   border-bottom: 0;
 }
 
+/* Texto: preferencia titulo */
 .preferencia-titulo {
   margin: 0 0 4px;
   color: var(--azul);
   font-weight: 800;
 }
 
+/* Perfil soporte: interruptor de preferencia */
 .switch {
   display: inline-flex;
   align-items: center;
@@ -56,6 +60,7 @@
   transition: background 0.2s;
 }
 
+/* Texto: switch */
 .switch span {
   width: 20px;
   height: 20px;
@@ -64,14 +69,17 @@
   transition: transform 0.2s;
 }
 
+/* Activo: switch */
 .switch.activo {
   background: var(--azul);
 }
 
+/* Activo: switch */
 .switch.activo span {
   transform: translateX(20px);
 }
 
+/* Texto: soporte titulo */
 .soporte-titulo {
   display: flex;
   align-items: center;
@@ -79,10 +87,12 @@
   margin-bottom: 16px;
 }
 
+/* Icono: soporte titulo */
 .soporte-titulo .material-symbols-outlined {
   color: var(--dorado);
 }
 
+/* Titulo: soporte titulo */
 .soporte-titulo h3,
 .sede-cuerpo h3 {
   margin: 0;
@@ -91,22 +101,26 @@
   font-weight: 800;
 }
 
+/* Botones: soporte acciones */
 .soporte-acciones,
 .documentos-lista {
   display: grid;
   gap: 12px;
 }
 
+/* Perfil soporte: lista de documentos */
 .documentos-box {
   margin-top: 24px;
   padding-top: 16px;
   border-top: 1px solid var(--borde-claro);
 }
 
+/* Lista: documentos lista */
 .documentos-lista {
   margin-top: 12px;
 }
 
+/* Perfil soporte: enlace de documento */
 .documento-link {
   display: flex;
   align-items: center;
@@ -117,14 +131,17 @@
   border-radius: 12px;
 }
 
+/* Hover: documento link */
 .documento-link:hover {
   background: #f8fafc;
 }
 
+/* Icono: documento link */
 .documento-link .material-symbols-outlined {
   color: #94a3b8;
 }
 
+/* Tarjeta: sede tarjeta */
 .sede-card {
   overflow: hidden;
   background: var(--blanco);
@@ -133,31 +150,32 @@
   box-shadow: var(--sombra);
 }
 
+/* Perfil soporte: imagen de sede */
 .sede-imagen {
   height: 176px;
   background: linear-gradient(90deg, #0f172a, var(--azul), var(--dorado));
 }
 
+/* Texto: sede cuerpo */
 .sede-cuerpo {
   padding: 24px;
 }
 
+/* Ultimo elemento: sede cuerpo */
 .sede-cuerpo p:last-child {
   margin: 8px 0 0;
   color: var(--texto-suave);
   line-height: 1.5;
 }
 
-/* ============================================================
-   Lista: Tickets enviados y respuesta de soporte
-   ============================================================ */
-
+/* Lista: tickets lista */
 .tickets-lista {
   display: grid;
   gap: 12px;
   margin-top: 18px;
 }
 
+/* Tarjeta: ticket tarjeta */
 .ticket-card {
   padding: 16px;
   border: 1px solid var(--borde-claro);
@@ -165,6 +183,7 @@
   background: #ffffff;
 }
 
+/* Tarjeta: ticket tarjeta cabecera */
 .ticket-card-header {
   display: flex;
   align-items: flex-start;
@@ -172,6 +191,7 @@
   gap: 14px;
 }
 
+/* Titulo: ticket tarjeta */
 .ticket-card h3 {
   margin: 4px 0 0;
   color: var(--azul);
@@ -179,12 +199,14 @@
   font-weight: 800;
 }
 
+/* Texto: ticket descripcion */
 .ticket-descripcion {
   margin: 12px 0 0;
   color: var(--texto);
   line-height: 1.55;
 }
 
+/* Texto: ticket respuesta */
 .ticket-respuesta {
   margin-top: 12px;
   padding: 12px;
@@ -193,17 +215,20 @@
   border-radius: 8px;
 }
 
+/* Texto: ticket respuesta */
 .ticket-respuesta p {
   margin: 4px 0 0;
   line-height: 1.5;
 }
 
+/* Texto: ticket respuesta */
 .ticket-respuesta small {
   display: block;
   margin-top: 6px;
   color: var(--texto-suave);
 }
 
+/* Perfil soporte: mensaje sin tickets */
 .estado-vacio-simple {
   display: grid;
   place-items: center;
@@ -215,19 +240,20 @@
   border-radius: 8px;
 }
 
+/* Texto: estado vacio simple */
 .estado-vacio-simple p {
   margin: 0;
 }
 
-/* ============================================================
-   Responsive: Perfil y soporte
-   ============================================================ */
-
+/* Responsive: ajustes para pantallas pequenas */
 @media (max-width: 760px) {
+
+  /* Texto: perfil contenedor */
   .perfil-grid {
     grid-template-columns: 1fr;
   }
 
+  /* Tarjeta: ticket tarjeta cabecera */
   .ticket-card-header {
     display: grid;
   }

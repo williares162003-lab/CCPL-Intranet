@@ -1,19 +1,14 @@
-/* ============================================================
-   Tarjetas: Resumen de medios de pago
-   ============================================================ */
-
+/* Medios de pago: tarjetas de resumen */
 .medios-resumen {
   margin-bottom: 24px;
 }
 
+/* Texto: texto mono */
 .texto-mono {
   font-family: Consolas, "Liberation Mono", monospace;
 }
 
-/* ============================================================
-   Tabla: Medios de pago y boton Editar
-   ============================================================ */
-
+/* Botones: boton accion */
 .boton-accion {
   display: inline-flex;
   align-items: center;
@@ -27,21 +22,22 @@
   transition: background 0.2s, color 0.2s;
 }
 
+/* Hover: boton accion */
 .boton-accion:hover {
   color: var(--azul);
   background: #f1f5f9;
 }
 
+/* Hover: boton accion peligro */
 .boton-accion-peligro:hover {
   color: #dc2626;
   background: #fee2e2;
 }
 
-/* ============================================================
-   Responsive: Medios de pago
-   ============================================================ */
-
+/* Responsive: ajustes para pantallas pequenas */
 @media (max-width: 760px) {
+
+  /* Medios de pago: tarjetas de resumen */
   .medios-resumen {
     grid-template-columns: 1fr;
   }

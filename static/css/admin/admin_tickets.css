@@ -1,50 +1,46 @@
-/* ============================================================
-   Tabla: Asunto, descripcion y acciones del ticket
-   ============================================================ */
-
+/* Tickets: texto del asunto */
 .asunto-ticket {
   margin-bottom: 4px;
 }
 
+/* Texto: descripcion ticket */
 .descripcion-ticket {
   max-width: 360px;
   line-height: 1.45;
   white-space: normal;
 }
 
+/* Ultimo elemento: tabla tickets */
 .tabla-tickets td:last-child,
 .tabla-tickets th:last-child {
   min-width: 320px;
 }
 
-/* ============================================================
-   Formulario: Responder ticket y cambiar estado
-   ============================================================ */
-
+/* Formulario: ticket formulario */
 .ticket-form {
   display: grid;
   gap: 10px;
 }
 
+/* Formulario: ticket formulario contenedor */
 .ticket-form-grid {
   display: grid;
   gap: 8px;
 }
 
+/* Formulario: campo ticket */
 .campo-ticket {
   min-height: 34px;
   font-size: 13px;
 }
 
+/* Formulario: campo ticket */
 textarea.campo-ticket {
   min-height: 76px;
   resize: vertical;
 }
 
-/* ============================================================
-   Caja: Respuesta administrativa del ticket
-   ============================================================ */
-
+/* Texto: respuesta ticket */
 .respuesta-ticket {
   display: grid;
   gap: 4px;
@@ -55,11 +51,13 @@ textarea.campo-ticket {
   border-radius: 8px;
 }
 
+/* Texto: respuesta ticket */
 .respuesta-ticket p {
   margin: 0;
   line-height: 1.45;
 }
 
+/* Texto: respuesta ticket */
 .respuesta-ticket small {
   color: var(--texto-suave);
 }

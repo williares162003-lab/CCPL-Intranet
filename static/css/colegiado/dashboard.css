@@ -1,12 +1,10 @@
-/* ============================================================
-   Tarjetas: Fecha, cuotas pendientes, pagado y boton Pagar
-   ============================================================ */
-
+/* Tarjeta: fecha tarjeta */
 .fecha-card {
   min-width: 260px;
   padding: 16px 20px;
 }
 
+/* Fila de fecha con icono y texto */
 .fecha-linea {
   display: flex;
   align-items: center;
@@ -16,18 +14,22 @@
   font-weight: 700;
 }
 
+/* Icono: fecha linea */
 .fecha-linea .material-symbols-outlined {
   color: var(--dorado);
 }
 
+/* Tarjeta: resumen tarjeta */
 .resumen-card {
   padding: 24px;
 }
 
+/* Texto: resumen tarjeta */
 .resumen-card .resumen-label {
   color: var(--texto-claro);
 }
 
+/* Texto: resumen valor */
 .resumen-valor {
   margin: 12px 0 0;
   color: var(--azul);
@@ -35,48 +37,57 @@
   font-weight: 800;
 }
 
+/* Texto: resumen texto */
 .resumen-texto {
   margin: 16px 0 0;
   color: var(--texto-suave);
   font-size: 14px;
 }
 
+/* Panel colegiado: tarjeta resumen positiva */
 .resumen-verde {
   color: #065f46;
   background: #ecfdf5;
   border-color: #a7f3d0;
 }
 
+/* Texto: resumen verde */
 .resumen-verde .resumen-label,
 .resumen-verde .resumen-valor,
 .resumen-verde .resumen-texto {
   color: #065f46;
 }
 
+/* Texto: resumen principal */
 .resumen-principal {
   color: #ffffff;
   background: var(--azul);
 }
 
+/* Texto: resumen principal */
 .resumen-principal .resumen-label {
   color: #fcd34d;
 }
 
+/* Texto: resumen principal */
 .resumen-principal .resumen-valor {
   color: #ffffff;
   font-size: 38px;
 }
 
+/* Estado: resumen tarjeta */
 .resumen-card.pendiente {
   background: #fffdf4;
   border-color: rgba(242, 178, 26, 0.42);
 }
 
+/* Estado: resumen tarjeta */
 .resumen-card.pagado {
   background: #ecfdf5;
   border-color: #a7f3d0;
 }
 
+/* Botones: boton dorado */
 .boton-dorado {
   margin-top: 24px;
   color: #ffffff;
@@ -84,16 +95,14 @@
   border-color: var(--dorado);
 }
 
+/* Tarjeta: colegiado panel contenedor */
 .colegiado-panel-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
 }
 
-/* ============================================================
-   Panel: Cursos recientes, materiales y accesos rapidos
-   ============================================================ */
-
+/* Tarjeta: panel tarjeta */
 .panel-card {
   display: grid;
   gap: 16px;
@@ -104,11 +113,13 @@
   box-shadow: var(--sombra);
 }
 
+/* Lista: dashboard lista */
 .dashboard-lista {
   display: grid;
   gap: 10px;
 }
 
+/* Panel colegiado: tarjeta pequena de curso */
 .curso-mini,
 .material-mini {
   display: grid;
@@ -120,16 +131,19 @@
   border-radius: var(--radio);
 }
 
+/* Panel colegiado: tarjeta pequena de curso */
 .curso-mini {
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
 }
 
+/* Panel colegiado: tarjeta pequena de material */
 .material-mini {
   grid-template-columns: 38px minmax(0, 1fr);
   align-items: start;
 }
 
+/* Icono: material mini */
 .material-mini .material-symbols-outlined {
   display: grid;
   width: 38px;
@@ -140,6 +154,7 @@
   border-radius: var(--radio);
 }
 
+/* Hover: curso mini */
 .curso-mini:hover,
 .material-mini:hover {
   color: var(--azul);
@@ -147,10 +162,12 @@
   border-color: rgba(45, 154, 183, 0.28);
 }
 
+/* Grafico: curso mini progreso */
 .curso-mini-progreso {
   text-align: right;
 }
 
+/* Texto: curso mini progreso */
 .curso-mini-progreso strong {
   display: block;
   color: var(--azul);
@@ -158,6 +175,7 @@
   line-height: 1;
 }
 
+/* Grafico: curso mini progreso */
 .curso-mini-progreso span {
   display: block;
   margin-top: 5px;
@@ -166,6 +184,7 @@
   font-weight: 700;
 }
 
+/* Tarjeta: acceso tarjeta */
 .acceso-card {
   display: block;
   padding: 24px;
@@ -176,15 +195,18 @@
   transition: transform 0.2s;
 }
 
+/* Hover: acceso tarjeta */
 .acceso-card:hover {
   transform: translateY(-2px);
 }
 
+/* Icono: acceso tarjeta */
 .acceso-card .material-symbols-outlined {
   color: var(--dorado);
   font-size: 34px;
 }
 
+/* Titulo: acceso tarjeta */
 .acceso-card h4 {
   margin: 16px 0 0;
   color: var(--azul);
@@ -192,6 +214,7 @@
   font-weight: 800;
 }
 
+/* Texto: acceso tarjeta */
 .acceso-card p {
   margin: 8px 0 0;
   color: var(--texto-suave);
@@ -199,22 +222,25 @@
   line-height: 1.5;
 }
 
-/* ============================================================
-   Responsive: Panel del colegiado
-   ============================================================ */
-
+/* Responsive: ajustes para pantallas pequenas */
 @media (max-width: 980px) {
+
+  /* Tarjeta: colegiado panel contenedor */
   .colegiado-panel-grid {
     grid-template-columns: 1fr;
   }
 }
 
+/* Responsive: ajustes para pantallas pequenas */
 @media (max-width: 640px) {
+
+  /* Panel colegiado: tarjeta pequena de curso */
   .curso-mini,
   .material-mini {
     grid-template-columns: 1fr;
   }
 
+  /* Grafico: curso mini progreso */
   .curso-mini-progreso {
     text-align: left;
   }

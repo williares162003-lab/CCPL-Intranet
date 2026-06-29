@@ -1,7 +1,4 @@
-/* ============================================================
-   Botones: Nuevo colegiado, Exportar Excel e Importar CSV
-   ============================================================ */
-
+/* Botones: colegiados */
 .acciones-colegiados {
   display: flex;
   align-items: center;
@@ -10,10 +7,7 @@
   gap: 10px;
 }
 
-/* ============================================================
-   Filtros: Buscar colegiado, Especialidad y Estado
-   ============================================================ */
-
+/* Filtros: filtro colegiados */
 .filtro-colegiados {
   display: grid;
   grid-template-columns: minmax(220px, 1fr) minmax(190px, 260px) minmax(140px, 170px) minmax(170px, 210px) auto auto;
@@ -27,14 +21,12 @@
   box-shadow: var(--sombra);
 }
 
+/* Filtros: filtro colegiados */
 .filtro-colegiados .filtro-campo {
   min-width: 0;
 }
 
-/* ============================================================
-   Panel: Importar colegiados desde CSV
-   ============================================================ */
-
+/* Texto: importar colegiados */
 .importar-colegiados {
   display: flex;
   align-items: center;
@@ -48,11 +40,13 @@
   box-shadow: var(--sombra);
 }
 
+/* Texto: importar colegiados */
 .importar-colegiados .texto-principal,
 .importar-colegiados .texto-secundario {
   margin: 0;
 }
 
+/* Botones: importar acciones */
 .importar-acciones,
 .importar-form {
   display: flex;
@@ -62,15 +56,13 @@
   gap: 10px;
 }
 
+/* Formulario: importar formulario */
 .importar-form .campo-formulario {
   min-width: 260px;
   max-width: 360px;
 }
 
-/* ============================================================
-   Texto: Total registrados y filtro activo
-   ============================================================ */
-
+/* Tarjeta: tarjeta encabezado */
 .tarjeta-encabezado {
   display: flex;
   align-items: center;
@@ -79,6 +71,7 @@
   flex-wrap: wrap;
 }
 
+/* Filtros: filtro activo */
 .filtro-activo {
   display: inline-flex;
   align-items: center;
@@ -92,24 +85,24 @@
   font-weight: 700;
 }
 
+/* Filtros: filtro activo */
 .filtro-activo.alerta {
   color: #92400e;
   background: #fffbeb;
   border-color: #fde68a;
 }
 
-/* ============================================================
-   Tabla: Colegiados y boton Editar
-   ============================================================ */
-
+/* Tabla: tabla colegiados */
 .tabla-colegiados td:nth-child(4) {
   max-width: 260px;
 }
 
+/* Tabla: tabla colegiados */
 .tabla-colegiados td:nth-child(5) {
   min-width: 190px;
 }
 
+/* Botones: boton accion */
 .boton-accion {
   display: inline-flex;
   align-items: center;
@@ -122,25 +115,27 @@
   transition: background 0.2s, color 0.2s;
 }
 
+/* Hover: boton accion */
 .boton-accion:hover {
   color: var(--azul);
   background: #f1f5f9;
 }
 
-/* ============================================================
-   Responsive: Colegiados
-   ============================================================ */
-
+/* Responsive: ajustes para pantallas pequenas */
 @media (max-width: 1120px) {
+
+  /* Filtros: filtro colegiados */
   .filtro-colegiados {
     grid-template-columns: 1fr 1fr;
   }
 
+  /* Texto: importar colegiados */
   .importar-colegiados {
     align-items: flex-start;
     flex-direction: column;
   }
 
+  /* Botones: importar acciones */
   .importar-acciones,
   .importar-form {
     justify-content: flex-start;
@@ -148,11 +143,15 @@
   }
 }
 
+/* Responsive: ajustes para pantallas pequenas */
 @media (max-width: 720px) {
+
+  /* Botones: colegiados */
   .acciones-colegiados {
     justify-content: stretch;
   }
 
+  /* Botones: colegiados */
   .acciones-colegiados .boton,
   .importar-acciones .boton,
   .importar-form .campo-formulario,
@@ -160,6 +159,7 @@
     width: 100%;
   }
 
+  /* Filtros: filtro colegiados */
   .filtro-colegiados {
     grid-template-columns: 1fr;
   }

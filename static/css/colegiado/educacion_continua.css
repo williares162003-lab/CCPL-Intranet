@@ -1,7 +1,4 @@
-/* ============================================================
-   Tarjetas: Cursos inscritos, certificados y deuda
-   ============================================================ */
-
+/* Tarjeta: epc tarjeta */
 .epc-card {
   min-width: 280px;
   padding: 20px;
@@ -11,6 +8,7 @@
   box-shadow: var(--sombra);
 }
 
+/* Texto: epc valor */
 .epc-valor {
   margin: 8px 0 14px;
   color: var(--azul);
@@ -18,16 +16,14 @@
   font-weight: 800;
 }
 
+/* Texto: epc valor */
 .epc-valor span {
   color: var(--texto-claro);
   font-size: 16px;
   font-weight: 600;
 }
 
-/* ============================================================
-   Barra: Progreso del curso
-   ============================================================ */
-
+/* Grafico: barra progreso */
 .barra-progreso {
   height: 8px;
   overflow: hidden;
@@ -35,38 +31,41 @@
   border-radius: 999px;
 }
 
+/* Modal: barra modal */
 .barra-modal {
   height: 12px;
   margin-top: 8px;
 }
 
+/* Grafico: barra progreso valor */
 .barra-progreso-valor {
   height: 100%;
   border-radius: 999px;
 }
 
+/* Grafico: barra dorada */
 .barra-dorada {
   background: var(--dorado);
 }
 
+/* Grafico: barra azul */
 .barra-azul {
   background: var(--azul);
 }
 
+/* Grafico: barra verde */
 .barra-verde {
   background: #10b981;
 }
 
-/* ============================================================
-   Resumen: Cursos inscritos y estado de pago
-   ============================================================ */
-
+/* Contenedor: educacion resumen contenedor */
 .educacion-resumen-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 14px;
 }
 
+/* Tarjeta: educacion resumen tarjeta */
 .educacion-resumen-card {
   display: grid;
   grid-template-columns: 42px minmax(0, 1fr);
@@ -80,6 +79,7 @@
   box-shadow: var(--sombra);
 }
 
+/* Icono: educacion resumen tarjeta */
 .educacion-resumen-card > .material-symbols-outlined {
   display: grid;
   width: 42px;
@@ -90,6 +90,7 @@
   border-radius: var(--radio);
 }
 
+/* Texto: educacion resumen tarjeta */
 .educacion-resumen-card strong {
   display: block;
   margin-top: 4px;
@@ -98,35 +99,32 @@
   line-height: 1;
 }
 
+/* Estado: educacion resumen tarjeta */
 .educacion-resumen-card.pendiente {
   border-color: rgba(242, 178, 26, 0.42);
   background: #fffdf4;
 }
 
+/* Tarjeta: educacion resumen tarjeta */
 .educacion-resumen-card.alerta {
   border-color: rgba(198, 27, 44, 0.22);
   background: #fff7f8;
 }
 
+/* Estado: educacion resumen tarjeta */
 .educacion-resumen-card.pagado {
   border-color: #a7f3d0;
   background: #ecfdf5;
 }
 
-/* ============================================================
-   Lista: Cursos asignados al colegiado
-   ============================================================ */
-
+/* Contenedor: cursos contenedor */
 .cursos-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 20px;
 }
 
-/* ============================================================
-   Vista campus: Tarjetas tipo aula virtual
-   ============================================================ */
-
+/* Texto: campus cabecera */
 .campus-header {
   display: flex;
   align-items: flex-end;
@@ -135,12 +133,14 @@
   padding-top: 4px;
 }
 
+/* Texto: campus controles */
 .campus-controles {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
 
+/* Texto: campus chip */
 .campus-chip {
   display: inline-flex;
   align-items: center;
@@ -155,20 +155,19 @@
   font-weight: 800;
 }
 
+/* Icono: campus chip */
 .campus-chip .material-symbols-outlined {
   color: var(--dorado);
   font-size: 18px;
 }
 
-/* ============================================================
-   Tarjeta curso: Imagen, titulo, progreso y acciones
-   ============================================================ */
-
+/* Texto: campus contenedor */
 .campus-grid {
   display: grid;
   gap: 16px;
 }
 
+/* Tarjeta: campus tarjeta */
 .campus-card {
   display: grid;
   grid-template-columns: 140px minmax(0, 1fr);
@@ -179,10 +178,12 @@
   box-shadow: var(--sombra);
 }
 
+/* Texto: campus empty */
 .campus-empty {
   grid-template-columns: 1fr;
 }
 
+/* Texto: campus banner */
 .campus-banner {
   display: grid;
   place-items: center;
@@ -191,16 +192,19 @@
   background: linear-gradient(135deg, var(--azul), #0e7490 65%, var(--dorado));
 }
 
+/* Icono: campus banner */
 .campus-banner .material-symbols-outlined {
   font-size: 48px;
 }
 
+/* Tarjeta: campus tarjeta body */
 .campus-card-body {
   display: grid;
   gap: 14px;
   padding: 18px;
 }
 
+/* Tarjeta: campus tarjeta top */
 .campus-card-top,
 .campus-footer {
   display: flex;
@@ -209,6 +213,7 @@
   gap: 16px;
 }
 
+/* Titulo: campus tarjeta */
 .campus-card h3 {
   margin: 6px 0 6px;
   color: var(--azul);
@@ -217,12 +222,14 @@
   line-height: 1.25;
 }
 
+/* Texto: campus stats */
 .campus-stats {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
 }
 
+/* Texto: campus stats */
 .campus-stats div {
   min-height: 72px;
   padding: 10px;
@@ -231,6 +238,7 @@
   background: #f8fafc;
 }
 
+/* Texto: campus stats */
 .campus-stats strong {
   display: block;
   color: var(--azul);
@@ -238,6 +246,7 @@
   line-height: 1;
 }
 
+/* Texto: campus stats */
 .campus-stats span {
   display: block;
   margin-top: 7px;
@@ -247,25 +256,25 @@
   text-transform: uppercase;
 }
 
-/* ============================================================
-   Botones: Entrar al aula, ver certificado y descargar material
-   ============================================================ */
-
+/* Texto: campus progress */
 .campus-progress {
   display: grid;
   gap: 8px;
 }
 
+/* Texto: campus progress */
 .campus-progress strong {
   color: var(--azul);
 }
 
+/* Texto: campus materiales */
 .campus-materiales {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
 }
 
+/* Texto: material pill */
 .material-pill {
   display: flex;
   align-items: center;
@@ -277,6 +286,7 @@
   background: #ffffff;
 }
 
+/* Texto: material pill */
 .material-pill > span {
   display: grid;
   flex: 0 0 36px;
@@ -290,17 +300,20 @@
   font-weight: 800;
 }
 
+/* Texto: material pill */
 .material-pill strong,
 .material-pill small {
   display: block;
 }
 
+/* Texto: material pill */
 .material-pill strong {
   color: var(--azul-profundo);
   font-size: 13px;
   line-height: 1.2;
 }
 
+/* Texto: material pill */
 .material-pill small {
   margin-top: 3px;
   color: var(--texto-claro);
@@ -308,10 +321,7 @@
   font-weight: 700;
 }
 
-/* ============================================================
-   Tarjetas disponibles: Boton Inscribirme
-   ============================================================ */
-
+/* Tarjeta: curso tarjeta */
 .curso-card {
   display: flex;
   flex-direction: column;
@@ -322,6 +332,7 @@
   box-shadow: var(--sombra);
 }
 
+/* Educacion continua: banner de curso */
 .curso-banner {
   display: flex;
   align-items: center;
@@ -331,14 +342,17 @@
   background: linear-gradient(90deg, #0f172a, #1e293b, var(--dorado));
 }
 
+/* Texto: curso banner disponible */
 .curso-banner-disponible {
   background: linear-gradient(90deg, #064e3b, #0f766e, var(--dorado));
 }
 
+/* Icono: curso banner */
 .curso-banner .material-symbols-outlined {
   font-size: 52px;
 }
 
+/* Texto: curso cuerpo */
 .curso-cuerpo {
   display: flex;
   flex: 1;
@@ -346,6 +360,7 @@
   padding: 24px;
 }
 
+/* Titulo: curso cuerpo */
 .curso-cuerpo h3 {
   margin: 12px 0;
   color: var(--azul);
@@ -354,15 +369,18 @@
   line-height: 1.35;
 }
 
+/* Grafico: curso progreso */
 .curso-progreso {
   margin-top: 20px;
 }
 
+/* Texto: curso progreso */
 .curso-progreso strong,
 #modal-progress-txt {
   color: var(--azul);
 }
 
+/* Educacion continua: pie de tarjeta de curso */
 .curso-footer {
   display: flex;
   align-items: center;
@@ -373,6 +391,7 @@
   border-top: 1px solid var(--borde-claro);
 }
 
+/* Educacion continua: texto de estado del curso */
 .estado-texto {
   font-size: 12px;
   font-weight: 800;
@@ -380,50 +399,55 @@
   text-transform: uppercase;
 }
 
+/* Estado: texto ok */
 .texto-ok {
   color: #047857;
 }
 
+/* Estado: texto pendiente */
 .texto-pendiente {
   color: #b45309;
 }
 
-/* ============================================================
-   Modal: Detalle del curso y confirmar inscripcion
-   ============================================================ */
-
+/* Modal: modal detalle */
 .modal-detalle {
   display: grid;
   gap: 18px;
 }
 
+/* Modal: modal detalle */
 .modal-detalle .icon-text {
   gap: 12px;
   color: var(--texto-suave);
   font-size: 14px;
 }
 
+/* Icono: modal detalle */
 .modal-detalle .material-symbols-outlined {
   color: var(--dorado);
 }
 
+/* Botones: modal acciones */
 .modal-acciones {
   display: grid;
   gap: 12px;
   margin-top: 32px;
 }
 
+/* Modal: curso contenido modal */
 .curso-contenido-modal {
   display: grid;
   gap: 10px;
   padding-top: 6px;
 }
 
+/* Lista: curso materiales lista */
 .curso-materiales-lista {
   display: grid;
   gap: 10px;
 }
 
+/* Lista: curso material item */
 .curso-material-item {
   display: grid;
   gap: 6px;
@@ -433,19 +457,20 @@
   border-radius: var(--radio);
 }
 
-/* ============================================================
-   Responsive: Educacion continua
-   ============================================================ */
-
+/* Responsive: ajustes para pantallas pequenas */
 @media (max-width: 1000px) {
+
+  /* Contenedor: educacion resumen contenedor */
   .educacion-resumen-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  /* Contenedor: cursos contenedor */
   .cursos-grid {
     grid-template-columns: 1fr;
   }
 
+  /* Tarjeta: campus cabecera */
   .campus-header,
   .campus-card-top,
   .campus-footer {
@@ -453,21 +478,27 @@
     flex-direction: column;
   }
 
+  /* Tarjeta: campus tarjeta */
   .campus-card {
     grid-template-columns: 1fr;
   }
 
+  /* Texto: campus banner */
   .campus-banner {
     min-height: 96px;
   }
 
+  /* Texto: campus stats */
   .campus-stats,
   .campus-materiales {
     grid-template-columns: 1fr;
   }
 }
 
+/* Responsive: ajustes para pantallas pequenas */
 @media (max-width: 640px) {
+
+  /* Contenedor: educacion resumen contenedor */
   .educacion-resumen-grid {
     grid-template-columns: 1fr;
   }

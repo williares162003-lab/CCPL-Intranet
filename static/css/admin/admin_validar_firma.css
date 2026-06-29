@@ -1,7 +1,9 @@
+/* Firma eDNI: validar firma */
 .validar-firma {
   min-height: 100%;
 }
 
+/* Firma eDNI: validacion contenedor */
 .validacion-grid {
   display: grid;
   grid-template-columns: minmax(0, 0.9fr) minmax(360px, 1.1fr);
@@ -9,18 +11,17 @@
   gap: 14px;
 }
 
+/* Firma eDNI: firma datos validacion */
 .firma-datos-validacion {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+/* Firma eDNI: validacion resultado tarjeta */
 .validacion-resultado-card {
   gap: 14px;
 }
 
-/* ============================================================
-   Resultado: Firma valida, firma invalida y detalle del certificado
-   ============================================================ */
-
+/* Estado: validacion estado */
 .validacion-estado {
   display: flex;
   align-items: flex-start;
@@ -31,6 +32,7 @@
   background: #f8fbff;
 }
 
+/* Icono: validacion estado */
 .validacion-estado .material-symbols-outlined {
   display: grid;
   place-items: center;
@@ -41,36 +43,43 @@
   background: #ffffff;
 }
 
+/* Titulo: validacion estado */
 .validacion-estado h3,
 .validacion-estado p {
   margin: 0;
 }
 
+/* Estado: validacion estado */
 .validacion-estado.ok {
   border-color: #a7f3d0;
   background: #ecfdf5;
 }
 
+/* Icono: validacion estado */
 .validacion-estado.ok .material-symbols-outlined,
 .validacion-estado.ok h3 {
   color: #047857;
 }
 
+/* Estado: validacion estado */
 .validacion-estado.error {
   border-color: #fecaca;
   background: #fef2f2;
 }
 
+/* Icono: validacion estado */
 .validacion-estado.error .material-symbols-outlined,
 .validacion-estado.error h3 {
   color: #b91c1c;
 }
 
+/* Firma eDNI: firmas lista */
 .firmas-lista {
   display: grid;
   gap: 10px;
 }
 
+/* Firma eDNI: firma validada */
 .firma-validada {
   display: grid;
   gap: 12px;
@@ -80,6 +89,7 @@
   background: #ffffff;
 }
 
+/* Firma eDNI: firma validada cabecera */
 .firma-validada-header {
   display: flex;
   align-items: center;
@@ -87,10 +97,12 @@
   gap: 10px;
 }
 
+/* Texto: firma validada cabecera */
 .firma-validada-header strong {
   color: var(--azul-profundo);
 }
 
+/* Firma eDNI: firma detalle */
 .firma-detalle {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -98,6 +110,7 @@
   margin: 0;
 }
 
+/* Firma eDNI: firma detalle */
 .firma-detalle div {
   min-width: 0;
   padding: 10px;
@@ -106,6 +119,7 @@
   background: #f8fbff;
 }
 
+/* Firma eDNI: firma detalle */
 .firma-detalle dt {
   margin: 0 0 4px;
   color: var(--texto-claro);
@@ -114,6 +128,7 @@
   text-transform: uppercase;
 }
 
+/* Firma eDNI: firma detalle */
 .firma-detalle dd {
   margin: 0;
   color: var(--azul-profundo);
@@ -122,6 +137,7 @@
   overflow-wrap: anywhere;
 }
 
+/* Firma eDNI: nota validacion */
 .nota-validacion {
   margin: 0;
   padding: 12px;
@@ -131,17 +147,19 @@
   background: #fffbeb;
 }
 
-/* ============================================================
-   Responsive: Validacion de firma
-   ============================================================ */
-
+/* Responsive: ajustes para pantallas pequenas */
 @media (max-width: 1040px) {
+
+  /* Firma eDNI: validacion contenedor */
   .validacion-grid {
     grid-template-columns: 1fr;
   }
 }
 
+/* Responsive: ajustes para pantallas pequenas */
 @media (max-width: 720px) {
+
+  /* Firma eDNI: firma datos validacion */
   .firma-datos-validacion,
   .firma-detalle {
     grid-template-columns: 1fr;
