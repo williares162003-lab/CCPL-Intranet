@@ -19,6 +19,11 @@ from flask_jwt import JWT, jwt_required, current_identity
 from werkzeug.utils import secure_filename
 
 from bd import obtenerconexion
+from helpers import (_correo_oculto, _fecha_certificado_habilidad,
+                     _fecha_larga, _leer_fecha_iso, _monto, _nombre_periodo,
+                     _resumen_fecha_curso, _texto_pdf, _validar_correo,
+                     _validar_dni_peru, _validar_nombre_peru,
+                     _validar_telefono_peru)
 from loginAD import (autenticar_usuario, buscar_usuario_recuperacion,
                      registrar_codigo_recuperacion,
                      actualizar_password_con_codigo,
@@ -570,36 +575,8 @@ def proteger_rutas_con_session():
 
 
 # ============================================================
-# VALIDACIONES Y FORMATOS
+# RECUPERACION DE CONTRASENA
 # ============================================================
-
-def _validar_dni_peru(dni: str) -> bool:
-    return bool(re.fullmatch(r"\d{8}", dni.strip()))
-
-
-def _validar_nombre_peru(nombre: str) -> bool:
-    patron = r"[A-Za-záéíóúÁÉÍÓÚüÜñÑ\s\.\-]{3,100}"
-    return bool(re.fullmatch(patron, nombre.strip()))
-
-
-def _validar_telefono_peru(tel: str) -> bool:
-    if not tel.strip():
-        return True
-    return bool(re.fullmatch(r"9\d{8}", tel.strip()))
-
-
-def _validar_correo(correo: str) -> bool:
-    return bool(re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", correo.strip()))
-
-
-def _correo_oculto(correo):
-    correo = (correo or "").strip()
-    if "@" not in correo:
-        return ""
-    usuario, dominio = correo.split("@", 1)
-    visible = usuario[:2] if len(usuario) > 2 else usuario[:1]
-    return visible + "***@" + dominio
-
 
 def _enviar_codigo_recuperacion(correo, nombre, codigo):
     import smtplib
@@ -664,68 +641,6 @@ def _enviar_codigo_recuperacion(correo, nombre, codigo):
             "ok": False,
             "mensaje": "No se pudo enviar el correo de recuperación. Revise la consola de Flask."
         }
-
-
-def _leer_fecha_iso(valor: str):
-    try:
-        return date.fromisoformat(valor.strip())
-    except ValueError:
-        return None
-
-
-def _resumen_fecha_curso(fecha_inicio: str, fecha_fin: str) -> str:
-    if fecha_inicio == fecha_fin:
-        return "Fecha: " + fecha_inicio
-    return "Del " + fecha_inicio + " al " + fecha_fin
-
-
-def _monto(valor) -> float:
-    try:
-        return float(valor or 0)
-    except (TypeError, ValueError):
-        return 0
-
-
-def _nombre_periodo(mes, anio) -> str:
-    if not mes or not anio:
-        return ""
-    meses = [
-        "", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-    ]
-    try:
-        return f"{meses[int(mes)]} {int(anio)}"
-    except (TypeError, ValueError, IndexError):
-        return ""
-
-
-def _fecha_larga(fecha_valor) -> str:
-    if not fecha_valor:
-        fecha_valor = date.today()
-    if isinstance(fecha_valor, str):
-        fecha_valor = _leer_fecha_iso(fecha_valor) or date.today()
-    meses = [
-        "", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-    ]
-    return f"{fecha_valor.day:02d} de {meses[fecha_valor.month]} del {fecha_valor.year}"
-
-
-def _fecha_certificado_habilidad(fecha_valor) -> str:
-    if not fecha_valor:
-        fecha_valor = date.today()
-    if isinstance(fecha_valor, str):
-        fecha_valor = _leer_fecha_iso(fecha_valor) or date.today()
-    meses = [
-        "", "enero", "febrero", "marzo", "abril", "mayo", "junio",
-        "julio", "agosto", "setiembre", "octubre", "noviembre", "diciembre"
-    ]
-    return f"{fecha_valor.day:02d} de {meses[fecha_valor.month]} {fecha_valor.year}"
-
-
-def _texto_pdf(valor) -> str:
-    texto = str(valor or "")
-    return texto.encode("latin-1", "replace").decode("latin-1")
 
 
 def _datos_certificado_habilidad(tid):
