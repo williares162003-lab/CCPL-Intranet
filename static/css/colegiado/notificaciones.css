@@ -1,3 +1,7 @@
+/* ============================================================
+   Botones filtro: Todas, no leidas y por tipo
+   ============================================================ */
+
 .barra-filtros {
   display: flex;
   flex-wrap: wrap;
@@ -32,6 +36,10 @@
   font-weight: 700;
 }
 
+/* ============================================================
+   Lista: Notificaciones del colegiado
+   ============================================================ */
+
 .lista-notificaciones {
   padding: 0;
   margin: 0;
@@ -50,6 +58,10 @@
 .notif-row.unread {
   background: #eff6ff;
 }
+
+/* ============================================================
+   Tarjeta: Icono, titulo, mensaje y boton Ver
+   ============================================================ */
 
 .notif-contenido {
   display: flex;
@@ -113,6 +125,10 @@
   gap: 8px;
   margin-top: 12px;
 }
+
+/* ============================================================
+   Mensaje: Sin notificaciones y boton Marcar todas
+   ============================================================ */
 
 .estado-vacio-notif {
   display: none;

@@ -1,3 +1,7 @@
+/* ============================================================
+   Tarjetas: Cursos inscritos, certificados y deuda
+   ============================================================ */
+
 .epc-card {
   min-width: 280px;
   padding: 20px;
@@ -19,6 +23,10 @@
   font-size: 16px;
   font-weight: 600;
 }
+
+/* ============================================================
+   Barra: Progreso del curso
+   ============================================================ */
 
 .barra-progreso {
   height: 8px;
@@ -48,6 +56,10 @@
 .barra-verde {
   background: #10b981;
 }
+
+/* ============================================================
+   Resumen: Cursos inscritos y estado de pago
+   ============================================================ */
 
 .educacion-resumen-grid {
   display: grid;
@@ -101,11 +113,19 @@
   background: #ecfdf5;
 }
 
+/* ============================================================
+   Lista: Cursos asignados al colegiado
+   ============================================================ */
+
 .cursos-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 20px;
 }
+
+/* ============================================================
+   Vista campus: Tarjetas tipo aula virtual
+   ============================================================ */
 
 .campus-header {
   display: flex;
@@ -139,6 +159,10 @@
   color: var(--dorado);
   font-size: 18px;
 }
+
+/* ============================================================
+   Tarjeta curso: Imagen, titulo, progreso y acciones
+   ============================================================ */
 
 .campus-grid {
   display: grid;
@@ -223,6 +247,10 @@
   text-transform: uppercase;
 }
 
+/* ============================================================
+   Botones: Entrar al aula, ver certificado y descargar material
+   ============================================================ */
+
 .campus-progress {
   display: grid;
   gap: 8px;
@@ -279,6 +307,10 @@
   font-size: 11px;
   font-weight: 700;
 }
+
+/* ============================================================
+   Tarjetas disponibles: Boton Inscribirme
+   ============================================================ */
 
 .curso-card {
   display: flex;
@@ -356,6 +388,10 @@
   color: #b45309;
 }
 
+/* ============================================================
+   Modal: Detalle del curso y confirmar inscripcion
+   ============================================================ */
+
 .modal-detalle {
   display: grid;
   gap: 18px;
@@ -396,6 +432,10 @@
   border: 1px solid var(--borde);
   border-radius: var(--radio);
 }
+
+/* ============================================================
+   Responsive: Educacion continua
+   ============================================================ */
 
 @media (max-width: 1000px) {
   .educacion-resumen-grid {

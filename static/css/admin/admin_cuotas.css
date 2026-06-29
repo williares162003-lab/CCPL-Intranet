@@ -1,4 +1,6 @@
-/* Admin: Cuotas */
+/* ============================================================
+   Filtros: Colegiado, Tipo de cuota, Cantidad y boton Filtrar
+   ============================================================ */
 
 .filtro-formulario {
   display: flex;
@@ -19,6 +21,10 @@
 .filtro-campo-cantidad {
   flex: 0 0 100px;
 }
+
+/* ============================================================
+   Botones: Procesar cuotas, Generar periodo y Pago anual
+   ============================================================ */
 
 .procesamiento-grid {
   display: grid;
@@ -148,6 +154,10 @@
   margin-top: 12px;
 }
 
+/* ============================================================
+   Tarjetas resumen y Tabla de cuotas
+   ============================================================ */
+
 .resumen-grid {
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
 }
@@ -183,6 +193,10 @@
 .tabla-datos .acciones-tabla .boton .material-symbols-outlined {
   font-size: 20px;
 }
+
+/* ============================================================
+   Badges: Mensual, Curso, Pagado, Pendiente y Vencida
+   ============================================================ */
 
 .revision-auditoria {
   min-width: 170px;
@@ -252,6 +266,10 @@
   font-size: 18px;
   line-height: 1.25;
 }
+
+/* ============================================================
+   Paneles: Pagos demo, Mercado Pago, SUNAT y boton Anular
+   ============================================================ */
 
 .pagos-demo-resumen {
   margin-bottom: 18px;
@@ -337,6 +355,10 @@
   opacity: .55;
 }
 
+/* ============================================================
+   Buscador: Autocompletar colegiado
+   ============================================================ */
+
 .buscador-colegiado {
   position: relative;
 }
@@ -390,6 +412,10 @@
   padding: 12px;
 }
 
+/* ============================================================
+   Botones: Paginacion anterior, numeros y siguiente
+   ============================================================ */
+
 .paginacion {
   display: flex;
   flex-wrap: wrap;
@@ -427,6 +453,10 @@
   color: #9aaabe;
   background: #f3f6f9;
 }
+
+/* ============================================================
+   Responsive: Cuotas
+   ============================================================ */
 
 @media (max-width: 900px) {
   .procesamiento-grid,

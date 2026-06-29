@@ -1,3 +1,7 @@
+/* ============================================================
+   Impresion: Encabezado para estado de cuenta
+   ============================================================ */
+
 .print-header {
   margin-bottom: 24px;
   padding-bottom: 16px;
@@ -14,6 +18,10 @@
   font-size: 18px;
   font-weight: 700;
 }
+
+/* ============================================================
+   Tarjetas: Medios de pago disponibles
+   ============================================================ */
 
 .medios-pago-grid {
   display: grid;
@@ -49,6 +57,10 @@
   font-weight: 700;
 }
 
+/* ============================================================
+   Botones: Pagar cuota, subir evidencia y ver comprobante
+   ============================================================ */
+
 .acciones-pago {
   display: flex;
   align-items: center;
@@ -56,6 +68,10 @@
   gap: 8px;
   flex-wrap: wrap;
 }
+
+/* ============================================================
+   Panel: Pago adelantado mensual y anual
+   ============================================================ */
 
 .formulario-adelanto {
   padding: 20px;
@@ -93,6 +109,10 @@
   color: var(--azul-oscuro);
   white-space: nowrap;
 }
+
+/* ============================================================
+   Panel: Mercado Pago / pago desde la web
+   ============================================================ */
 
 .pasarela-layout {
   display: grid;
@@ -144,6 +164,10 @@
   color: var(--texto);
   line-height: 1.8;
 }
+
+/* ============================================================
+   Comprobante: Vista interna del pago
+   ============================================================ */
 
 .comprobante-documento {
   max-width: 920px;
@@ -217,6 +241,10 @@
   padding-top: 18px;
   border-top: 1px solid var(--borde);
 }
+
+/* ============================================================
+   Comprobante: Boleta/factura fiscal
+   ============================================================ */
 
 .fiscal-documento {
   max-width: 860px;
@@ -353,6 +381,10 @@
   min-width: 0;
 }
 
+/* ============================================================
+   Detalle: Cliente, items, IGV y total fiscal
+   ============================================================ */
+
 .fiscal-detalle table {
   width: 100%;
   border-collapse: collapse;
@@ -426,6 +458,10 @@
   font-weight: 900;
 }
 
+/* ============================================================
+   Pie: QR, hash y estado SUNAT
+   ============================================================ */
+
 .fiscal-footer {
   display: grid;
   grid-template-columns: 150px minmax(0, 1fr);
@@ -454,6 +490,10 @@
   color: var(--texto);
   line-height: 1.45;
 }
+
+/* ============================================================
+   Responsive: Estado de cuenta
+   ============================================================ */
 
 @media (max-width: 920px) {
   .medios-pago-grid {
@@ -494,6 +534,10 @@
     padding: 18px;
   }
 }
+
+/* ============================================================
+   Impresion: Estado de cuenta y comprobantes
+   ============================================================ */
 
 @media print {
   .fiscal-documento {

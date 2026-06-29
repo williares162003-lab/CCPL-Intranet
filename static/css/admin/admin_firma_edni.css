@@ -16,6 +16,10 @@
   gap: 14px;
 }
 
+/* ============================================================
+   Tarjetas: Certificado base y Firmador local
+   ============================================================ */
+
 .firma-card {
   display: grid;
   align-content: start;
@@ -58,6 +62,10 @@
 .edni-estado strong {
   margin: 0;
 }
+
+/* ============================================================
+   Estado: Lector eDNI, DNI insertado y certificado detectado
+   ============================================================ */
 
 .edni-datos {
   display: grid;
@@ -309,6 +317,10 @@
   display: grid;
   gap: 14px;
 }
+
+/* ============================================================
+   Responsive: Firma eDNI
+   ============================================================ */
 
 @media (max-width: 960px) {
   .firma-grid {

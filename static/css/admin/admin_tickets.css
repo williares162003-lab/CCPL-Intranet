@@ -1,3 +1,7 @@
+/* ============================================================
+   Tabla: Asunto, descripcion y acciones del ticket
+   ============================================================ */
+
 .asunto-ticket {
   margin-bottom: 4px;
 }
@@ -12,6 +16,10 @@
 .tabla-tickets th:last-child {
   min-width: 320px;
 }
+
+/* ============================================================
+   Formulario: Responder ticket y cambiar estado
+   ============================================================ */
 
 .ticket-form {
   display: grid;
@@ -32,6 +40,10 @@ textarea.campo-ticket {
   min-height: 76px;
   resize: vertical;
 }
+
+/* ============================================================
+   Caja: Respuesta administrativa del ticket
+   ============================================================ */
 
 .respuesta-ticket {
   display: grid;

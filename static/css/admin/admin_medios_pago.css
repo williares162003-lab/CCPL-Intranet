@@ -1,3 +1,7 @@
+/* ============================================================
+   Tarjetas: Resumen de medios de pago
+   ============================================================ */
+
 .medios-resumen {
   margin-bottom: 24px;
 }
@@ -5,6 +9,10 @@
 .texto-mono {
   font-family: Consolas, "Liberation Mono", monospace;
 }
+
+/* ============================================================
+   Tabla: Medios de pago y boton Editar
+   ============================================================ */
 
 .boton-accion {
   display: inline-flex;
@@ -28,6 +36,10 @@
   color: #dc2626;
   background: #fee2e2;
 }
+
+/* ============================================================
+   Responsive: Medios de pago
+   ============================================================ */
 
 @media (max-width: 760px) {
   .medios-resumen {

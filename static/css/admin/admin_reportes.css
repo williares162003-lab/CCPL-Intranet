@@ -1,3 +1,7 @@
+/* ============================================================
+   Reportes: Contenedor y botones Exportar/Imprimir
+   ============================================================ */
+
 .reportes-admin {
   display: grid;
   gap: 16px;
@@ -9,6 +13,10 @@
   flex-wrap: wrap;
   gap: 8px;
 }
+
+/* ============================================================
+   Menu: Tarjetas para escoger reporte
+   ============================================================ */
 
 .selector-reportes {
   display: grid;
@@ -70,6 +78,10 @@
   line-height: 1.35;
 }
 
+/* ============================================================
+   Mensaje: Seleccione un reporte
+   ============================================================ */
+
 .reporte-menu-vacio {
   display: grid;
   justify-items: center;
@@ -99,6 +111,10 @@
   font-size: 13px;
 }
 
+/* ============================================================
+   Filtros: Fechas, colegiado, tipo y boton Filtrar
+   ============================================================ */
+
 .reporte-filtros {
   display: flex;
   align-items: flex-end;
@@ -122,6 +138,10 @@
 .reporte-filtros .filtro-cantidad {
   flex-basis: 96px;
 }
+
+/* ============================================================
+   Tarjetas: Totales del reporte
+   ============================================================ */
 
 .reporte-resumen-grid {
   display: grid;
@@ -192,6 +212,10 @@
   background: #fff7f7;
   border-color: #ffd2d2;
 }
+
+/* ============================================================
+   Paneles: Pagos, deuda, cursos y comprobantes
+   ============================================================ */
 
 .reporte-paneles {
   display: grid;
@@ -266,6 +290,10 @@
   background: var(--dorado);
 }
 
+/* ============================================================
+   Grafico: Barras por mes
+   ============================================================ */
+
 .reporte-barras {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
@@ -316,6 +344,10 @@
   text-align: center;
   text-transform: uppercase;
 }
+
+/* ============================================================
+   Listas: Metricas y progreso
+   ============================================================ */
 
 .lista-metricas {
   display: grid;
@@ -370,6 +402,10 @@
   border-radius: inherit;
   background: linear-gradient(90deg, var(--celeste), var(--dorado));
 }
+
+/* ============================================================
+   Grafico: Cumplimiento y estados financieros
+   ============================================================ */
 
 .cumplimiento-box {
   display: grid;
@@ -487,6 +523,10 @@
   text-transform: uppercase;
 }
 
+/* ============================================================
+   Tabla: Detalle del reporte
+   ============================================================ */
+
 .tabla-toolbar {
   display: flex;
   justify-content: space-between;
@@ -533,6 +573,10 @@
   background: #fff3c4;
 }
 
+/* ============================================================
+   Responsive: Reportes
+   ============================================================ */
+
 @media (max-width: 1180px) {
   .selector-reportes,
   .reporte-resumen-grid {
@@ -565,6 +609,10 @@
     overflow-x: auto;
   }
 }
+
+/* ============================================================
+   Impresion: Reportes
+   ============================================================ */
 
 @media print {
   .reportes-admin {

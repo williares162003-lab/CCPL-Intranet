@@ -1,3 +1,7 @@
+/* ============================================================
+   Documento: Hoja de constancia y franjas superior/inferior
+   ============================================================ */
+
 .constancia-doc {
   overflow: hidden;
   background: var(--blanco);
@@ -19,9 +23,17 @@
   background: linear-gradient(90deg, var(--dorado), var(--azul), var(--azul));
 }
 
+/* ============================================================
+   Cuerpo: Margenes internos de la constancia
+   ============================================================ */
+
 .constancia-cuerpo {
   padding: 40px;
 }
+
+/* ============================================================
+   Contenido: Logo, titulo, datos, firmas y pie
+   ============================================================ */
 
 .constancia-header {
   padding-bottom: 32px;

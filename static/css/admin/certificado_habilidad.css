@@ -3,6 +3,10 @@
   margin: 0;
 }
 
+/* ============================================================
+   Hoja: Configuracion A4 y fondo del certificado
+   ============================================================ */
+
 * {
   box-sizing: border-box;
   print-color-adjust: exact;
@@ -15,6 +19,10 @@ body {
   color: #111827;
   font-family: "Times New Roman", Times, serif;
 }
+
+/* ============================================================
+   Botones: Volver a tramites, Abrir PDF e Imprimir
+   ============================================================ */
 
 .certificado-toolbar {
   display: flex;
@@ -51,6 +59,10 @@ body {
   background: #0b3f78;
 }
 
+/* ============================================================
+   Plantilla: Imagen base del certificado
+   ============================================================ */
+
 .certificado-hoja {
   position: relative;
   width: 210mm;
@@ -76,6 +88,10 @@ body {
   z-index: 1;
 }
 
+/* ============================================================
+   Dato: Numero de certificado
+   ============================================================ */
+
 .certificado-numero-chip {
   top: 50.1mm;
   right: 21.6mm;
@@ -90,6 +106,10 @@ body {
   font-weight: 800;
   letter-spacing: .03em;
 }
+
+/* ============================================================
+   Dato: Nombre y matricula del colegiado
+   ============================================================ */
 
 .certificado-identidad {
   left: 31.5mm;
@@ -116,6 +136,10 @@ body {
   font-size: 15.5pt;
 }
 
+/* ============================================================
+   Dato: Fecha de emision
+   ============================================================ */
+
 .certificado-fecha {
   top: 188.5mm;
   right: 30mm;
@@ -126,6 +150,10 @@ body {
   font-size: 15pt;
   line-height: 1.2;
 }
+
+/* ============================================================
+   Dato: Habil hasta / vigencia del certificado
+   ============================================================ */
 
 .certificado-vigencia-real {
   left: 31mm;
@@ -143,6 +171,10 @@ body {
   font-size: 11.5pt;
   line-height: 1.1;
 }
+
+/* ============================================================
+   Impresion: Ocultar botones y ajustar hoja
+   ============================================================ */
 
 @media print {
   body {

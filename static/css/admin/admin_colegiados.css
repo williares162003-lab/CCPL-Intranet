@@ -1,5 +1,5 @@
 /* ============================================================
-   Admin: Colegiados
+   Botones: Nuevo colegiado, Exportar Excel e Importar CSV
    ============================================================ */
 
 .acciones-colegiados {
@@ -9,6 +9,10 @@
   flex-wrap: wrap;
   gap: 10px;
 }
+
+/* ============================================================
+   Filtros: Buscar colegiado, Especialidad y Estado
+   ============================================================ */
 
 .filtro-colegiados {
   display: grid;
@@ -26,6 +30,10 @@
 .filtro-colegiados .filtro-campo {
   min-width: 0;
 }
+
+/* ============================================================
+   Panel: Importar colegiados desde CSV
+   ============================================================ */
 
 .importar-colegiados {
   display: flex;
@@ -59,6 +67,10 @@
   max-width: 360px;
 }
 
+/* ============================================================
+   Texto: Total registrados y filtro activo
+   ============================================================ */
+
 .tarjeta-encabezado {
   display: flex;
   align-items: center;
@@ -86,6 +98,10 @@
   border-color: #fde68a;
 }
 
+/* ============================================================
+   Tabla: Colegiados y boton Editar
+   ============================================================ */
+
 .tabla-colegiados td:nth-child(4) {
   max-width: 260px;
 }
@@ -110,6 +126,10 @@
   color: var(--azul);
   background: #f1f5f9;
 }
+
+/* ============================================================
+   Responsive: Colegiados
+   ============================================================ */
 
 @media (max-width: 1120px) {
   .filtro-colegiados {

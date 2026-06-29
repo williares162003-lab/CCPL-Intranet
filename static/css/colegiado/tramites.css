@@ -1,3 +1,7 @@
+/* ============================================================
+   Tarjeta: Fecha actual y resumen de tramites
+   ============================================================ */
+
 .fecha-card {
   min-width: 260px;
   padding: 16px 20px;
@@ -15,6 +19,10 @@
 .fecha-linea .material-symbols-outlined {
   color: var(--dorado);
 }
+
+/* ============================================================
+   Titulos: Icono de tramite y titulo de seccion
+   ============================================================ */
 
 .titulo-con-icono {
   display: flex;
@@ -36,6 +44,10 @@
   font-size: 20px;
   font-weight: 800;
 }
+
+/* ============================================================
+   Lista: Requisitos para certificado, baja o traslado
+   ============================================================ */
 
 .lista-requisitos {
   display: grid;
@@ -61,6 +73,10 @@
 .lista-requisitos .pendiente {
   color: #cbd5e1;
 }
+
+/* ============================================================
+   Formulario: Solicitar tramite, subir sustento y ver estado
+   ============================================================ */
 
 .aviso-tramite {
   margin-top: 32px;

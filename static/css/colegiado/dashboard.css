@@ -1,3 +1,7 @@
+/* ============================================================
+   Tarjetas: Fecha, cuotas pendientes, pagado y boton Pagar
+   ============================================================ */
+
 .fecha-card {
   min-width: 260px;
   padding: 16px 20px;
@@ -85,6 +89,10 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
 }
+
+/* ============================================================
+   Panel: Cursos recientes, materiales y accesos rapidos
+   ============================================================ */
 
 .panel-card {
   display: grid;
@@ -190,6 +198,10 @@
   font-size: 14px;
   line-height: 1.5;
 }
+
+/* ============================================================
+   Responsive: Panel del colegiado
+   ============================================================ */
 
 @media (max-width: 980px) {
   .colegiado-panel-grid {

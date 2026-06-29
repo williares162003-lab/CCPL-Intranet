@@ -1,7 +1,15 @@
+/* ============================================================
+   Panel admin: Contenedor general
+   ============================================================ */
+
 .dashboard-admin {
   display: grid;
   gap: 16px;
 }
+
+/* ============================================================
+   Encabezado: Titulo del panel y tarjeta Fecha
+   ============================================================ */
 
 .dashboard-hero {
   display: flex;
@@ -42,6 +50,10 @@
   font-size: 14px;
 }
 
+/* ============================================================
+   Grids: Tarjetas superiores, panel central y panel inferior
+   ============================================================ */
+
 .dashboard-top-grid {
   display: grid;
   grid-template-columns: minmax(210px, 1.08fr) minmax(150px, .82fr) minmax(150px, .82fr) minmax(145px, .72fr);
@@ -59,6 +71,10 @@
   grid-template-columns: minmax(190px, .9fr) repeat(3, minmax(0, 1fr));
   gap: 12px;
 }
+
+/* ============================================================
+   Tarjetas: Cuotas pendientes, Recaudado, Evidencias y Cursos
+   ============================================================ */
 
 .control-card {
   min-width: 0;
@@ -184,6 +200,10 @@
   background: linear-gradient(90deg, #0f8a6a, #d49a00);
 }
 
+/* ============================================================
+   Grafico: Circulo de cumplimiento financiero
+   ============================================================ */
+
 .gauge-card {
   display: grid;
 }
@@ -250,6 +270,10 @@
   color: #b42318;
 }
 
+/* ============================================================
+   Listas: Cursos con mas inscritos y actividad reciente
+   ============================================================ */
+
 .ranking-card {
   min-height: 0;
 }
@@ -294,6 +318,10 @@
 .ranking-item p {
   color: #0f8a6a;
 }
+
+/* ============================================================
+   Grafico: Pagos vs deuda por mes
+   ============================================================ */
 
 .chart-card {
   min-height: 286px;
@@ -376,6 +404,10 @@
   text-align: center;
   text-transform: uppercase;
 }
+
+/* ============================================================
+   Paneles: Alertas de gestion y Estado operativo
+   ============================================================ */
 
 .feedback-card {
   min-height: 286px;
@@ -496,6 +528,10 @@
 .mensaje-vacio.compacto {
   padding: 12px 0;
 }
+
+/* ============================================================
+   Responsive: Dashboard admin
+   ============================================================ */
 
 @media (max-width: 1320px) {
   .dashboard-top-grid {

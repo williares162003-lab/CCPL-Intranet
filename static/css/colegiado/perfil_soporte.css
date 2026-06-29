@@ -1,3 +1,7 @@
+/* ============================================================
+   Perfil: Datos personales, preferencias y botones de soporte
+   ============================================================ */
+
 .perfil-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -144,6 +148,10 @@
   line-height: 1.5;
 }
 
+/* ============================================================
+   Lista: Tickets enviados y respuesta de soporte
+   ============================================================ */
+
 .tickets-lista {
   display: grid;
   gap: 12px;
@@ -210,6 +218,10 @@
 .estado-vacio-simple p {
   margin: 0;
 }
+
+/* ============================================================
+   Responsive: Perfil y soporte
+   ============================================================ */
 
 @media (max-width: 760px) {
   .perfil-grid {

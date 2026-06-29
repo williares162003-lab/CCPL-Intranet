@@ -30,6 +30,10 @@
   gap: 12px;
 }
 
+/* ============================================================
+   Tarjeta: Solicitud de tramite y datos del colegiado
+   ============================================================ */
+
 .tramite-card {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 292px;
@@ -142,6 +146,10 @@
   border-top: 1px solid var(--linea);
 }
 
+/* ============================================================
+   Botones: Revision, Borrador, Firmar eDNI, Aprobar y Rechazar
+   ============================================================ */
+
 .tramite-acciones {
   min-width: 0;
   display: grid;
@@ -228,6 +236,10 @@
   text-align: center;
   background: #ffffff;
 }
+
+/* ============================================================
+   Responsive: Tramites admin
+   ============================================================ */
 
 @media (max-width: 1180px) {
   .tramite-card {
