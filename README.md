@@ -35,7 +35,8 @@ static/css/admin/admin_firma_edni.css
 static/css/admin/admin_validar_firma.css
 static/css/admin/certificado_habilidad.css
 database/schema.sql
-colegiadoAD.py
+colegiado_tramitesAD.py
+colegiado_perfilAD.py
 ```
 
 ## 3. Librerias usadas
@@ -189,8 +190,8 @@ Esta funcion:
 Funciones de base de datos usadas:
 
 ```txt
-colegiadoAD.py -> leer_tramite_por_id(p_id)
-colegiadoAD.py -> colegiado_tiene_deuda_pendiente_matricula(p_matricula)
+colegiado_tramitesAD.py -> leer_tramite_por_id(p_id)
+colegiado_perfilAD.py -> colegiado_tiene_deuda_pendiente_matricula(p_matricula)
 ```
 
 Campos importantes que se usan:
@@ -510,7 +511,7 @@ static/uploads/tramites/
 Funcion de base de datos:
 
 ```txt
-colegiadoAD.py -> actualizar_estado_tramite(...)
+colegiado_tramitesAD.py -> actualizar_estado_tramite(...)
 ```
 
 ## 21. Donde se registra quien firmo
