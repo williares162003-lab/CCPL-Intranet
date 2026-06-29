@@ -8,8 +8,8 @@
   <section class="encabezado-con-panel">
     <div>
       <p class="etiqueta-seccion">Mesa de partes</p>
-      <h2 class="titulo-pagina">Tramites</h2>
-      <p class="texto-apoyo">Solicita certificados, constancias, baja, traslado a otro colegio u otros tramites administrativos. El documento emitido sera subido por administracion.</p>
+      <h2 class="titulo-pagina">Trámites</h2>
+      <p class="texto-apoyo">Solicita certificados, constancias, baja, traslado a otro colegio u otros trámites administrativos. El documento emitido será subido por administración.</p>
     </div>
     <div class="fecha-card">
       <p class="dato-label">Fecha de solicitud</p>
@@ -34,7 +34,7 @@
           </li>
           <li>
             <span class="material-symbols-outlined correcto">check_circle</span>
-            <span>La baja y el traslado tambien seran validados contra deuda pendiente.</span>
+            <span>La baja y el traslado también serán validados contra deuda pendiente.</span>
           </li>
           <li>
             <span class="material-symbols-outlined pendiente">circle</span>
@@ -46,7 +46,7 @@
             <span class="material-symbols-outlined">info</span>
             <span>Proceso</span>
           </div>
-          <p>El colegiado registra el tramite, administracion lo revisa y, si corresponde, sube el PDF o imagen emitida.</p>
+          <p>El colegiado registra el trámite, administración lo revisa y, si corresponde, sube el PDF o imagen emitida.</p>
         </div>
       </section>
     </div>
@@ -55,15 +55,15 @@
       <section class="tarjeta tarjeta-amplia">
         <div class="titulo-con-icono">
           <span class="material-symbols-outlined">assignment_add</span>
-          <h3>Nuevo tramite</h3>
+          <h3>Nuevo trámite</h3>
         </div>
 
-        <form class="formulario formulario-tramite" method="POST" enctype="multipart/form-data" data-confirm="Desea enviar este tramite?">
+        <form class="formulario formulario-tramite" method="POST" enctype="multipart/form-data" data-confirm="¿Desea enviar este trámite?">
           <div class="form-grid">
             <div>
-              <label class="etiqueta-campo">Tipo de tramite *</label>
+              <label class="etiqueta-campo">Tipo de trámite *</label>
               <select class="campo-formulario" name="tipo_tramite" required>
-                <option disabled selected value="">Seleccione un tramite</option>
+                <option disabled selected value="">Seleccione un trámite</option>
                 {% for tipo in tipos_tramite %}
                 <option value="{{ tipo.codigo }}" data-requiere-sustento="{{ 1 if tipo.requiere_sustento else 0 }}">{{ tipo.nombre }}</option>
                 {% endfor %}
@@ -77,7 +77,7 @@
 
           <div>
             <label class="etiqueta-campo">Descripcion *</label>
-            <textarea class="campo-formulario" name="descripcion" rows="4" minlength="10" placeholder="Indique para que necesita el tramite y cualquier detalle importante." required></textarea>
+            <textarea class="campo-formulario" name="descripcion" rows="4" minlength="10" placeholder="Indique para qué necesita el trámite y cualquier detalle importante." required></textarea>
           </div>
 
           <div class="documentos-carga" id="bloque-documento">
@@ -88,7 +88,7 @@
             <label class="upload-box">
               <span class="material-symbols-outlined">cloud_upload</span>
               <strong>Seleccione un archivo</strong>
-              <small id="ayuda-documento">PDF o imagen, si el tramite lo requiere</small>
+              <small id="ayuda-documento">PDF o imagen, si el trámite lo requiere</small>
               <input id="file-input" name="documento" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp">
             </label>
             <p id="file-name" class="texto-pequeno"></p>
@@ -98,7 +98,7 @@
             <button class="boton boton-secundario" type="reset">Limpiar</button>
             <button class="boton boton-primario" type="submit">
               <span class="material-symbols-outlined">send</span>
-              Enviar tramite
+              Enviar trámite
             </button>
           </div>
         </form>
@@ -108,9 +108,9 @@
         <div class="tarjeta-encabezado">
           <h3 class="titulo-seccion sin-margen">
             <span class="material-symbols-outlined">history</span>
-            Historial de tramites
+            Historial de trámites
           </h3>
-          <p class="texto-secundario">{{ tramites_previos|length }} tramite(s) registrado(s).</p>
+          <p class="texto-secundario">{{ tramites_previos|length }} trámite(s) registrado(s).</p>
         </div>
         <div class="tabla-responsive">
           <table class="tabla-datos">
@@ -157,7 +157,7 @@
                   <span class="texto-pequeno">Archivo registrado no disponible</span>
                   {% else %}
                     {% if tramite.tipo_tramite == 'certificado_habilidad' and tramite.estado[:2] == 'En' %}
-                    <span class="estado-documento estado-documento-proceso">Certificado en revision</span>
+                    <span class="estado-documento estado-documento-proceso">Certificado en revisión</span>
                     {% elif tramite.tipo_tramite == 'certificado_habilidad' and tramite.estado == 'Pendiente' %}
                     <span class="estado-documento estado-documento-pendiente">Certificado pendiente</span>
                     {% elif tramite.estado == 'Rechazado' %}
@@ -170,7 +170,7 @@
                 </td>
               </tr>
               {% else %}
-              <tr><td colspan="5" class="centro texto-pequeno fila-vacia">Aun no registraste tramites.</td></tr>
+              <tr><td colspan="5" class="centro texto-pequeno fila-vacia">Aún no registraste trámites.</td></tr>
               {% endfor %}
             </tbody>
           </table>

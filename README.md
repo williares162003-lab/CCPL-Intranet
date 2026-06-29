@@ -5,7 +5,7 @@ Esta documentacion explica la parte de investigacion implementada: generacion, f
 
 ## 1. Objetivo del modulo
 
-El objetivo es que el administrador pueda emitir un Certificado de Habilidad sin subirlo manualmente. El sistema genera el PDF, lo firma con el certificado digital del DNIe y lo guarda automaticamente en el tramite.
+El objetivo es que el administrador pueda emitir un Certificado de Habilidad sin subirlo manualmente. El sistema genera el PDF, lo firma con el certificado digital del DNIe y lo guarda automaticamente en el trámite.
 
 En resumen:
 
@@ -16,7 +16,7 @@ En resumen:
 5. Se detecta lector, DNIe y certificado digital.
 6. El administrador ingresa el PIN de firma.
 7. El PDF se firma digitalmente.
-8. El PDF firmado se registra en el tramite.
+8. El PDF firmado se registra en el trámite.
 9. El colegiado puede descargar el documento firmado.
 
 ## 2. Archivos principales
@@ -180,9 +180,9 @@ main.py -> _datos_certificado_habilidad(tid)
 
 Esta funcion:
 
-- Recibe el ID del tramite.
-- Lee el tramite desde la base de datos.
-- Verifica que el tramite sea `certificado_habilidad`.
+- Recibe el ID del trámite.
+- Lee el trámite desde la base de datos.
+- Verifica que el trámite sea `certificado_habilidad`.
 - Valida que el colegiado no tenga deuda.
 - Arma un diccionario `certificado` con los datos que iran al PDF.
 
@@ -200,7 +200,7 @@ Campos importantes que se usan:
 - Tipo de tramite.
 - Fecha de solicitud.
 - Deuda pendiente.
-- Estado del tramite.
+- Estado del trámite.
 
 ## 10. Donde se genera el PDF base
 
@@ -301,8 +301,8 @@ Click en Firmar con eDNI
 -> convierte PDF a base64
 -> envia PDF + PIN al firmador
 -> recibe PDF firmado
--> guarda PDF firmado en el tramite
--> redirige a Tramites
+-> guarda PDF firmado en el trámite
+-> redirige a Trámites
 ```
 
 ## 13. Donde se detecta lector y DNIe
@@ -374,7 +374,7 @@ firmador_edni_local.py -> leer_certificados_token(token)
 
 Esta funcion:
 
-- Abre una sesion con el token del DNIe.
+- Abre una sesión con el token del DNIe.
 - Busca objetos tipo certificado.
 - Usa `cryptography.x509` para leer el certificado.
 - Extrae datos como titular, DNI, serie, vigencia y emisor.
@@ -431,7 +431,7 @@ from pyhanko.stamp import TextStampStyle
 Que hace cada componente:
 
 - `IncrementalPdfFileWriter`: abre el PDF sin destruir su contenido.
-- `open_pkcs11_session`: abre una sesion con el DNIe usando PIN.
+- `open_pkcs11_session`: abre una sesión con el DNIe usando PIN.
 - `PKCS11Signer`: prepara el certificado para firmar.
 - `PdfSignatureMetadata`: define motivo y ubicacion de la firma.
 - `TextStampStyle`: define el texto visible de la firma.
@@ -491,7 +491,7 @@ main.py -> admin_guardar_firma_edni(tid)
 
 Esta funcion:
 
-1. Lee el tramite.
+1. Lee el trámite.
 2. Verifica que sea certificado de habilidad.
 3. Recibe el PDF firmado en base64.
 4. Decodifica el PDF.
@@ -503,7 +503,7 @@ Esta funcion:
 static/uploads/tramites/
 ```
 
-8. Actualiza el tramite como aprobado.
+8. Actualiza el trámite como aprobado.
 9. Guarda datos de firma.
 10. Notifica al colegiado.
 
@@ -608,7 +608,7 @@ detalle_firma TEXT
 Uso:
 
 - `archivo_respuesta`: guarda la ruta del PDF firmado.
-- `estado_firma`: indica si esta pendiente o firmado.
+- `estado_firma`: indica si está pendiente o firmado.
 - `tipo_firma`: indica que fue firmado con eDNI.
 - `firmado_por_matricula`: usuario que firmo.
 - `firmado_por_nombre`: nombre del usuario que firmo.
@@ -623,14 +623,14 @@ Uso:
 - El archivo firmado se guarda con nombre unico.
 - Se valida que el archivo recibido sea PDF.
 - El certificado no se aprueba si el colegiado tiene deuda.
-- El tramite de certificado solo se aprueba al firmar con eDNI.
+- El trámite de certificado solo se aprueba al firmar con eDNI.
 - Se guarda quien firmo y cuando.
 - Se puede validar la integridad del PDF firmado.
 
 ## 25. Flujo tecnico completo
 
 ```txt
-Administrador abre Tramites
+Administrador abre Trámites
 -> Selecciona Firmar con eDNI
 -> main.py carga admin_firma_edni.html
 -> admin_firma_edni.js llama a /admin/firmador-edni/estado
@@ -652,9 +652,9 @@ Administrador abre Tramites
 
 ## 26. Botones del flujo y que llama cada uno
 
-Esta seccion explica que hace cada boton relacionado con Tramites, Certificado de Habilidad, firma eDNI y validacion.
+Esta seccion explica que hace cada boton relacionado con Trámites, Certificado de Habilidad, firma eDNI y validacion.
 
-### Botones en la pantalla de Tramites del administrador
+### Botones en la pantalla de Trámites del administrador
 
 Archivo:
 
@@ -662,18 +662,18 @@ Archivo:
 templates/admin/admin_tramites.html
 ```
 
-### Boton: Poner en revision
+### Boton: Poner en revisión
 
 Texto:
 
 ```txt
-Poner en revision
+Poner en revisión
 ```
 
 Que hace:
 
-- Cambia el estado del tramite a `En Revision`.
-- Registra que el administrador tomo el tramite para evaluarlo.
+- Cambia el estado del trámite a `En Revision`.
+- Registra que el administrador tomo el trámite para evaluarlo.
 
 Ruta que llama:
 
@@ -691,7 +691,7 @@ Datos que envia:
 
 ```txt
 estado = En Revision
-detalle_revision = Tramite tomado para revision administrativa.
+detalle_revision = Trámite tomado para revisión administrativa.
 ```
 
 ### Boton: Borrador certificado
@@ -769,7 +769,7 @@ Ver PDF firmado
 
 Que hace:
 
-- Abre el PDF firmado que ya fue guardado en el tramite.
+- Abre el PDF firmado que ya fue guardado en el trámite.
 - No modifica base de datos.
 - Solo abre el archivo.
 
@@ -798,7 +798,7 @@ Que hace:
 - Revisa si el PDF tiene una firma digital embebida.
 - Verifica si el documento esta intacto.
 - Muestra firmante, emisor, fecha de firma y estado de integridad.
-- No aprueba ni rechaza el tramite.
+- No aprueba ni rechaza el trámite.
 - No modifica la base de datos.
 
 Ruta que llama en administrador:
@@ -828,7 +828,7 @@ main.py -> _validar_firma_pdf(ruta_pdf)
 
 La funcion `_render_validacion_firma_tramite`:
 
-- Lee el tramite.
+- Lee el trámite.
 - Verifica que exista `archivo_respuesta`.
 - Ubica el PDF dentro de `static/uploads/tramites`.
 - Llama al validador de firma.
@@ -896,7 +896,7 @@ Rechazar
 
 Que hace:
 
-- Cambia el tramite a `Rechazado`.
+- Cambia el trámite a `Rechazado`.
 - Guarda el motivo o detalle de rechazo.
 
 Ruta que llama:
@@ -1044,10 +1044,10 @@ Que hace:
 
 - Toma el PDF base.
 - Lo convierte a base64.
-- Envia el PDF y el PIN al modulo de firma.
+- Envía el PDF y el PIN al módulo de firma.
 - Recibe el PDF firmado.
-- Guarda el PDF firmado en el tramite.
-- Aprueba automaticamente el tramite.
+- Guarda el PDF firmado en el trámite.
+- Aprueba automaticamente el trámite.
 - Notifica al colegiado.
 
 JS que lo maneja:
@@ -1088,7 +1088,7 @@ firmador_edni_local.py -> firmar()
 
 La funcion `firmar()`:
 
-- Abre una sesion PKCS#11 con el PIN.
+- Abre una sesión PKCS#11 con el PIN.
 - Selecciona el certificado de firma.
 - Usa `PKCS11Signer`.
 - Usa `PdfSigner`.
@@ -1112,7 +1112,7 @@ Esta funcion:
 - Decodifica el PDF firmado.
 - Verifica que sea PDF.
 - Lo guarda en `static/uploads/tramites`.
-- Actualiza el tramite a `Aprobado`.
+- Actualiza el trámite a `Aprobado`.
 - Registra `estado_firma`, `tipo_firma`, `firmado_por`, `firmado_en`.
 - Crea una notificacion para el colegiado.
 
@@ -1166,11 +1166,11 @@ Verificar:
 
 ## 29. Explicacion corta para exposicion
 
-Se implemento un flujo de firma digital para certificados de habilidad. El sistema genera el certificado en PDF, detecta el DNI electronico mediante el driver PKCS#11, obtiene el certificado digital de firma, solicita el PIN al administrador y firma el PDF con pyHanko. Luego el documento firmado se guarda automaticamente en el tramite, se registra quien lo firmo y queda disponible para que el colegiado lo descargue.
+Se implemento un flujo de firma digital para certificados de habilidad. El sistema genera el certificado en PDF, detecta el DNI electronico mediante el driver PKCS#11, obtiene el certificado digital de firma, solicita el PIN al administrador y firma el PDF con pyHanko. Luego el documento firmado se guarda automaticamente en el trámite, se registra quien lo firmo y queda disponible para que el colegiado lo descargue.
 
 ## 30. Explicacion tecnica para el profesor
 
-La firma no es una imagen pegada al PDF. El sistema usa PKCS#11 para acceder al certificado y a la llave privada almacenada en el DNIe. pyHanko toma el PDF base, abre una sesion PKCS#11 con el PIN del usuario y genera una firma digital embebida en el documento. Esta firma permite validar integridad, firmante, emisor y fecha. Ademas, se agrego una apariencia visible para que el documento muestre una zona de firma, pero la validez real esta en la firma criptografica del PDF.
+La firma no es una imagen pegada al PDF. El sistema usa PKCS#11 para acceder al certificado y a la llave privada almacenada en el DNIe. pyHanko toma el PDF base, abre una sesión PKCS#11 con el PIN del usuario y genera una firma digital embebida en el documento. Esta firma permite validar integridad, firmante, emisor y fecha. Además, se agregó una apariencia visible para que el documento muestre una zona de firma, pero la validez real está en la firma criptográfica del PDF.
 
 ## 31. Frase final recomendada
 

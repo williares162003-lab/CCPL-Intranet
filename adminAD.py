@@ -321,16 +321,16 @@ def pagar_cuota(p_id):
                         (p_id,))
                     cuota = cursor.fetchone()
                     if not cuota:
-                        return {"ok": False, "mensaje": "No se encontro la cuota."}
+                        return {"ok": False, "mensaje": "No se encontró la cuota."}
                     if cuota["cuota_estado"] != "Pendiente":
-                        return {"ok": False, "mensaje": "La cuota ya no esta pendiente."}
+                        return {"ok": False, "mensaje": "La cuota ya no está pendiente."}
 
                     emision = _emitir_comprobante_desde_cuota(
                         cursor,
                         cuota,
                         "Registro administrativo",
                         "Pago administrativo",
-                        "Pago marcado por administracion."
+                        "Pago marcado por administración."
                     )
                     if not emision.get("ok"):
                         conn.rollback()
@@ -346,8 +346,8 @@ def pagar_cuota(p_id):
                         sql2 += "   SET estado_pago = 'Pagado' "
                         sql2 += " WHERE id = %s "
                         cursor.execute(sql2, (cuota["inscripcion_id"],))
-                    elif cuota and cuota["concepto"].startswith("Inscripcion Curso: "):
-                        titulo = cuota["concepto"].replace("Inscripcion Curso: ", "", 1)
+                    elif cuota and cuota["concepto"].startswith("Inscripción Curso: "):
+                        titulo = cuota["concepto"].replace("Inscripción Curso: ", "", 1)
                         sql2 =  "UPDATE inscripciones_curso i "
                         sql2 += "  JOIN cursos cu ON cu.id = i.curso_id "
                         sql2 += "   SET i.estado_pago = 'Pagado' "
@@ -717,13 +717,13 @@ def registrar_pago_anual_anticipado(p_matricula, p_anio, p_monto_mensual,
         except ValueError:
             return {
                 "ok": False,
-                "mensaje": "Ingrese un anio, monto y descuento validos."
+                "mensaje": "Ingrese un año, monto y descuento válidos."
             }
 
         if anio != hoy.year:
             return {
                 "ok": False,
-                "mensaje": "Solo se puede registrar el pago anual del anio actual."
+                "mensaje": "Solo se puede registrar el pago anual del año actual."
             }
         if monto <= 0:
             return {
@@ -753,7 +753,7 @@ def registrar_pago_anual_anticipado(p_matricula, p_anio, p_monto_mensual,
                     if not colegiado:
                         return {
                             "ok": False,
-                            "mensaje": "No se encontro el colegiado seleccionado."
+                            "mensaje": "No se encontró el colegiado seleccionado."
                         }
                     if colegiado.get("estado") != "Vigente":
                         return {
@@ -878,11 +878,11 @@ def registrar_pago_adelantado_cuotas(p_matricula, p_anio, p_mes_inicio,
         except ValueError:
             return {
                 "ok": False,
-                "mensaje": "Ingrese anio, mes, cantidad y monto validos."
+                "mensaje": "Ingrese año, mes, cantidad y monto válidos."
             }
 
         if mes_inicio < 1 or mes_inicio > 12:
-            return {"ok": False, "mensaje": "Seleccione un mes inicial valido."}
+            return {"ok": False, "mensaje": "Seleccione un mes inicial válido."}
         if cantidad_meses < 1 or cantidad_meses > 12:
             return {
                 "ok": False,
@@ -917,7 +917,7 @@ def registrar_pago_adelantado_cuotas(p_matricula, p_anio, p_mes_inicio,
                     if not colegiado:
                         return {
                             "ok": False,
-                            "mensaje": "No se encontro el colegiado seleccionado."
+                            "mensaje": "No se encontró el colegiado seleccionado."
                         }
                     if colegiado.get("estado") != "Vigente":
                         return {
@@ -1045,7 +1045,7 @@ def procesar_cuotas_cursos_faltantes():
                             inscripcion, condicion
                         )
                         concepto = (
-                            "Inscripcion Curso: " + inscripcion["titulo"] +
+                            "Inscripción Curso: " + inscripcion["titulo"] +
                             " (colegiado " + condicion.lower() + ")"
                         )
                         cursor.execute(
@@ -1637,7 +1637,7 @@ def registrar_evidencia_pago(p_matricula, p_cuota_id, p_medio_pago_id,
                         (p_cuota_id, p_matricula))
                     cuota = cursor.fetchone()
                     if not cuota:
-                        return "No se encontro la cuota seleccionada."
+                        return "No se encontró la cuota seleccionada."
                     if cuota["estado"] != "Pendiente":
                         return "Solo se puede registrar evidencia de cuotas pendientes."
 
@@ -1689,20 +1689,20 @@ def actualizar_estado_evidencia_pago(p_id, p_estado, p_usuario_matricula=None,
                         (p_id,))
                     evidencia = cursor.fetchone()
                     if not evidencia:
-                        return {"ok": False, "mensaje": "No se encontro la evidencia."}
+                        return {"ok": False, "mensaje": "No se encontró la evidencia."}
                     if evidencia["estado"] != "Pendiente":
                         return {"ok": False, "mensaje": "La evidencia ya fue revisada."}
                     if p_estado == "Aprobado" and evidencia["cuota_estado"] != "Pendiente":
                         return {
                             "ok": False,
-                            "mensaje": "No se puede aprobar: la cuota ya no esta pendiente."
+                            "mensaje": "No se puede aprobar: la cuota ya no está pendiente."
                         }
 
                     accion = "Aprobado" if p_estado == "Aprobado" else "Anulado"
                     detalle = p_detalle or (
-                        "Comprobante aprobado por administracion."
+                        "Comprobante aprobado por administración."
                         if p_estado == "Aprobado"
-                        else "Comprobante anulado por administracion."
+                        else "Comprobante anulado por administración."
                     )
                     usuario_matricula = p_usuario_matricula or "admin"
                     usuario_nombre = p_usuario_nombre or "Administrador CCPL"
@@ -1761,8 +1761,8 @@ def actualizar_estado_evidencia_pago(p_id, p_estado, p_usuario_matricula=None,
                                 "WHERE cuota_id = %s AND id <> %s AND estado = 'Pendiente'",
                                 (evidencia["cuota_id"], p_id))
 
-                        if evidencia["concepto"].startswith("Inscripcion Curso: "):
-                            titulo = evidencia["concepto"].replace("Inscripcion Curso: ", "", 1)
+                        if evidencia["concepto"].startswith("Inscripción Curso: "):
+                            titulo = evidencia["concepto"].replace("Inscripción Curso: ", "", 1)
                             sql =  "UPDATE inscripciones_curso i "
                             sql += "  JOIN cursos cu ON cu.id = i.curso_id "
                             sql += "   SET i.estado_pago = 'Pagado' "
@@ -2303,9 +2303,9 @@ def anular_comprobante_pago_demo(p_id, p_usuario_matricula=None,
                         (p_id,))
                     comprobante = cursor.fetchone()
                     if not comprobante:
-                        return {"ok": False, "mensaje": "No se encontro el comprobante."}
+                        return {"ok": False, "mensaje": "No se encontró el comprobante."}
                     if comprobante["estado"] == "Anulado":
-                        return {"ok": False, "mensaje": "El comprobante ya esta anulado."}
+                        return {"ok": False, "mensaje": "El comprobante ya está anulado."}
                     if comprobante["estado"] != "Emitido":
                         return {"ok": False, "mensaje": "Solo se pueden anular comprobantes emitidos."}
 
@@ -2315,7 +2315,7 @@ def anular_comprobante_pago_demo(p_id, p_usuario_matricula=None,
                     if len(motivo) < 5:
                         return {
                             "ok": False,
-                            "mensaje": "Ingrese un motivo de anulacion mas detallado.",
+                            "mensaje": "Ingrese un motivo de anulación mas detallado.",
                         }
 
                     if tiene_anulacion:
@@ -2447,7 +2447,7 @@ def actualizar_configuracion_facturacion(datos):
         if not Path(certificado_ruta).exists():
             return {
                 "ok": False,
-                "mensaje": "No se encontro el certificado digital guardado.",
+                "mensaje": "No se encontró el certificado digital guardado.",
             }
         if not endpoint_beta:
             return {"ok": False, "mensaje": "Ingrese el endpoint de SUNAT beta."}
@@ -2723,7 +2723,7 @@ def emitir_comprobante_fiscal_desde_interno(p_comprobante_pago_id,
                     cursor.execute(sql, (p_comprobante_pago_id,))
                     comprobante = cursor.fetchone()
                     if not comprobante:
-                        return {"ok": False, "mensaje": "No se encontro el comprobante interno."}
+                        return {"ok": False, "mensaje": "No se encontró el comprobante interno."}
                     if comprobante.get("estado") != "Emitido":
                         return {
                             "ok": False,
@@ -2888,7 +2888,7 @@ def enviar_comprobante_fiscal_sunat(p_id, p_usuario_matricula=None,
                         (p_id,))
                     comprobante = cursor.fetchone()
                     if not comprobante:
-                        return {"ok": False, "mensaje": "No se encontro el comprobante fiscal."}
+                        return {"ok": False, "mensaje": "No se encontró el comprobante fiscal."}
                     if comprobante["estado"] == "Anulado":
                         return {"ok": False, "mensaje": "No se puede enviar un comprobante anulado."}
                     if comprobante["estado"] == "Aceptado":
@@ -3009,14 +3009,14 @@ def anular_comprobante_fiscal(p_id, p_usuario_matricula=None,
                         (p_id,))
                     comprobante = cursor.fetchone()
                     if not comprobante:
-                        return {"ok": False, "mensaje": "No se encontro el comprobante fiscal."}
+                        return {"ok": False, "mensaje": "No se encontró el comprobante fiscal."}
                     if comprobante["estado"] == "Anulado":
-                        return {"ok": False, "mensaje": "El comprobante fiscal ya esta anulado."}
+                        return {"ok": False, "mensaje": "El comprobante fiscal ya está anulado."}
                     motivo = (p_motivo or "").strip()
                     if len(motivo) < 5:
                         return {
                             "ok": False,
-                            "mensaje": "Ingrese un motivo de anulacion mas detallado.",
+                            "mensaje": "Ingrese un motivo de anulación mas detallado.",
                         }
 
                     usuario_matricula = p_usuario_matricula or "admin"
@@ -3035,7 +3035,7 @@ def anular_comprobante_fiscal(p_id, p_usuario_matricula=None,
                     sql += "        motivo_anulacion = %s, "
                     sql += "        anulado_en = NOW(), "
                     sql += "        cdr_estado = 'Anulado local', "
-                    sql += "        cdr_descripcion = 'Anulacion registrada localmente. Baja SUNAT pendiente.', "
+                    sql += "        cdr_descripcion = 'Anulación registrada localmente. Baja SUNAT pendiente.', "
                     sql += "        respuesta_sunat = %s "
                     sql += "  WHERE id = %s "
                     cursor.execute(sql, (
@@ -3418,7 +3418,7 @@ def validar_inscripcion_curso(p_matricula, p_curso_id):
                                    (p_matricula,))
                     colegiado = cursor.fetchone()
                     if not colegiado:
-                        return "No existe un colegiado con la matricula indicada."
+                        return "No existe un colegiado con la matrícula indicada."
 
                     cursor.execute("SELECT id, cupos, estado FROM cursos WHERE id = %s",
                                    (p_curso_id,))
@@ -3426,7 +3426,7 @@ def validar_inscripcion_curso(p_matricula, p_curso_id):
                     if not curso:
                         return "El curso seleccionado no existe."
                     if curso["estado"] != "Activo":
-                        return "El curso no esta activo para nuevas inscripciones."
+                        return "El curso no está activo para nuevas inscripciones."
 
                     cursor.execute(
                         "SELECT id FROM inscripciones_curso "
@@ -3447,7 +3447,7 @@ def validar_inscripcion_curso(p_matricula, p_curso_id):
         return ""
     except Exception as e:
         print(repr(e))
-        return "No se pudo validar la inscripcion del curso."
+        return "No se pudo validar la inscripción del curso."
 
 
 def insertar_inscripcion_curso(p_matricula, p_curso_id, p_estado_pago="Pendiente"):
@@ -3501,7 +3501,7 @@ def insertar_inscripcion_curso(p_matricula, p_curso_id, p_estado_pago="Pendiente
                     inscripcion_id = cursor.lastrowid
 
                     concepto = (
-                        "Inscripcion Curso: " + curso["titulo"] +
+                        "Inscripción Curso: " + curso["titulo"] +
                         " (colegiado " + condicion.lower() + ")"
                     )
                     fecha_pago = date.today() if p_estado_pago == "Pagado" else None
@@ -3554,10 +3554,10 @@ def actualizar_pago_inscripcion_curso(p_id, p_estado_pago):
 
                     if inscripcion:
                         concepto = (
-                            "Inscripcion Curso: " + inscripcion["titulo"] +
+                            "Inscripción Curso: " + inscripcion["titulo"] +
                             " (colegiado " + condicion.lower() + ")"
                         )
-                        concepto_base = "Inscripcion Curso: " + inscripcion["titulo"] + "%"
+                        concepto_base = "Inscripción Curso: " + inscripcion["titulo"] + "%"
                         fecha_pago = date.today() if p_estado_pago == "Pagado" else None
                         cursor.execute(
                             "UPDATE cuotas "

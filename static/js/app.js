@@ -98,8 +98,8 @@ function obtenerModalConfirmacion() {
     '      <span class="material-symbols-outlined">help</span>',
     '    </div>',
     '    <div>',
-    '      <p class="modal-subtitulo">Confirmacion</p>',
-    '      <h3 id="confirmacion-titulo" class="modal-titulo">Confirmar accion</h3>',
+    '      <p class="modal-subtitulo">Confirmación</p>',
+    '      <h3 id="confirmacion-titulo" class="modal-titulo">Confirmar acción</h3>',
     '      <p id="confirmacion-mensaje" class="confirmacion-mensaje"></p>',
     '    </div>',
     '    <div class="confirmacion-acciones">',
@@ -120,7 +120,7 @@ function mostrarConfirmacion(mensaje, alAceptar) {
   const aceptar = modal.querySelector("[data-confirm-aceptar]");
   const cancelar = modal.querySelector("[data-confirm-cancelar]");
 
-  texto.textContent = mensaje || "Desea continuar?";
+  texto.textContent = mensaje || "¿Desea continuar?";
   modal.classList.remove("hidden");
   aceptar.focus();
 

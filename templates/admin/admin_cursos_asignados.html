@@ -8,7 +8,7 @@
 
   <div class="encabezado-pagina">
     <div>
-      <p class="etiqueta-seccion">Administracion</p>
+      <p class="etiqueta-seccion">Administración</p>
       <h2 class="titulo-pagina">Cursos asignados</h2>
     </div>
     <div class="acciones-tabla">
@@ -16,7 +16,7 @@
         <span class="material-symbols-outlined">school</span> Catalogo
       </a>
       <button type="button" onclick="abrirModalNuevaInscripcion()" class="boton boton-primario">
-        <span class="material-symbols-outlined">person_add</span> Nueva inscripcion
+        <span class="material-symbols-outlined">person_add</span> Nueva inscripción
       </button>
     </div>
   </div>
@@ -25,7 +25,7 @@
     <div class="filtro-campo">
       <label class="etiqueta-campo">Buscar</label>
       <input name="q" type="search" value="{{ busqueda }}"
-             placeholder="Nombre, matricula o curso"
+             placeholder="Nombre, matrícula o curso"
              class="campo-formulario" />
     </div>
     <div class="filtro-campo filtro-campo-cantidad">
@@ -198,19 +198,19 @@
       <div class="modal-header">
         <div>
           <p class="modal-subtitulo">Cursos asignados</p>
-          <h3 class="modal-titulo">Nueva inscripcion</h3>
+          <h3 class="modal-titulo">Nueva inscripción</h3>
         </div>
         <button onclick="cerrarModalNuevaInscripcion()" class="boton-cerrar">
           <span class="material-symbols-outlined">close</span>
         </button>
       </div>
 
-      <form action="{{ url_for('admin_nueva_inscripcion_curso') }}" method="POST" class="formulario" data-nueva-inscripcion-form data-confirm="Desea registrar esta inscripcion?">
+      <form action="{{ url_for('admin_nueva_inscripcion_curso') }}" method="POST" class="formulario" data-nueva-inscripcion-form data-confirm="¿Desea registrar esta inscripción?">
         <div class="buscador-colegiado" data-colegiado-picker>
           <label class="etiqueta-campo">Colegiado *</label>
           <input type="search"
                  class="campo-formulario"
-                 placeholder="Escriba nombre o matricula"
+                 placeholder="Escriba nombre o matrícula"
                  autocomplete="off"
                  data-colegiado-input />
           <input type="hidden" name="matricula" data-colegiado-hidden />

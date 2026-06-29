@@ -22,8 +22,8 @@
 
         <div class="login-card">
           <div>
-            <h2>Recuperar contrasena</h2>
-            <p>Ingrese su matricula o correo registrado. Le enviaremos un codigo de 6 digitos.</p>
+            <h2>Recuperar contraseña</h2>
+            <p>Ingrese su matrícula o correo registrado. Le enviaremos un código de 6 dígitos.</p>
           </div>
 
           {% with messages = get_flashed_messages(with_categories=true) %}
@@ -40,7 +40,7 @@
 
           <form class="login-form" method="post">
             <div class="login-field">
-              <label for="identificador">Matricula o correo</label>
+              <label for="identificador">Matrícula o correo</label>
               <div class="login-input-wrap">
                 <span class="material-symbols-outlined">alternate_email</span>
                 <input class="login-input" id="identificador" name="identificador"
@@ -49,11 +49,11 @@
             </div>
 
             <button class="boton boton-primario boton-ancho" type="submit">
-              <span>Enviar codigo</span>
+              <span>Enviar código</span>
               <span class="material-symbols-outlined">mail</span>
             </button>
 
-            <a href="{{ url_for('login') }}" class="login-link-centro">Volver al inicio de sesion</a>
+            <a href="{{ url_for('login') }}" class="login-link-centro">Volver al inicio de sesión</a>
           </form>
         </div>
       </div>

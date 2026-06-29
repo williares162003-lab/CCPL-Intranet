@@ -322,7 +322,7 @@ def estado():
     if not ruta_pkcs11:
         return respuesta(
             0,
-            "No se encontro la libreria PKCS#11 del DNIe. Instale el driver RENIEC o configure EDNI_PKCS11_DLL."
+            "No se encontró la libreria PKCS#11 del DNIe. Instale el driver RENIEC o configure EDNI_PKCS11_DLL."
         )
 
     try:
@@ -439,7 +439,7 @@ def firmar():
 
     ruta_pkcs11 = buscar_pkcs11()
     if not ruta_pkcs11:
-        return respuesta(0, "No se encontro la libreria PKCS#11 del DNIe."), 400
+        return respuesta(0, "No se encontró la libreria PKCS#11 del DNIe."), 400
 
     try:
         agregar_site_packages_python_actual()

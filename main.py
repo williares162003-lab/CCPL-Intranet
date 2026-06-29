@@ -248,13 +248,13 @@ ADMIN_NAV_ITEMS = [
     {"endpoint": "admin_cuotas",     "label": "Cuotas",         "icon": "payments"},
     {"endpoint": "admin_pagos_demo", "label": "Pagos",          "icon": "point_of_sale"},
     {"endpoint": "admin_mercado_pago_configuracion", "label": "Mercado Pago", "icon": "credit_card"},
-    {"endpoint": "admin_facturacion", "label": "Facturacion",    "icon": "receipt"},
+    {"endpoint": "admin_facturacion", "label": "Facturación",    "icon": "receipt"},
     {"endpoint": "admin_facturacion_configuracion", "label": "SUNAT", "icon": "cloud_sync"},
     {"endpoint": "admin_medios_pago", "label": "Medios Pago",    "icon": "account_balance_wallet"},
     {"endpoint": "admin_evidencias_pago", "label": "Evidencias", "icon": "receipt_long"},
     {"endpoint": "admin_cursos",     "label": "Cursos",         "icon": "school"},
     {"endpoint": "admin_cursos_asignados", "label": "Asignaciones", "icon": "assignment_ind"},
-    {"endpoint": "admin_tramites",   "label": "Tramites",       "icon": "assignment"},
+    {"endpoint": "admin_tramites",   "label": "Trámites",       "icon": "assignment"},
     {"endpoint": "admin_tickets",    "label": "Tickets",        "icon": "support_agent"},
 ]
 
@@ -264,7 +264,7 @@ COLEGIADO_NAV_ITEMS = [
     {"endpoint": "estado_cuenta",      "label": "Estado de Cuenta", "icon": "receipt_long"},
     {"endpoint": "colegiado_pagos",    "label": "Pagos",            "icon": "payments"},
     {"endpoint": "educacion_continua", "label": "Educación",        "icon": "school"},
-    {"endpoint": "tramites",           "label": "Tramites",         "icon": "assignment"},
+    {"endpoint": "tramites",           "label": "Trámites",         "icon": "assignment"},
     {"endpoint": "perfil_soporte",     "label": "Perfil / Soporte", "icon": "manage_accounts"},
 ]
 
@@ -460,9 +460,9 @@ def _usuario_desde_jwt():
             algorithms=["HS256"]
         )
     except jwt.ExpiredSignatureError:
-        return None, "El token JWT vencio. Genere uno nuevo."
+        return None, "El token JWT venció. Genere uno nuevo."
     except jwt.InvalidTokenError:
-        return None, "El token JWT no es valido."
+        return None, "El token JWT no es válido."
 
     usuario = {
         "matricula": payload.get("identity") or payload.get("sub"),
@@ -470,7 +470,7 @@ def _usuario_desde_jwt():
         "nombre": payload.get("nombre") or payload.get("identity") or "Administrador CCPL",
     }
     if not usuario["matricula"] or not usuario["rol"]:
-        return None, "El token JWT no contiene datos de usuario validos."
+        return None, "El token JWT no contiene datos de usuario válidos."
     return usuario, ""
 
 
@@ -500,9 +500,9 @@ def _respuesta_no_autenticado(endpoint):
         return jsonify({
             "code": 0,
             "data": {},
-            "message": "Debe iniciar sesion para usar esta API."
+            "message": "Debe iniciar sesión para usar esta API."
         }), 401
-    flash("Inicie sesion para acceder al sistema.", "error")
+    flash("Inicie sesión para acceder al sistema.", "error")
     return redirect(url_for("login"))
 
 
@@ -619,15 +619,15 @@ def _enviar_codigo_recuperacion(correo, nombre, codigo):
         }
 
     mensaje = EmailMessage()
-    mensaje["Subject"] = "Codigo de recuperacion - Intranet CCPL"
+    mensaje["Subject"] = "Código de recuperación - Intranet CCPL"
     mensaje["From"] = remitente
     mensaje["To"] = correo
     mensaje.set_content(
         "Hola, {0}.\n\n"
-        "Tu codigo para restablecer la contrasena en la Intranet CCPL es:\n\n"
+        "Tu código para restablecer la contraseña en la Intranet CCPL es:\n\n"
         "{1}\n\n"
-        "El codigo vence en 10 minutos. Si no solicitaste este cambio, ignora este correo.\n\n"
-        "Colegio de Contadores Publicos de Lambayeque".format(
+        "El código vence en 10 minutos. Si no solicitaste este cambio, ignora este correo.\n\n"
+        "Colegio de Contadores Públicos de Lambayeque".format(
             nombre or "colegiado",
             codigo
         )
@@ -639,12 +639,12 @@ def _enviar_codigo_recuperacion(correo, nombre, codigo):
                 smtp.starttls()
             smtp.login(usuario, password)
             smtp.send_message(mensaje)
-        return {"ok": True, "mensaje": "Codigo enviado correctamente."}
+        return {"ok": True, "mensaje": "Código enviado correctamente."}
     except smtplib.SMTPAuthenticationError as e:
         print("Error SMTP recuperacion:", repr(e))
         return {
             "ok": False,
-            "mensaje": "Gmail rechazo el usuario o clave SMTP. Use una contrasena de aplicacion."
+            "mensaje": "Gmail rechazó el usuario o clave SMTP. Use una contraseña de aplicación."
         }
     except (smtplib.SMTPConnectError, smtplib.SMTPServerDisconnected, TimeoutError, OSError) as e:
         print("Error SMTP recuperacion:", repr(e))
@@ -656,13 +656,13 @@ def _enviar_codigo_recuperacion(correo, nombre, codigo):
         print("Error SMTP recuperacion:", repr(e))
         return {
             "ok": False,
-            "mensaje": "El servidor SMTP rechazo el envio. Revise la configuracion del correo."
+            "mensaje": "El servidor SMTP rechazó el envío. Revise la configuración del correo."
         }
     except Exception as e:
         print("Error SMTP recuperacion:", repr(e))
         return {
             "ok": False,
-            "mensaje": "No se pudo enviar el correo de recuperacion. Revise la consola de Flask."
+            "mensaje": "No se pudo enviar el correo de recuperación. Revise la consola de Flask."
         }
 
 
@@ -731,7 +731,7 @@ def _texto_pdf(valor) -> str:
 def _datos_certificado_habilidad(tid):
     tramite = leer_tramite_por_id(tid)
     if not tramite:
-        return None, None, "El tramite seleccionado no existe.", 404
+        return None, None, "El trámite seleccionado no existe.", 404
     if tramite.get("tipo_tramite") != "certificado_habilidad":
         return None, None, "Este proceso solo corresponde a certificados de habilidad.", 400
 
@@ -942,7 +942,7 @@ def _generar_pdf_certificado_habilidad(certificado):
     _texto_centrado(draw, (868, 289), 200, numero, fuente_numero, blanco)
 
     nombre = "CPC. " + str(certificado["nombre"]).upper()
-    matricula = "MATRICULA " + str(certificado["matricula"]).upper()
+    matricula = "MATRÍCULA " + str(certificado["matricula"]).upper()
     fuente_nombre = _ajustar_fuente(draw, nombre, 760, 28, negrita=True, minimo=20)
     fuente_matricula = _ajustar_fuente(draw, matricula, 600, 28, negrita=True, minimo=20)
     _texto_centrado(draw, (205, 738), 780, nombre, fuente_nombre, negro)
@@ -1117,7 +1117,7 @@ def _guardar_reporte_importacion_colegiados(resumen):
     destino = carpeta / nombre
     with destino.open("w", encoding="utf-8-sig", newline="") as archivo:
         writer = csv.writer(archivo, delimiter=";")
-        writer.writerow(["Fila", "Matricula", "DNI", "Estado", "Observacion"])
+        writer.writerow(["Fila", "Matrícula", "DNI", "Estado", "Observación"])
         for item in resumen.get("detalles", []) or []:
             writer.writerow([
                 item.get("fila", ""),
@@ -1222,7 +1222,7 @@ def _validar_firma_pdf(ruta_pdf):
 
     if not ruta_pdf or not Path(ruta_pdf).is_file():
         resultado["estado"] = "Archivo no encontrado"
-        resultado["mensaje"] = "No se encontro el PDF firmado en el sistema."
+        resultado["mensaje"] = "No se encontró el PDF firmado en el sistema."
         return resultado
 
     try:
@@ -1298,12 +1298,12 @@ def _validar_firma_pdf(ruta_pdf):
         if resultado["ok"]:
             resultado["estado"] = "Firma integra"
             resultado["mensaje"] = (
-                "El PDF contiene firma digital criptograficamente valida y "
+                "El PDF contiene firma digital criptográficamente válida y "
                 "no presenta cambios despues de la firma."
             )
         else:
             resultado["estado"] = "Firma observada"
-            resultado["mensaje"] = "El PDF tiene una firma, pero requiere revision."
+            resultado["mensaje"] = "El PDF tiene una firma, pero requiere revisión."
         return resultado
     except Exception as exc:
         resultado["estado"] = "Error al validar"
@@ -1355,7 +1355,7 @@ def _resumen_aula_colegiado(materiales, curso, puede_certificado):
             "Material disponible para revisar."
             if len(materiales or []) == 1
             else f"{len(materiales or [])} materiales disponibles."
-            if materiales else "El ponente aun no publico materiales."
+            if materiales else "El ponente aún no publicó materiales."
         ),
         "estado_certificado": estado_certificado,
     }
@@ -1470,17 +1470,17 @@ def recuperar_contrasena():
     if request.method == "POST":
         identificador = request.form.get("identificador", "").strip()
         if not identificador:
-            flash("Ingrese su matricula o correo registrado.", "error")
+            flash("Ingrese su matrícula o correo registrado.", "error")
             return redirect(url_for("recuperar_contrasena"))
 
         usuario = buscar_usuario_recuperacion(identificador)
         if not usuario:
-            flash("No se encontro un usuario activo con esos datos.", "error")
+            flash("No se encontró un usuario activo con esos datos.", "error")
             return redirect(url_for("recuperar_contrasena"))
 
         correo = (usuario.get("correo") or "").strip()
         if not correo or not _validar_correo(correo):
-            flash("El usuario no tiene un correo valido registrado.", "error")
+            flash("El usuario no tiene un correo válido registrado.", "error")
             return redirect(url_for("recuperar_contrasena"))
 
         codigo = f"{random.randint(0, 999999):06d}"
@@ -1490,7 +1490,7 @@ def recuperar_contrasena():
             codigo,
             minutos=10
         ):
-            flash("No se pudo generar el codigo de recuperacion.", "error")
+            flash("No se pudo generar el código de recuperación.", "error")
             return redirect(url_for("recuperar_contrasena"))
 
         envio = _enviar_codigo_recuperacion(
@@ -1504,12 +1504,12 @@ def recuperar_contrasena():
 
         session["recuperacion_matricula"] = usuario.get("matricula")
         session["recuperacion_correo"] = _correo_oculto(correo)
-        flash("Enviamos un codigo a " + _correo_oculto(correo), "success")
+        flash("Enviamos un código a " + _correo_oculto(correo), "success")
         return redirect(url_for("restablecer_contrasena"))
 
     return render_template(
-        "recuperar_contrasena.html",
-        page_title="Recuperar contrasena"
+        "recuperar_contraseña.html",
+        page_title="Recuperar contraseña"
     )
 
 
@@ -1518,7 +1518,7 @@ def recuperar_contrasena():
 def restablecer_contrasena():
     matricula = session.get("recuperacion_matricula", "")
     if not matricula:
-        flash("Primero solicite un codigo de recuperacion.", "error")
+        flash("Primero solicite un código de recuperación.", "error")
         return redirect(url_for("recuperar_contrasena"))
 
     if request.method == "POST":
@@ -1527,28 +1527,28 @@ def restablecer_contrasena():
         confirmar = request.form.get("confirmar", "").strip()
 
         if not re.fullmatch(r"\d{6}", codigo):
-            flash("Ingrese el codigo de 6 digitos enviado al correo.", "error")
+            flash("Ingrese el código de 6 dígitos enviado al correo.", "error")
             return redirect(url_for("restablecer_contrasena"))
         if len(password) < 6:
-            flash("La nueva contrasena debe tener al menos 6 caracteres.", "error")
+            flash("La nueva contraseña debe tener al menos 6 caracteres.", "error")
             return redirect(url_for("restablecer_contrasena"))
         if password != confirmar:
-            flash("La confirmacion no coincide con la nueva contrasena.", "error")
+            flash("La confirmación no coincide con la nueva contraseña.", "error")
             return redirect(url_for("restablecer_contrasena"))
 
         resultado = actualizar_password_con_codigo(matricula, codigo, password)
         if resultado.get("ok"):
             session.pop("recuperacion_matricula", None)
             session.pop("recuperacion_correo", None)
-            flash("Contrasena actualizada. Ya puede iniciar sesion.", "success")
+            flash("Contraseña actualizada. Ya puede iniciar sesión.", "success")
             return redirect(url_for("login"))
 
         flash(resultado.get("mensaje"), "error")
         return redirect(url_for("restablecer_contrasena"))
 
     return render_template(
-        "restablecer_contrasena.html",
-        page_title="Restablecer contrasena",
+        "restablecer_contraseña.html",
+        page_title="Restablecer contraseña",
         correo=session.get("recuperacion_correo", "")
     )
 
@@ -1672,7 +1672,7 @@ def notificacion_marcar_leida():
 def notificaciones_limpiar_leidas():
     matricula = session.get("profile", {}).get("matricula", "")
     if not matricula:
-        return jsonify({"ok": False, "message": "Sesion no valida"}), 400
+        return jsonify({"ok": False, "message": "Sesión no válida"}), 400
     ok = eliminar_notificaciones_leidas(matricula)
     return jsonify({"ok": ok})
 
@@ -1785,7 +1785,7 @@ def colegiado_adelantar_cuotas():
         cantidad_meses = request.form.get("cantidad_meses", "1").strip()
 
         if not matricula:
-            return mostrar_error("No se encontro la matricula del colegiado.")
+            return mostrar_error("No se encontró la matrícula del colegiado.")
 
         resultado = generar_cuotas_adelantadas_colegiado(
             matricula, anio, mes_inicio, cantidad_meses
@@ -1822,7 +1822,7 @@ def colegiado_generar_pago_anual():
         matricula = session.get("profile", {}).get("matricula", "")
         anio = request.form.get("anio", str(date.today().year)).strip()
         if not matricula:
-            return mostrar_error("No se encontro la matricula del colegiado.")
+            return mostrar_error("No se encontró la matrícula del colegiado.")
 
         resultado = generar_cuotas_anuales_colegiado(matricula, anio)
         if resultado.get("ok"):
@@ -1830,7 +1830,7 @@ def colegiado_generar_pago_anual():
                 matricula,
                 "cuota",
                 "Pago anual habilitado",
-                "Se generaron las cuotas del anio " +
+                "Se generaron las cuotas del año " +
                 str(resultado.get("anio")) + " con " +
                 str(resultado.get("descuento", 0)) + "% de descuento.",
                 "colegiado_pagos",
@@ -1864,7 +1864,7 @@ def colegiado_registrar_evidencia_pago():
         archivo_evidencia = request.files.get("archivo_evidencia")
 
         if not matricula:
-            return mostrar_error("No se encontro la matricula del colegiado.")
+            return mostrar_error("No se encontró la matrícula del colegiado.")
         if not all([cuota_id, medio_pago_id, fecha_pago, numero_operacion, monto]):
             return mostrar_error("Complete los datos obligatorios de la evidencia.")
         if not archivo_evidencia or not archivo_evidencia.filename:
@@ -1875,12 +1875,12 @@ def colegiado_registrar_evidencia_pago():
             medio_pago_id_num = int(medio_pago_id)
             monto_num = float(monto)
         except ValueError:
-            return mostrar_error("Seleccione datos validos para registrar la evidencia.")
+            return mostrar_error("Seleccione datos válidos para registrar la evidencia.")
 
         if monto_num <= 0:
             return mostrar_error("El monto pagado debe ser mayor a 0.")
         if not _leer_fecha_iso(fecha_pago):
-            return mostrar_error("Ingrese una fecha de pago valida.")
+            return mostrar_error("Ingrese una fecha de pago válida.")
 
         archivo_guardado = _guardar_archivo_subido(archivo_evidencia,
                                                    "evidencias",
@@ -1897,7 +1897,7 @@ def colegiado_registrar_evidencia_pago():
             volver = request.form.get("volver_endpoint", "estado_cuenta").strip()
             if volver not in ["estado_cuenta", "colegiado_pagos"]:
                 volver = "estado_cuenta"
-            return mostrar_exito("La evidencia de pago fue registrada para revision.",
+            return mostrar_exito("La evidencia de pago fue registrada para revisión.",
                                  volver,
                                  "Ver pagos" if volver == "colegiado_pagos" else "Ver estado")
         return mostrar_error(resultado)
@@ -1914,7 +1914,7 @@ def colegiado_pasarela_demo(cuota_id):
         if not cuota:
             return mostrar_error("La cuota seleccionada no pertenece al colegiado.")
         if cuota.get("estado") != "Pendiente":
-            return mostrar_error("Esta cuota no esta pendiente de pago.")
+            return mostrar_error("Esta cuota no está pendiente de pago.")
 
         ctx = contexto_base("Pago interno CCPL", "estado_cuenta")
         ctx["cuota"] = cuota
@@ -1932,9 +1932,9 @@ def colegiado_confirmar_pago_demo(cuota_id):
         matricula = session.get("profile", {}).get("matricula", "")
         metodo = request.form.get("metodo_pago", "").strip()
         if not matricula:
-            return mostrar_error("No se encontro la matricula del colegiado.")
+            return mostrar_error("No se encontró la matrícula del colegiado.")
         if metodo not in METODOS_PAGO_INTERNO:
-            return mostrar_error("Seleccione un metodo de pago valido.")
+            return mostrar_error("Seleccione un método de pago válido.")
 
         resultado = registrar_pago_demo_colegiado(cuota_id, matricula, metodo)
         if not resultado.get("ok"):
@@ -1950,7 +1950,7 @@ def colegiado_confirmar_pago_demo(cuota_id):
             "cuota",
             cuota_id
         )
-        flash("Pago aprobado. Se genero el comprobante interno.", "success")
+        flash("Pago aprobado. Se generó el comprobante interno.", "success")
         return redirect(url_for(
             "colegiado_comprobante_pago",
             comprobante_id=resultado["comprobante_id"]
@@ -1966,7 +1966,7 @@ def colegiado_crear_pago_mercado_pago(cuota_id):
     try:
         matricula = session.get("profile", {}).get("matricula", "")
         if not matricula:
-            return mostrar_error("No se encontro la matricula del colegiado.")
+            return mostrar_error("No se encontró la matrícula del colegiado.")
 
         resultado = crear_preferencia_mercado_pago(
             cuota_id,
@@ -2007,7 +2007,7 @@ def colegiado_retorno_mercado_pago():
                     None
                 )
                 if resultado.get("comprobante_id"):
-                    flash("Pago Mercado Pago aprobado. Se genero comprobante interno.", "success")
+                    flash("Pago Mercado Pago aprobado. Se generó comprobante interno.", "success")
                     return redirect(url_for(
                         "colegiado_comprobante_pago",
                         comprobante_id=resultado["comprobante_id"]
@@ -2016,7 +2016,7 @@ def colegiado_retorno_mercado_pago():
             else:
                 flash(resultado.get("mensaje", "El pago no fue aprobado."), "warning")
         elif status:
-            flash("Mercado Pago devolvio estado: " + str(status) + ".", "warning")
+            flash("Mercado Pago devolvió estado: " + str(status) + ".", "warning")
         else:
             flash("No se recibio informacion suficiente de Mercado Pago.", "warning")
 
@@ -2052,7 +2052,7 @@ def colegiado_comprobante_pago(comprobante_id):
         matricula = session.get("profile", {}).get("matricula", "")
         comprobante = leer_comprobante_pago_colegiado(comprobante_id, matricula)
         if not comprobante:
-            return mostrar_error("No se encontro el comprobante solicitado.", 404)
+            return mostrar_error("No se encontró el comprobante solicitado.", 404)
 
         ctx = contexto_base("Comprobante de Pago", "estado_cuenta")
         ctx["comprobante"] = comprobante
@@ -2157,7 +2157,7 @@ def colegiado_aula_curso(inscripcion_id):
 
         curso = leer_curso_inscrito_colegiado(inscripcion_id, matricula)
         if not curso:
-            return mostrar_error("No se encontro el curso inscrito.", 404)
+            return mostrar_error("No se encontró el curso inscrito.", 404)
 
         ctx = contexto_base("Aula del Curso", "educacion_continua")
         ctx["curso"] = curso
@@ -2180,11 +2180,11 @@ def colegiado_inscribirse_curso():
         matricula = session.get("profile", {}).get("matricula", "")
         curso_id = request.form.get("curso_id", "").strip()
         if not matricula:
-            return mostrar_error("No se encontro la matricula del colegiado.")
+            return mostrar_error("No se encontró la matrícula del colegiado.")
         try:
             curso_id_num = int(curso_id)
         except ValueError:
-            return mostrar_error("Seleccione un curso valido.")
+            return mostrar_error("Seleccione un curso válido.")
 
         mensaje = validar_inscripcion_curso(matricula, curso_id_num)
         if mensaje:
@@ -2196,8 +2196,8 @@ def colegiado_inscribirse_curso():
             _notificar_colegiado(
                 matricula,
                 "curso",
-                "Inscripcion registrada",
-                "Tu inscripcion al curso " + titulo + " fue registrada.",
+                "Inscripción registrada",
+                "Tu inscripción al curso " + titulo + " fue registrada.",
                 "educacion_continua",
                 "Ver curso",
                 "curso",
@@ -2207,16 +2207,16 @@ def colegiado_inscribirse_curso():
                 matricula,
                 "cuota",
                 "Cuota de curso generada",
-                "Se genero una cuota pendiente por el curso " + titulo + ".",
+                "Se generó una cuota pendiente por el curso " + titulo + ".",
                 "estado_cuenta",
                 "Ver pago",
                 "curso",
                 curso_id_num
             )
-            return mostrar_exito("Inscripcion registrada. Se genero una cuota pendiente por el curso.",
+            return mostrar_exito("Inscripción registrada. Se generó una cuota pendiente por el curso.",
                                  "educacion_continua",
                                  "Ver mis cursos")
-        return mostrar_error("No se pudo completar la inscripcion al curso.")
+        return mostrar_error("No se pudo completar la inscripción al curso.")
     except Exception as e:
         print("Error en /educacion-continua/inscribirme:", repr(e))
         return render_template("error500.html"), 500
@@ -2238,17 +2238,17 @@ def colegiado_certificado_curso(inscripcion_id):
     try:
         matricula = session.get("profile", {}).get("matricula", "")
         if not matricula:
-            return mostrar_error("Debe iniciar sesion como colegiado.")
+            return mostrar_error("Debe iniciar sesión como colegiado.")
 
         certificado = leer_certificado_curso_colegiado(inscripcion_id, matricula)
         if not certificado:
-            return mostrar_error("No se encontro el certificado del curso.", 404)
+            return mostrar_error("No se encontró el certificado del curso.", 404)
         if certificado.get("estado_pago") != "Pagado":
-            return mostrar_error("No se puede emitir certificado porque el pago esta pendiente.")
+            return mostrar_error("No se puede emitir certificado porque el pago está pendiente.")
         if int(certificado.get("progreso") or 0) < 100:
             return mostrar_error("Debe finalizar el curso para emitir el certificado.")
         if not certificado.get("certificado"):
-            return mostrar_error("El certificado aun no fue registrado por el administrador.")
+            return mostrar_error("El certificado aún no fue registrado por el administrador.")
 
         ctx = contexto_base("Certificado de Curso", "educacion_continua")
         ctx["certificado"] = certificado
@@ -2269,7 +2269,7 @@ def colegiado_certificado_curso(inscripcion_id):
 
 @app.route("/constancia", endpoint="constancia")
 def constancia():
-    flash("El certificado de habilidad ahora se solicita desde Tramites.", "warning")
+    flash("El certificado de habilidad ahora se solicita desde Trámites.", "warning")
     return redirect(url_for("tramites"))
 
 
@@ -2297,7 +2297,7 @@ def perfil_soporte():
 
 @app.route("/documentos/<path:nombre>", endpoint="descargar_doc")
 def descargar_doc(nombre):
-    return mostrar_error("El documento solicitado no esta disponible.", 404)
+    return mostrar_error("El documento solicitado no está disponible.", 404)
 
 
 @app.route("/perfil/actualizar", methods=["POST"], endpoint="perfil_actualizar")
@@ -2305,7 +2305,7 @@ def perfil_actualizar():
     try:
         matricula = session.get("profile", {}).get("matricula", "")
         if not matricula:
-            return mostrar_error("Debe iniciar sesion como colegiado.")
+            return mostrar_error("Debe iniciar sesión como colegiado.")
 
         correo      = request.form.get("correo", "").strip()
         telefono    = request.form.get("telefono", "").strip()
@@ -2330,7 +2330,7 @@ def soporte_ticket():
     try:
         matricula = session.get("profile", {}).get("matricula", "")
         if not matricula:
-            return mostrar_error("Debe iniciar sesion para enviar un ticket.")
+            return mostrar_error("Debe iniciar sesión para enviar un ticket.")
 
         categoria   = request.form.get("categoria", "otro").strip()
         asunto      = request.form.get("asunto", "").strip()
@@ -2344,7 +2344,7 @@ def soporte_ticket():
                 matricula,
                 "ticket",
                 "Ticket registrado",
-                "Tu incidencia fue enviada al area de soporte.",
+                "Tu incidencia fue enviada al área de soporte.",
                 "perfil_soporte",
                 "Ver ticket",
                 "ticket",
@@ -2361,14 +2361,14 @@ def soporte_ticket():
 @app.route("/tramites", methods=["GET", "POST"], endpoint="tramites")
 def tramites():
     try:
-        ctx = contexto_base("Tramites", "tramites")
+        ctx = contexto_base("Trámites", "tramites")
         profile = session.get("profile", {})
         matricula = profile.get("matricula", "")
         nombre = profile.get("nombre", "")
 
         if request.method == "POST":
             if not matricula or not nombre:
-                return mostrar_error("Debe iniciar sesion como colegiado para enviar un tramite.")
+                return mostrar_error("Debe iniciar sesión como colegiado para enviar un tramite.")
 
             tipo_tramite = request.form.get("tipo_tramite", "").strip()
             asunto = request.form.get("asunto", "").strip()
@@ -2377,9 +2377,9 @@ def tramites():
 
             tipos_validos = [t["codigo"] for t in leer_tipos_tramite()]
             if tipo_tramite not in tipos_validos:
-                return mostrar_error("Seleccione un tipo de tramite valido.")
+                return mostrar_error("Seleccione un tipo de trámite válido.")
             if not asunto or not descripcion:
-                return mostrar_error("Complete los campos obligatorios del tramite.")
+                return mostrar_error("Complete los campos obligatorios del trámite.")
             if tramite_requiere_sustento(tipo_tramite) and (
                 not archivo or not archivo.filename
             ):
@@ -2400,17 +2400,17 @@ def tramites():
                 insertar_notificacion_matricula(
                     matricula,
                     "sistema",
-                    "Tramite registrado",
-                    "Tu tramite fue registrado y quedo pendiente de revision.",
+                    "Trámite registrado",
+                    "Tu trámite fue registrado y quedo pendiente de revisión.",
                     "tramites",
-                    "Ver tramite",
+                    "Ver trámite",
                     "tramite",
                     None
                 )
-                return mostrar_exito("El tramite fue registrado correctamente.",
+                return mostrar_exito("El trámite fue registrado correctamente.",
                                      "tramites",
-                                     "Ver tramites")
-            return mostrar_error("No se pudo registrar el tramite. Verifique que la tabla tramites exista.")
+                                     "Ver trámites")
+            return mostrar_error("No se pudo registrar el trámite. Verifique que la tabla trámites exista.")
 
         ctx["tipos_tramite"] = leer_tipos_tramite()
         ctx["tramites_previos"] = []
@@ -2434,7 +2434,7 @@ def validar_firma_tramite(tid):
     try:
         tramite = leer_tramite_por_id(tid)
         if not tramite:
-            return mostrar_error("El tramite seleccionado no existe.", 404)
+            return mostrar_error("El trámite seleccionado no existe.", 404)
 
         matricula = session.get("profile", {}).get("matricula", "")
         if tramite.get("matricula") != matricula:
@@ -2556,7 +2556,7 @@ def ponente_seguimiento():
             por_pagina, offset
         ) or []
 
-        ctx = contexto_base("Seguimiento Academico", "ponente_seguimiento",
+        ctx = contexto_base("Seguimiento Académico", "ponente_seguimiento",
                             es_ponente=True)
         ctx["seguimiento"] = seguimiento
         ctx["cursos"] = leer_cursos_ponente(ponente) or []
@@ -2601,7 +2601,7 @@ def ponente_curso(curso_id):
 
         curso = leer_curso_ponente(curso_id, ponente)
         if not curso:
-            return mostrar_error("No se encontro el curso asignado al ponente.", 404)
+            return mostrar_error("No se encontró el curso asignado al ponente.", 404)
 
         ctx = contexto_base("Curso del Ponente", "ponente_dashboard", es_ponente=True)
         ctx["curso"] = curso
@@ -2787,7 +2787,7 @@ def admin_dashboard():
         alertas.append({
             "icon": "receipt_long",
             "titulo": "Evidencias por revisar",
-            "detalle": f"{stats.get('evidencias_pendientes')} comprobantes esperan validacion.",
+            "detalle": f"{stats.get('evidencias_pendientes')} comprobantes esperan validación.",
             "endpoint": "admin_evidencias_pago",
         })
     if stats.get("certificados_pendientes", 0):
@@ -2807,15 +2807,15 @@ def admin_dashboard():
     if stats.get("tramites_pendientes", 0):
         alertas.append({
             "icon": "assignment",
-            "titulo": "Tramites pendientes",
-            "detalle": f"{stats.get('tramites_pendientes')} tramites esperan atencion.",
+            "titulo": "Trámites pendientes",
+            "detalle": f"{stats.get('tramites_pendientes')} trámites esperan atención.",
             "endpoint": "admin_tramites",
         })
     if stats.get("reconocimientos_30", 0):
         alertas.append({
             "icon": "military_tech",
-            "titulo": "Reconocimientos 30 anios",
-            "detalle": f"{stats.get('reconocimientos_30')} colegiados requieren preparar ceremonia, resolucion y placa.",
+            "titulo": "Reconocimientos 30 años",
+            "detalle": f"{stats.get('reconocimientos_30')} colegiados requieren preparar ceremonia, resolución y placa.",
             "endpoint": "admin_colegiados",
             "url": url_for("admin_colegiados", reconocimiento="30"),
         })
@@ -3264,7 +3264,7 @@ def admin_colegiados_exportar():
         return _respuesta_csv(
             "colegiados_filtrados.csv",
             ["Colegiado", "Matricula", "DNI", "Especialidad", "Direccion",
-             "Correo", "Telefono", "Fecha colegiatura", "Cumple 30 anios",
+             "Correo", "Telefono", "Fecha colegiatura", "Cumple 30 años",
              "Dias para 30", "Vigencia", "Estado", "Puntos EPC"],
             filas
         )
@@ -3370,7 +3370,7 @@ def admin_nuevo_colegiado():
         if fecha_colegiatura_txt:
             fecha_colegiatura = _leer_fecha_iso(fecha_colegiatura_txt)
             if not fecha_colegiatura:
-                return mostrar_error("Ingrese una fecha de colegiatura valida.")
+                return mostrar_error("Ingrese una fecha de colegiatura válida.")
             if fecha_colegiatura > date.today():
                 return mostrar_error("La fecha de colegiatura no puede ser futura.")
 
@@ -3416,7 +3416,7 @@ def admin_actualizar_colegiado(cid):
         if fecha_colegiatura_txt:
             fecha_colegiatura = _leer_fecha_iso(fecha_colegiatura_txt)
             if not fecha_colegiatura:
-                return mostrar_error("Ingrese una fecha de colegiatura valida.")
+                return mostrar_error("Ingrese una fecha de colegiatura válida.")
             if fecha_colegiatura > date.today():
                 return mostrar_error("La fecha de colegiatura no puede ser futura.")
 
@@ -3472,16 +3472,16 @@ def admin_nuevo_usuario():
         if not all([matricula, password, rol]):
             return mostrar_error("Complete los campos obligatorios del usuario.")
         if rol not in ["colegiado", "admin", "ponente"]:
-            return mostrar_error("Seleccione un rol valido.")
+            return mostrar_error("Seleccione un rol válido.")
         if activo not in ["0", "1"]:
-            return mostrar_error("Seleccione un estado valido.")
+            return mostrar_error("Seleccione un estado válido.")
 
         obj = clsUsuario(0, matricula, password, rol, int(activo))
         if insertar_usuario(obj):
             return mostrar_exito("El usuario fue creado correctamente.",
                                  "admin_usuarios",
                                  "Ver usuarios")
-        return mostrar_error("No se pudo crear el usuario. Verifique la matricula o si ya existe.")
+        return mostrar_error("No se pudo crear el usuario. Verifique la matrícula o si ya existe.")
     except Exception as e:
         print("Error en /admin/usuarios/nuevo:", repr(e))
         return render_template("error500.html"), 500
@@ -3495,9 +3495,9 @@ def admin_actualizar_usuario(uid):
         activo = request.form.get("activo", "1").strip()
 
         if rol not in ["colegiado", "admin", "ponente"]:
-            return mostrar_error("Seleccione un rol valido.")
+            return mostrar_error("Seleccione un rol válido.")
         if activo not in ["0", "1"]:
-            return mostrar_error("Seleccione un estado valido.")
+            return mostrar_error("Seleccione un estado válido.")
 
         obj = clsUsuario(uid, None, password, rol, int(activo))
         if actualizar_usuario(obj):
@@ -3603,7 +3603,7 @@ def admin_nueva_cuota():
 
         fecha = _leer_fecha_iso(request.form["fecha"])
         if not fecha:
-            return mostrar_error("Ingrese una fecha valida.")
+            return mostrar_error("Ingrese una fecha válida.")
         fecha_vencimiento_txt = request.form.get("fecha_vencimiento", "").strip()
         fecha_vencimiento = None
         if fecha_vencimiento_txt:
@@ -3618,7 +3618,7 @@ def admin_nueva_cuota():
 
         estado = request.form["estado"].strip()
         if estado not in ["Pendiente", "Pagado"]:
-            return mostrar_error("Seleccione un estado valido.")
+            return mostrar_error("Seleccione un estado válido.")
 
         tipo = request.form.get("tipo", "otro").strip()
         if tipo not in ["mensual", "otro"]:
@@ -3673,7 +3673,7 @@ def admin_procesar_cuotas_mensuales():
                     aviso.get("matricula"),
                     "cuota",
                     "Cuota mensual generada",
-                    "Se genero la cuota " + str(aviso.get("periodo")) +
+                    "Se generó la cuota " + str(aviso.get("periodo")) +
                     " por S/ " + format(_monto(aviso.get("monto")), ".2f") + ".",
                     "estado_cuenta",
                     "Ver estado",
@@ -3792,7 +3792,7 @@ def admin_procesar_cuotas_cursos():
                     aviso.get("matricula"),
                     "cuota",
                     "Cuota de curso generada",
-                    "Se genero la cuota pendiente del curso " +
+                    "Se generó la cuota pendiente del curso " +
                     str(aviso.get("titulo")) + " por S/ " +
                     format(_monto(aviso.get("monto")), ".2f") + ".",
                     "estado_cuenta",
@@ -3817,7 +3817,7 @@ def admin_historial_cuota(qid):
     try:
         historial = leer_historial_cuota_admin(qid)
         if not historial.get("cuota"):
-            return mostrar_error("No se encontro la cuota seleccionada.", 404)
+            return mostrar_error("No se encontró la cuota seleccionada.", 404)
         ctx = contexto_base("Historial de Cuota", "admin_cuotas", es_admin=True)
         ctx.update(historial)
         ctx["periodo_label"] = _nombre_periodo(
@@ -3980,7 +3980,7 @@ def admin_comprobante_pago_demo(comprobante_id):
     try:
         comprobante = leer_comprobante_pago_demo_admin(comprobante_id)
         if not comprobante:
-            return mostrar_error("No se encontro el comprobante solicitado.", 404)
+            return mostrar_error("No se encontró el comprobante solicitado.", 404)
         ctx = contexto_base("Comprobante de Pago", "admin_pagos_demo", es_admin=True)
         ctx["comprobante"] = comprobante
         ctx["volver_endpoint"] = "admin_pagos_demo"
@@ -4001,7 +4001,7 @@ def admin_anular_comprobante_pago_demo(comprobante_id):
     try:
         motivo = request.form.get("motivo", "").strip()
         if len(motivo) < 5:
-            return mostrar_error("Ingrese un motivo de anulacion mas detallado.")
+            return mostrar_error("Ingrese un motivo de anulación mas detallado.")
         usuario = session.get("profile", {}) or {}
         resultado = anular_comprobante_pago_demo(
             comprobante_id,
@@ -4016,7 +4016,7 @@ def admin_anular_comprobante_pago_demo(comprobante_id):
                 "Comprobante anulado",
                 "El comprobante del concepto " +
                 str(resultado.get("concepto")) +
-                " fue anulado por administracion.",
+                " fue anulado por administración.",
                 "estado_cuenta",
                 "Ver estado",
                 "comprobante",
@@ -4097,7 +4097,7 @@ def admin_facturacion():
         desde = 0 if total_registros == 0 else offset + 1
         hasta = min(offset + len(comprobantes), total_registros)
 
-        ctx = contexto_base("Facturacion", "admin_facturacion", es_admin=True)
+        ctx = contexto_base("Facturación", "admin_facturacion", es_admin=True)
         ctx["busqueda"] = busqueda
         ctx["estado"] = estado
         ctx["por_pagina"] = por_pagina
@@ -4199,7 +4199,7 @@ def admin_comprobante_fiscal(fiscal_id):
     try:
         data = leer_comprobante_fiscal_admin(fiscal_id)
         if not data.get("comprobante"):
-            return mostrar_error("No se encontro el comprobante fiscal.", 404)
+            return mostrar_error("No se encontró el comprobante fiscal.", 404)
         comprobante = data["comprobante"]
         ctx = contexto_base("Comprobante Fiscal", "admin_facturacion", es_admin=True)
         ctx.update(data)
@@ -4252,7 +4252,7 @@ def admin_anular_comprobante_fiscal(fiscal_id):
     try:
         motivo = request.form.get("motivo", "").strip()
         if len(motivo) < 5:
-            return mostrar_error("Ingrese un motivo de anulacion mas detallado.")
+            return mostrar_error("Ingrese un motivo de anulación mas detallado.")
         usuario = session.get("profile", {}) or {}
         resultado = anular_comprobante_fiscal(
             fiscal_id,
@@ -4292,11 +4292,11 @@ def admin_nuevo_medio_pago():
         if not nombre:
             return mostrar_error("Ingrese el nombre del medio de pago.")
         if not numero_cuenta:
-            return mostrar_error("Ingrese el numero o identificador de cuenta.")
+            return mostrar_error("Ingrese el número o identificador de cuenta.")
         if not titular:
             return mostrar_error("Ingrese el titular del medio de pago.")
         if activo not in ["0", "1"]:
-            return mostrar_error("Seleccione un estado valido.")
+            return mostrar_error("Seleccione un estado válido.")
 
         obj = clsMedioPago(0, nombre, descripcion, numero_cuenta, titular, int(activo))
         if insertar_medio_pago(obj):
@@ -4322,11 +4322,11 @@ def admin_actualizar_medio_pago(medio_id):
         if not nombre:
             return mostrar_error("Ingrese el nombre del medio de pago.")
         if not numero_cuenta:
-            return mostrar_error("Ingrese el numero o identificador de cuenta.")
+            return mostrar_error("Ingrese el número o identificador de cuenta.")
         if not titular:
             return mostrar_error("Ingrese el titular del medio de pago.")
         if activo not in ["0", "1"]:
-            return mostrar_error("Seleccione un estado valido.")
+            return mostrar_error("Seleccione un estado válido.")
 
         obj = clsMedioPago(medio_id, nombre, descripcion, numero_cuenta, titular, int(activo))
         if actualizar_medio_pago(obj):
@@ -4375,7 +4375,7 @@ def admin_estado_evidencia_pago(evidencia_id):
     try:
         estado = request.form.get("estado", "").strip()
         if estado not in ["Aprobado", "Rechazado"]:
-            return mostrar_error("Seleccione un estado valido para la evidencia.")
+            return mostrar_error("Seleccione un estado válido para la evidencia.")
 
         profile = session.get("profile", {})
         admin_matricula = profile.get("matricula", "admin")
@@ -4390,7 +4390,7 @@ def admin_estado_evidencia_pago(evidencia_id):
             detalle_revision
         )
         if resultado.get("ok"):
-            mensaje = "La evidencia fue aprobada, la cuota se marco como pagada y se genero comprobante."
+            mensaje = "La evidencia fue aprobada, la cuota se marco como pagada y se generó comprobante."
             if estado == "Rechazado":
                 mensaje = "La evidencia fue anulada correctamente."
             return mostrar_exito(mensaje,
@@ -4497,12 +4497,12 @@ def admin_nueva_inscripcion_curso():
         if not matricula or not curso_id:
             return mostrar_error("Seleccione el colegiado y el curso.")
         if estado_pago not in ["Pendiente", "Pagado"]:
-            return mostrar_error("Seleccione un estado de pago valido.")
+            return mostrar_error("Seleccione un estado de pago válido.")
 
         try:
             curso_id_num = int(curso_id)
         except ValueError:
-            return mostrar_error("Seleccione un curso valido.")
+            return mostrar_error("Seleccione un curso válido.")
 
         mensaje = validar_inscripcion_curso(matricula, curso_id_num)
         if mensaje:
@@ -4532,10 +4532,10 @@ def admin_nueva_inscripcion_curso():
                     "curso",
                     curso_id_num
                 )
-            return mostrar_exito("La inscripcion fue registrada y se genero la cuota del curso.",
+            return mostrar_exito("La inscripción fue registrada y se generó la cuota del curso.",
                                  "admin_cursos_asignados",
                                  "Ver asignaciones")
-        return mostrar_error("No se pudo registrar la inscripcion del curso.")
+        return mostrar_error("No se pudo registrar la inscripción del curso.")
     except Exception as e:
         print("Error en /admin/cursos-asignados/nuevo:", repr(e))
         return render_template("error500.html"), 500
@@ -4548,7 +4548,7 @@ def admin_actualizar_curso_asignado(inscripcion_id):
         estado_pago = request.form.get("estado_pago", "").strip()
 
         if estado_pago not in ["Pendiente", "Pagado"]:
-            return mostrar_error("Seleccione un estado de pago valido.")
+            return mostrar_error("Seleccione un estado de pago válido.")
 
         if actualizar_pago_inscripcion_curso(inscripcion_id, estado_pago):
             return mostrar_exito("El estado de pago del curso fue actualizado.",
@@ -4576,7 +4576,7 @@ def admin_registrar_certificado_curso(inscripcion_id):
     try:
         estado_certificado = leer_estado_certificado_curso(inscripcion_id)
         if not estado_certificado:
-            return mostrar_error("No se encontro la inscripcion del curso.", 404)
+            return mostrar_error("No se encontró la inscripción del curso.", 404)
         if not _certificado_habilitado(estado_certificado):
             return mostrar_error("Solo se puede registrar certificado con pago pagado y progreso 100%.")
 
@@ -4633,11 +4633,11 @@ def admin_nuevo_curso():
                     estado]):
             return mostrar_error("Complete los campos obligatorios del curso.")
         if estado not in ["Activo", "Inactivo"]:
-            return mostrar_error("Seleccione un estado valido para el curso.")
+            return mostrar_error("Seleccione un estado válido para el curso.")
         if modalidad not in ["Presencial", "Virtual", "Mixta"]:
-            return mostrar_error("Seleccione una modalidad valida.")
+            return mostrar_error("Seleccione una modalidad válida.")
         if ponente not in PONENTES_CURSO:
-            return mostrar_error("Seleccione un ponente valido.")
+            return mostrar_error("Seleccione un ponente válido.")
 
         try:
             monto_num = float(monto)
@@ -4659,7 +4659,7 @@ def admin_nuevo_curso():
         fecha_inicio_obj = _leer_fecha_iso(fecha_inicio)
         fecha_fin_obj = _leer_fecha_iso(fecha_fin)
         if not fecha_inicio_obj or not fecha_fin_obj:
-            return mostrar_error("Ingrese fechas validas para el curso.")
+            return mostrar_error("Ingrese fechas válidas para el curso.")
         if fecha_fin_obj < fecha_inicio_obj:
             return mostrar_error("La fecha fin no puede ser menor que la fecha inicio.")
 
@@ -4702,11 +4702,11 @@ def admin_actualizar_curso(curso_id):
                     estado]):
             return mostrar_error("Complete los campos obligatorios del curso.")
         if estado not in ["Activo", "Inactivo"]:
-            return mostrar_error("Seleccione un estado valido para el curso.")
+            return mostrar_error("Seleccione un estado válido para el curso.")
         if modalidad not in ["Presencial", "Virtual", "Mixta"]:
-            return mostrar_error("Seleccione una modalidad valida.")
+            return mostrar_error("Seleccione una modalidad válida.")
         if ponente not in PONENTES_CURSO:
-            return mostrar_error("Seleccione un ponente valido.")
+            return mostrar_error("Seleccione un ponente válido.")
 
         try:
             monto_num = float(monto)
@@ -4732,7 +4732,7 @@ def admin_actualizar_curso(curso_id):
         fecha_inicio_obj = _leer_fecha_iso(fecha_inicio)
         fecha_fin_obj = _leer_fecha_iso(fecha_fin)
         if not fecha_inicio_obj or not fecha_fin_obj:
-            return mostrar_error("Ingrese fechas validas para el curso.")
+            return mostrar_error("Ingrese fechas válidas para el curso.")
         if fecha_fin_obj < fecha_inicio_obj:
             return mostrar_error("La fecha fin no puede ser menor que la fecha inicio.")
 
@@ -4775,7 +4775,7 @@ def admin_tramites():
         tipos_validos = [t["codigo"] for t in leer_tipos_tramite()]
         if tipo not in tipos_validos:
             tipo = ""
-        ctx = contexto_base("Tramites", "admin_tramites", es_admin=True)
+        ctx = contexto_base("Trámites", "admin_tramites", es_admin=True)
         ctx["tramites"] = leer_tramites(filtro, p_tipo=tipo) or []
         for tramite in ctx["tramites"]:
             tramite["archivo_respuesta_existe"] = _archivo_estatico_existe(
@@ -4852,7 +4852,7 @@ def _consultar_firmador_edni(ruta="/estado", payload=None, timeout=8):
     if data is None:
         data = {
             "code": 0,
-            "message": "El modulo de firma eDNI no devolvio una respuesta valida.",
+            "message": "El módulo de firma eDNI no devolvió una respuesta válida.",
         }
     return data, respuesta.status_code
 
@@ -4865,7 +4865,7 @@ def admin_firmador_edni_estado():
     except Exception as exc:
         return jsonify({
             "code": 0,
-            "message": "No se pudo verificar el modulo de firma eDNI.",
+            "message": "No se pudo verificar el módulo de firma eDNI.",
             "detalle": str(exc),
             "lectores": 0,
             "dni_insertado": False,
@@ -4922,7 +4922,7 @@ def admin_guardar_firma_edni(tid):
     try:
         tramite = leer_tramite_por_id(tid)
         if not tramite:
-            return jsonify({"code": 0, "message": "El tramite no existe."}), 404
+            return jsonify({"code": 0, "message": "El trámite no existe."}), 404
         if tramite.get("tipo_tramite") != "certificado_habilidad":
             return jsonify({"code": 0, "message": "Solo se registra firma eDNI para certificados de habilidad."}), 400
 
@@ -4935,7 +4935,7 @@ def admin_guardar_firma_edni(tid):
         except Exception:
             pdf_bytes = b""
         if not pdf_bytes.startswith(b"%PDF"):
-            return jsonify({"code": 0, "message": "El firmador eDNI no devolvio un PDF valido."}), 400
+            return jsonify({"code": 0, "message": "El firmador eDNI no devolvió un PDF válido."}), 400
 
         nombre_original = secure_filename(data.get("nombre_archivo") or f"certificado_{tid}_firmado.pdf")
         if not nombre_original.lower().endswith(".pdf"):
@@ -4967,9 +4967,9 @@ def admin_guardar_firma_edni(tid):
             tramite.get("matricula", ""),
             "sistema",
             "Certificado de habilidad emitido",
-            "Tu certificado de habilidad ya esta disponible para descargar.",
+            "Tu certificado de habilidad ya está disponible para descargar.",
             "tramites",
-            "Ver tramite",
+            "Ver trámite",
             "tramite",
             tid
         )
@@ -4987,13 +4987,13 @@ def admin_guardar_firma_edni(tid):
 def _render_validacion_firma_tramite(tid, es_admin=False):
     tramite = leer_tramite_por_id(tid)
     if not tramite:
-        return mostrar_error("El tramite seleccionado no existe.", 404)
+        return mostrar_error("El trámite seleccionado no existe.", 404)
     if not tramite.get("archivo_respuesta"):
-        return mostrar_error("Este tramite aun no tiene un PDF firmado para validar.")
+        return mostrar_error("Este trámite aún no tiene un PDF firmado para validar.")
 
     ruta_pdf = _ruta_archivo_estatico_upload(tramite.get("archivo_respuesta"))
     if not ruta_pdf or not ruta_pdf.is_file():
-        return mostrar_error("El PDF firmado no esta disponible en el sistema.", 404)
+        return mostrar_error("El PDF firmado no está disponible en el sistema.", 404)
 
     activo = "admin_tramites" if es_admin else "tramites"
     ctx = contexto_base("Validar firma", activo, es_admin=es_admin)
@@ -5020,11 +5020,11 @@ def admin_estado_tramite(tid):
         estado = request.form.get("estado", "").strip()
         estados_validos = ["Pendiente", "En Revision", "Aprobado", "Rechazado"]
         if estado not in estados_validos:
-            return mostrar_error("Seleccione un estado valido para el tramite.")
+            return mostrar_error("Seleccione un estado válido para el trámite.")
 
         tramite = leer_tramite_por_id(tid)
         if not tramite:
-            return mostrar_error("El tramite seleccionado no existe.")
+            return mostrar_error("El trámite seleccionado no existe.")
 
         matricula = tramite.get("matricula", "")
         requiere_sin_deuda = tramite.get("tipo_tramite") in [
@@ -5037,7 +5037,7 @@ def admin_estado_tramite(tid):
             and requiere_sin_deuda
             and colegiado_tiene_deuda_pendiente_matricula(matricula)
         ):
-            return mostrar_error("No se puede aprobar este tramite porque el colegiado tiene cuotas pendientes.")
+            return mostrar_error("No se puede aprobar este trámite porque el colegiado tiene cuotas pendientes.")
 
         if (
             estado == "Aprobado"
@@ -5050,7 +5050,7 @@ def admin_estado_tramite(tid):
             and tramite_requiere_sustento(tramite.get("tipo_tramite"))
             and not _archivo_estatico_existe(tramite.get("archivo_solicitud"))
         ):
-            return mostrar_error("No se puede aprobar este tramite porque no tiene documento sustentatorio disponible.")
+            return mostrar_error("No se puede aprobar este trámite porque no tiene documento sustentatorio disponible.")
 
         archivo_respuesta = ""
         archivo = request.files.get("archivo_respuesta")
@@ -5069,7 +5069,7 @@ def admin_estado_tramite(tid):
             and not archivo_respuesta
             and not tramite.get("archivo_respuesta")
         ):
-            return mostrar_error("Para aprobar este tramite debe subir el archivo emitido.")
+            return mostrar_error("Para aprobar este trámite debe subir el archivo emitido.")
 
         usuario = session.get("profile", {}) or {}
         detalle_revision = request.form.get("detalle_revision", "").strip()
@@ -5087,39 +5087,39 @@ def admin_estado_tramite(tid):
         if resultado.get("ok"):
             mensajes_estado = {
                 "Pendiente": (
-                    "Tramite actualizado",
-                    "Tu tramite volvio al estado pendiente."
+                    "Trámite actualizado",
+                    "Tu trámite volvió al estado pendiente."
                 ),
                 "En Revision": (
-                    "Tramite en revision",
-                    "Tu tramite esta siendo revisado por administracion."
+                    "Trámite en revisión",
+                    "Tu trámite está siendo revisado por administración."
                 ),
                 "Aprobado": (
-                    "Tramite aprobado",
-                    "Tu tramite fue aprobado. Revisa el modulo de Tramites."
+                    "Trámite aprobado",
+                    "Tu trámite fue aprobado. Revisa el módulo de Trámites."
                 ),
                 "Rechazado": (
-                    "Tramite rechazado",
-                    "Tu tramite fue rechazado. Revisa el historial o comunicate con soporte."
+                    "Trámite rechazado",
+                    "Tu trámite fue rechazado. Revisa el historial o comunícate con soporte."
                 ),
             }
             titulo, mensaje = mensajes_estado[estado]
             if archivo_respuesta:
-                mensaje = "Tu tramite fue atendido y ya tiene un archivo emitido para descargar."
+                mensaje = "Tu trámite fue atendido y ya tiene un archivo emitido para descargar."
             insertar_notificacion_matricula(
                 matricula,
                 "sistema",
                 titulo,
                 mensaje,
                 "tramites",
-                "Ver tramite",
+                "Ver trámite",
                 "tramite",
                 tid
             )
-            return mostrar_exito("El tramite fue actualizado correctamente.",
+            return mostrar_exito("El trámite fue actualizado correctamente.",
                                  "admin_tramites",
-                                 "Ver tramites")
-        return mostrar_error(resultado.get("mensaje", "No se pudo actualizar el tramite."))
+                                 "Ver trámites")
+        return mostrar_error(resultado.get("mensaje", "No se pudo actualizar el trámite."))
     except Exception:
         return render_template("error500.html")
 
@@ -5144,7 +5144,7 @@ def admin_estado_ticket(tid):
         respuesta = request.form.get("respuesta", "").strip()
         estados_validos = ["Abierto", "En Revision", "En Revisión", "En atencion", "Cerrado"]
         if estado not in estados_validos:
-            return mostrar_error("Seleccione un estado valido para el ticket.")
+            return mostrar_error("Seleccione un estado válido para el ticket.")
         estado = "En Revision" if estado in ["En Revisión", "En atencion"] else estado
 
         ticket = leer_ticket_por_id(tid)
@@ -5162,7 +5162,7 @@ def admin_estado_ticket(tid):
         if actualizar_estado_ticket(tid, estado, respuesta_guardar):
             titulos = {
                 "Abierto": "Ticket actualizado",
-                "En Revision": "Ticket en revision",
+                "En Revision": "Ticket en revisión",
                 "Cerrado": "Ticket cerrado",
             }
             mensajes = {
@@ -5237,7 +5237,7 @@ def api_token():
             "message": "Token generado correctamente."
         })
     except Exception as e:
-        return jsonify({"code": 0, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": 0, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 
 @app.route("/api/colegiados/buscar", endpoint="api_buscar_colegiados")
@@ -5249,7 +5249,7 @@ def api_buscar_colegiados():
         resultado = buscar_colegiados(busqueda, 15) or []
         return jsonify({"code": 1, "data": _api_serializar_datos(resultado), "message": ""})
     except Exception as e:
-        return jsonify({"code": 0, "data": [], "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": 0, "data": [], "message": "Excepción superior: " + repr(e)})
 
 
 API_COLECCION_TABLAS = [
@@ -5264,16 +5264,16 @@ API_COLECCION_TABLAS = [
     ("Pagos", "comprobantes_pago", "comprobante_pago", "comprobantes_pago"),
     ("Mercado Pago", "configuracion_mercado_pago", "configuracion_mercado_pago", "configuraciones_mercado_pago"),
     ("Mercado Pago", "ordenes_mercado_pago", "orden_mercado_pago", "ordenes_mercado_pago"),
-    ("Facturacion", "configuracion_facturacion", "configuracion_facturacion", "configuraciones_facturacion"),
-    ("Facturacion", "comprobantes_fiscales", "comprobante_fiscal", "comprobantes_fiscales"),
-    ("Facturacion", "comprobante_fiscal_detalle", "comprobante_fiscal_detalle", "comprobantes_fiscales_detalle"),
-    ("Facturacion", "facturacion_sunat_logs", "facturacion_sunat_log", "facturacion_sunat_logs"),
+    ("Facturación", "configuracion_facturacion", "configuracion_facturacion", "configuraciones_facturacion"),
+    ("Facturación", "comprobantes_fiscales", "comprobante_fiscal", "comprobantes_fiscales"),
+    ("Facturación", "comprobante_fiscal_detalle", "comprobante_fiscal_detalle", "comprobantes_fiscales_detalle"),
+    ("Facturación", "facturacion_sunat_logs", "facturacion_sunat_log", "facturacion_sunat_logs"),
     ("Cursos", "cursos", "curso", "cursos"),
     ("Cursos", "contenido_curso", "contenido_curso", "contenidos_curso"),
     ("Cursos", "inscripciones_curso", "inscripcion_curso", "inscripciones_curso"),
-    ("Tramites y soporte", "tramites", "tramite", "tramites"),
-    ("Tramites y soporte", "tickets", "ticket", "tickets"),
-    ("Tramites y soporte", "notificaciones", "notificacion", "notificaciones"),
+    ("Trámites y soporte", "tramites", "tramite", "tramites"),
+    ("Trámites y soporte", "tickets", "ticket", "tickets"),
+    ("Trámites y soporte", "notificaciones", "notificacion", "notificaciones"),
 ]
 
 
@@ -5288,10 +5288,10 @@ def api_guardar_especialidad_colegiado():
     try:
         data = _api_body_json()
         if insertar_especialidad_colegiado_crud(data):
-            return jsonify({"code": 1, "data": {}, "message": "Especialidad del colegiado insertado correctamente."})
+            return jsonify({"code": 1, "data": {}, "message": "Especialidad del colegiado insertada correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al insertar especialidad del colegiado."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_actualizar_especialidad_colegiado", methods=["POST"])
 @jwt_required()
@@ -5301,10 +5301,10 @@ def api_actualizar_especialidad_colegiado():
         if not data.get("id"):
             return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
         if actualizar_especialidad_colegiado_crud(data):
-            return jsonify({"code": 1, "data": {}, "message": "Especialidad del colegiado actualizado correctamente."})
+            return jsonify({"code": 1, "data": {}, "message": "Especialidad del colegiado actualizada correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al actualizar especialidad del colegiado."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_eliminar_especialidad_colegiado", methods=["POST"])
 @jwt_required()
@@ -5314,10 +5314,10 @@ def api_eliminar_especialidad_colegiado():
         if not registro_id:
             return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
         if eliminar_especialidad_colegiado(registro_id):
-            return jsonify({"code": 1, "data": {}, "message": "Especialidad del colegiado eliminado correctamente."})
+            return jsonify({"code": 1, "data": {}, "message": "Especialidad del colegiado eliminada correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al eliminar especialidad del colegiado."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_leer_especialidad_colegiado_xid", methods=["GET", "POST"])
 @jwt_required()
@@ -5329,7 +5329,7 @@ def api_leer_especialidad_colegiado_xid():
         resultado = leer_especialidad_colegiado_por_id(registro_id)
         return jsonify(_api_serializar_datos(resultado or {}))
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_leer_especialidades_colegiado", methods=["GET"])
 @jwt_required()
@@ -5338,7 +5338,7 @@ def api_leer_especialidades_colegiado():
         resultado = leer_especialidades_colegiados()
         return jsonify(_api_serializar_datos(resultado or []))
     except Exception as e:
-        return jsonify({"code": -1, "data": [], "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": [], "message": "Excepción superior: " + repr(e)})
 
 
 # Tabla: colegiados
@@ -5359,7 +5359,7 @@ def api_guardar_colegiado():
             return jsonify({"code": 1, "data": {}, "message": "Colegiado insertado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al insertar colegiado."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_actualizar_colegiado", methods=["POST"])
 @jwt_required()
@@ -5380,7 +5380,7 @@ def api_actualizar_colegiado():
             return jsonify({"code": 1, "data": {}, "message": "Colegiado actualizado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al actualizar colegiado."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_eliminar_colegiado", methods=["POST"])
 @jwt_required()
@@ -5393,7 +5393,7 @@ def api_eliminar_colegiado():
             return jsonify({"code": 1, "data": {}, "message": "Colegiado eliminado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al eliminar colegiado."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_leer_colegiado_xid", methods=["GET", "POST"])
 @jwt_required()
@@ -5405,7 +5405,7 @@ def api_leer_colegiado_xid():
         resultado = leer_colegiado_por_id(registro_id)
         return jsonify(_api_serializar_datos(resultado or {}))
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_leer_colegiados", methods=["GET"])
 @jwt_required()
@@ -5414,7 +5414,7 @@ def api_leer_colegiados():
         resultado = leer_colegiados()
         return jsonify(_api_serializar_datos(resultado or []))
     except Exception as e:
-        return jsonify({"code": -1, "data": [], "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": [], "message": "Excepción superior: " + repr(e)})
 
 
 # Tabla: usuarios
@@ -5428,7 +5428,7 @@ def api_guardar_usuario():
             return jsonify({"code": 1, "data": {}, "message": "Usuario insertado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al insertar usuario."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_actualizar_usuario", methods=["POST"])
 @jwt_required()
@@ -5442,7 +5442,7 @@ def api_actualizar_usuario():
             return jsonify({"code": 1, "data": {}, "message": "Usuario actualizado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al actualizar usuario."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_eliminar_usuario", methods=["POST"])
 @jwt_required()
@@ -5455,7 +5455,7 @@ def api_eliminar_usuario():
             return jsonify({"code": 1, "data": {}, "message": "Usuario eliminado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al eliminar usuario."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_leer_usuario_xid", methods=["GET", "POST"])
 @jwt_required()
@@ -5467,7 +5467,7 @@ def api_leer_usuario_xid():
         resultado = leer_usuario_por_id(registro_id)
         return jsonify(_api_serializar_datos(resultado or {}))
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_leer_usuarios", methods=["GET"])
 @jwt_required()
@@ -5476,7 +5476,7 @@ def api_leer_usuarios():
         resultado = leer_usuarios()
         return jsonify(_api_serializar_datos(resultado or []))
     except Exception as e:
-        return jsonify({"code": -1, "data": [], "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": [], "message": "Excepción superior: " + repr(e)})
 
 
 # Tabla: recuperacion_password
@@ -5489,7 +5489,7 @@ def api_guardar_recuperacion_password():
             return jsonify({"code": 1, "data": {}, "message": "Recuperacion de password insertado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al insertar recuperacion de password."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_actualizar_recuperacion_password", methods=["POST"])
 @jwt_required()
@@ -5502,7 +5502,7 @@ def api_actualizar_recuperacion_password():
             return jsonify({"code": 1, "data": {}, "message": "Recuperacion de password actualizado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al actualizar recuperacion de password."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_eliminar_recuperacion_password", methods=["POST"])
 @jwt_required()
@@ -5515,7 +5515,7 @@ def api_eliminar_recuperacion_password():
             return jsonify({"code": 1, "data": {}, "message": "Recuperacion de password eliminado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al eliminar recuperacion de password."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_leer_recuperacion_password_xid", methods=["GET", "POST"])
 @jwt_required()
@@ -5527,7 +5527,7 @@ def api_leer_recuperacion_password_xid():
         resultado = leer_recuperacion_password_por_id(registro_id)
         return jsonify(_api_serializar_datos(resultado or {}))
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_leer_recuperaciones_password", methods=["GET"])
 @jwt_required()
@@ -5536,7 +5536,7 @@ def api_leer_recuperaciones_password():
         resultado = leer_recuperaciones_password()
         return jsonify(_api_serializar_datos(resultado or []))
     except Exception as e:
-        return jsonify({"code": -1, "data": [], "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": [], "message": "Excepción superior: " + repr(e)})
 
 
 # ============================================================
@@ -5559,7 +5559,7 @@ def api_guardar_cuota():
             return jsonify({"code": 1, "data": {}, "message": "Cuota insertado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al insertar cuota."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_actualizar_cuota", methods=["POST"])
 @jwt_required()
@@ -5578,7 +5578,7 @@ def api_actualizar_cuota():
             return jsonify({"code": 1, "data": {}, "message": "Cuota actualizado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al actualizar cuota."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_eliminar_cuota", methods=["POST"])
 @jwt_required()
@@ -5591,7 +5591,7 @@ def api_eliminar_cuota():
             return jsonify({"code": 1, "data": {}, "message": "Cuota eliminado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al eliminar cuota."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_leer_cuota_xid", methods=["GET", "POST"])
 @jwt_required()
@@ -5603,7 +5603,7 @@ def api_leer_cuota_xid():
         resultado = leer_cuota_por_id(registro_id)
         return jsonify(_api_serializar_datos(resultado or {}))
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_leer_cuotas", methods=["GET"])
 @jwt_required()
@@ -5612,7 +5612,7 @@ def api_leer_cuotas():
         resultado = leer_cuotas()
         return jsonify(_api_serializar_datos(resultado or []))
     except Exception as e:
-        return jsonify({"code": -1, "data": [], "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": [], "message": "Excepción superior: " + repr(e)})
 
 
 # Tabla: medios_pago
@@ -5626,7 +5626,7 @@ def api_guardar_medio_pago():
             return jsonify({"code": 1, "data": {}, "message": "Medio de pago insertado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al insertar medio de pago."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_actualizar_medio_pago", methods=["POST"])
 @jwt_required()
@@ -5640,7 +5640,7 @@ def api_actualizar_medio_pago():
             return jsonify({"code": 1, "data": {}, "message": "Medio de pago actualizado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al actualizar medio de pago."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_eliminar_medio_pago", methods=["POST"])
 @jwt_required()
@@ -5653,7 +5653,7 @@ def api_eliminar_medio_pago():
             return jsonify({"code": 1, "data": {}, "message": "Medio de pago eliminado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al eliminar medio de pago."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_leer_medio_pago_xid", methods=["GET", "POST"])
 @jwt_required()
@@ -5665,7 +5665,7 @@ def api_leer_medio_pago_xid():
         resultado = leer_medio_pago_por_id(registro_id)
         return jsonify(_api_serializar_datos(resultado or {}))
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_leer_medios_pago", methods=["GET"])
 @jwt_required()
@@ -5674,7 +5674,7 @@ def api_leer_medios_pago():
         resultado = leer_medios_pago()
         return jsonify(_api_serializar_datos(resultado or []))
     except Exception as e:
-        return jsonify({"code": -1, "data": [], "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": [], "message": "Excepción superior: " + repr(e)})
 
 
 # Tabla: evidencias_pago
@@ -5687,7 +5687,7 @@ def api_guardar_evidencia_pago():
             return jsonify({"code": 1, "data": {}, "message": "Evidencia de pago insertado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al insertar evidencia de pago."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_actualizar_evidencia_pago", methods=["POST"])
 @jwt_required()
@@ -5700,7 +5700,7 @@ def api_actualizar_evidencia_pago():
             return jsonify({"code": 1, "data": {}, "message": "Evidencia de pago actualizado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al actualizar evidencia de pago."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_eliminar_evidencia_pago", methods=["POST"])
 @jwt_required()
@@ -5713,7 +5713,7 @@ def api_eliminar_evidencia_pago():
             return jsonify({"code": 1, "data": {}, "message": "Evidencia de pago eliminado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al eliminar evidencia de pago."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_leer_evidencia_pago_xid", methods=["GET", "POST"])
 @jwt_required()
@@ -5725,7 +5725,7 @@ def api_leer_evidencia_pago_xid():
         resultado = leer_evidencia_pago_por_id(registro_id)
         return jsonify(_api_serializar_datos(resultado or {}))
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_leer_evidencias_pago", methods=["GET"])
 @jwt_required()
@@ -5734,7 +5734,7 @@ def api_leer_evidencias_pago():
         resultado = leer_evidencias_pago()
         return jsonify(_api_serializar_datos(resultado or []))
     except Exception as e:
-        return jsonify({"code": -1, "data": [], "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": [], "message": "Excepción superior: " + repr(e)})
 
 
 # Tabla: transacciones_pago
@@ -5744,10 +5744,10 @@ def api_guardar_transaccion_pago():
     try:
         data = _api_body_json()
         if insertar_transaccion_pago_crud(data):
-            return jsonify({"code": 1, "data": {}, "message": "Transaccion de pago insertado correctamente."})
-        return jsonify({"code": 0, "data": {}, "message": "Error al insertar transaccion de pago."})
+            return jsonify({"code": 1, "data": {}, "message": "Transacción de pago insertado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al insertar transacción de pago."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_actualizar_transaccion_pago", methods=["POST"])
 @jwt_required()
@@ -5757,10 +5757,10 @@ def api_actualizar_transaccion_pago():
         if not data.get("id"):
             return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
         if actualizar_transaccion_pago_crud(data):
-            return jsonify({"code": 1, "data": {}, "message": "Transaccion de pago actualizado correctamente."})
-        return jsonify({"code": 0, "data": {}, "message": "Error al actualizar transaccion de pago."})
+            return jsonify({"code": 1, "data": {}, "message": "Transacción de pago actualizado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al actualizar transacción de pago."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_eliminar_transaccion_pago", methods=["POST"])
 @jwt_required()
@@ -5770,10 +5770,10 @@ def api_eliminar_transaccion_pago():
         if not registro_id:
             return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
         if eliminar_transaccion_pago(registro_id):
-            return jsonify({"code": 1, "data": {}, "message": "Transaccion de pago eliminado correctamente."})
-        return jsonify({"code": 0, "data": {}, "message": "Error al eliminar transaccion de pago."})
+            return jsonify({"code": 1, "data": {}, "message": "Transacción de pago eliminado correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al eliminar transacción de pago."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_leer_transaccion_pago_xid", methods=["GET", "POST"])
 @jwt_required()
@@ -5785,7 +5785,7 @@ def api_leer_transaccion_pago_xid():
         resultado = leer_transaccion_pago_por_id(registro_id)
         return jsonify(_api_serializar_datos(resultado or {}))
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_leer_transacciones_pago", methods=["GET"])
 @jwt_required()
@@ -5794,7 +5794,7 @@ def api_leer_transacciones_pago():
         resultado = leer_transacciones_pago_crud()
         return jsonify(_api_serializar_datos(resultado or []))
     except Exception as e:
-        return jsonify({"code": -1, "data": [], "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": [], "message": "Excepción superior: " + repr(e)})
 
 
 # Tabla: comprobantes_pago
@@ -5807,7 +5807,7 @@ def api_guardar_comprobante_pago():
             return jsonify({"code": 1, "data": {}, "message": "Comprobante de pago insertado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al insertar comprobante de pago."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_actualizar_comprobante_pago", methods=["POST"])
 @jwt_required()
@@ -5820,7 +5820,7 @@ def api_actualizar_comprobante_pago():
             return jsonify({"code": 1, "data": {}, "message": "Comprobante de pago actualizado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al actualizar comprobante de pago."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_eliminar_comprobante_pago", methods=["POST"])
 @jwt_required()
@@ -5833,7 +5833,7 @@ def api_eliminar_comprobante_pago():
             return jsonify({"code": 1, "data": {}, "message": "Comprobante de pago eliminado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al eliminar comprobante de pago."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_leer_comprobante_pago_xid", methods=["GET", "POST"])
 @jwt_required()
@@ -5845,7 +5845,7 @@ def api_leer_comprobante_pago_xid():
         resultado = leer_comprobante_pago_por_id(registro_id)
         return jsonify(_api_serializar_datos(resultado or {}))
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_leer_comprobantes_pago", methods=["GET"])
 @jwt_required()
@@ -5854,7 +5854,7 @@ def api_leer_comprobantes_pago():
         resultado = leer_comprobantes_pago_crud()
         return jsonify(_api_serializar_datos(resultado or []))
     except Exception as e:
-        return jsonify({"code": -1, "data": [], "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": [], "message": "Excepción superior: " + repr(e)})
 
 
 # ============================================================
@@ -5871,7 +5871,7 @@ def api_guardar_configuracion_mercado_pago():
             return jsonify({"code": 1, "data": {}, "message": "Configuracion mercado pago insertado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al insertar configuracion Mercado Pago."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_actualizar_configuracion_mercado_pago", methods=["POST"])
 @jwt_required()
@@ -5884,7 +5884,7 @@ def api_actualizar_configuracion_mercado_pago():
             return jsonify({"code": 1, "data": {}, "message": "Configuracion mercado pago actualizado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al actualizar configuracion Mercado Pago."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_eliminar_configuracion_mercado_pago", methods=["POST"])
 @jwt_required()
@@ -5897,7 +5897,7 @@ def api_eliminar_configuracion_mercado_pago():
             return jsonify({"code": 1, "data": {}, "message": "Configuracion mercado pago eliminado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al eliminar configuracion Mercado Pago."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_leer_configuracion_mercado_pago_xid", methods=["GET", "POST"])
 @jwt_required()
@@ -5909,7 +5909,7 @@ def api_leer_configuracion_mercado_pago_xid():
         resultado = leer_configuracion_mercado_pago_por_id(registro_id)
         return jsonify(_api_serializar_datos(resultado or {}))
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_leer_configuraciones_mercado_pago", methods=["GET"])
 @jwt_required()
@@ -5918,7 +5918,7 @@ def api_leer_configuraciones_mercado_pago():
         resultado = leer_configuraciones_mercado_pago_crud()
         return jsonify(_api_serializar_datos(resultado or []))
     except Exception as e:
-        return jsonify({"code": -1, "data": [], "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": [], "message": "Excepción superior: " + repr(e)})
 
 
 # Tabla: ordenes_mercado_pago
@@ -5931,7 +5931,7 @@ def api_guardar_orden_mercado_pago():
             return jsonify({"code": 1, "data": {}, "message": "Orden mercado pago insertado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al insertar orden Mercado Pago."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_actualizar_orden_mercado_pago", methods=["POST"])
 @jwt_required()
@@ -5944,7 +5944,7 @@ def api_actualizar_orden_mercado_pago():
             return jsonify({"code": 1, "data": {}, "message": "Orden mercado pago actualizado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al actualizar orden Mercado Pago."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_eliminar_orden_mercado_pago", methods=["POST"])
 @jwt_required()
@@ -5957,7 +5957,7 @@ def api_eliminar_orden_mercado_pago():
             return jsonify({"code": 1, "data": {}, "message": "Orden mercado pago eliminado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al eliminar orden Mercado Pago."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_leer_orden_mercado_pago_xid", methods=["GET", "POST"])
 @jwt_required()
@@ -5969,7 +5969,7 @@ def api_leer_orden_mercado_pago_xid():
         resultado = leer_orden_mercado_pago_por_id(registro_id)
         return jsonify(_api_serializar_datos(resultado or {}))
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_leer_ordenes_mercado_pago", methods=["GET"])
 @jwt_required()
@@ -5978,7 +5978,7 @@ def api_leer_ordenes_mercado_pago():
         resultado = leer_ordenes_mercado_pago_crud()
         return jsonify(_api_serializar_datos(resultado or []))
     except Exception as e:
-        return jsonify({"code": -1, "data": [], "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": [], "message": "Excepción superior: " + repr(e)})
 
 
 # ============================================================
@@ -5995,7 +5995,7 @@ def api_guardar_configuracion_facturacion():
             return jsonify({"code": 1, "data": {}, "message": "Configuracion de facturacion insertado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al insertar configuracion de facturacion."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_actualizar_configuracion_facturacion", methods=["POST"])
 @jwt_required()
@@ -6008,7 +6008,7 @@ def api_actualizar_configuracion_facturacion():
             return jsonify({"code": 1, "data": {}, "message": "Configuracion de facturacion actualizado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al actualizar configuracion de facturacion."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_eliminar_configuracion_facturacion", methods=["POST"])
 @jwt_required()
@@ -6021,7 +6021,7 @@ def api_eliminar_configuracion_facturacion():
             return jsonify({"code": 1, "data": {}, "message": "Configuracion de facturacion eliminado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al eliminar configuracion de facturacion."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_leer_configuracion_facturacion_xid", methods=["GET", "POST"])
 @jwt_required()
@@ -6033,7 +6033,7 @@ def api_leer_configuracion_facturacion_xid():
         resultado = leer_configuracion_facturacion_por_id(registro_id)
         return jsonify(_api_serializar_datos(resultado or {}))
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_leer_configuraciones_facturacion", methods=["GET"])
 @jwt_required()
@@ -6042,7 +6042,7 @@ def api_leer_configuraciones_facturacion():
         resultado = leer_configuraciones_facturacion_crud()
         return jsonify(_api_serializar_datos(resultado or []))
     except Exception as e:
-        return jsonify({"code": -1, "data": [], "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": [], "message": "Excepción superior: " + repr(e)})
 
 
 # Tabla: comprobantes_fiscales
@@ -6055,7 +6055,7 @@ def api_guardar_comprobante_fiscal():
             return jsonify({"code": 1, "data": {}, "message": "Comprobante fiscal insertado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al insertar comprobante fiscal."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_actualizar_comprobante_fiscal", methods=["POST"])
 @jwt_required()
@@ -6068,7 +6068,7 @@ def api_actualizar_comprobante_fiscal():
             return jsonify({"code": 1, "data": {}, "message": "Comprobante fiscal actualizado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al actualizar comprobante fiscal."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_eliminar_comprobante_fiscal", methods=["POST"])
 @jwt_required()
@@ -6081,7 +6081,7 @@ def api_eliminar_comprobante_fiscal():
             return jsonify({"code": 1, "data": {}, "message": "Comprobante fiscal eliminado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al eliminar comprobante fiscal."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_leer_comprobante_fiscal_xid", methods=["GET", "POST"])
 @jwt_required()
@@ -6093,7 +6093,7 @@ def api_leer_comprobante_fiscal_xid():
         resultado = leer_comprobante_fiscal_admin(registro_id)
         return jsonify(_api_serializar_datos(resultado or {}))
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_leer_comprobantes_fiscales", methods=["GET"])
 @jwt_required()
@@ -6102,7 +6102,7 @@ def api_leer_comprobantes_fiscales():
         resultado = leer_comprobantes_fiscales()
         return jsonify(_api_serializar_datos(resultado or []))
     except Exception as e:
-        return jsonify({"code": -1, "data": [], "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": [], "message": "Excepción superior: " + repr(e)})
 
 
 # Tabla: comprobante_fiscal_detalle
@@ -6115,7 +6115,7 @@ def api_guardar_comprobante_fiscal_detalle():
             return jsonify({"code": 1, "data": {}, "message": "Detalle de comprobante fiscal insertado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al insertar detalle de comprobante fiscal."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_actualizar_comprobante_fiscal_detalle", methods=["POST"])
 @jwt_required()
@@ -6128,7 +6128,7 @@ def api_actualizar_comprobante_fiscal_detalle():
             return jsonify({"code": 1, "data": {}, "message": "Detalle de comprobante fiscal actualizado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al actualizar detalle de comprobante fiscal."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_eliminar_comprobante_fiscal_detalle", methods=["POST"])
 @jwt_required()
@@ -6141,7 +6141,7 @@ def api_eliminar_comprobante_fiscal_detalle():
             return jsonify({"code": 1, "data": {}, "message": "Detalle de comprobante fiscal eliminado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al eliminar detalle de comprobante fiscal."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_leer_comprobante_fiscal_detalle_xid", methods=["GET", "POST"])
 @jwt_required()
@@ -6153,7 +6153,7 @@ def api_leer_comprobante_fiscal_detalle_xid():
         resultado = leer_comprobante_fiscal_detalle_por_id(registro_id)
         return jsonify(_api_serializar_datos(resultado or {}))
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_leer_comprobantes_fiscales_detalle", methods=["GET"])
 @jwt_required()
@@ -6162,7 +6162,7 @@ def api_leer_comprobantes_fiscales_detalle():
         resultado = leer_comprobantes_fiscales_detalle_crud()
         return jsonify(_api_serializar_datos(resultado or []))
     except Exception as e:
-        return jsonify({"code": -1, "data": [], "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": [], "message": "Excepción superior: " + repr(e)})
 
 
 # Tabla: facturacion_sunat_logs
@@ -6175,7 +6175,7 @@ def api_guardar_facturacion_sunat_log():
             return jsonify({"code": 1, "data": {}, "message": "Log sunat insertado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al insertar log SUNAT."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_actualizar_facturacion_sunat_log", methods=["POST"])
 @jwt_required()
@@ -6188,7 +6188,7 @@ def api_actualizar_facturacion_sunat_log():
             return jsonify({"code": 1, "data": {}, "message": "Log sunat actualizado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al actualizar log SUNAT."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_eliminar_facturacion_sunat_log", methods=["POST"])
 @jwt_required()
@@ -6201,7 +6201,7 @@ def api_eliminar_facturacion_sunat_log():
             return jsonify({"code": 1, "data": {}, "message": "Log sunat eliminado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al eliminar log SUNAT."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_leer_facturacion_sunat_log_xid", methods=["GET", "POST"])
 @jwt_required()
@@ -6213,7 +6213,7 @@ def api_leer_facturacion_sunat_log_xid():
         resultado = leer_facturacion_sunat_log_por_id(registro_id)
         return jsonify(_api_serializar_datos(resultado or {}))
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_leer_facturacion_sunat_logs", methods=["GET"])
 @jwt_required()
@@ -6222,7 +6222,7 @@ def api_leer_facturacion_sunat_logs():
         resultado = leer_facturacion_sunat_logs_crud()
         return jsonify(_api_serializar_datos(resultado or []))
     except Exception as e:
-        return jsonify({"code": -1, "data": [], "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": [], "message": "Excepción superior: " + repr(e)})
 
 
 # ============================================================
@@ -6246,7 +6246,7 @@ def api_guardar_curso():
             return jsonify({"code": 1, "data": {}, "message": "Curso insertado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al insertar curso."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_actualizar_curso", methods=["POST"])
 @jwt_required()
@@ -6266,7 +6266,7 @@ def api_actualizar_curso():
             return jsonify({"code": 1, "data": {}, "message": "Curso actualizado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al actualizar curso."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_eliminar_curso", methods=["POST"])
 @jwt_required()
@@ -6279,7 +6279,7 @@ def api_eliminar_curso():
             return jsonify({"code": 1, "data": {}, "message": "Curso eliminado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al eliminar curso."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_leer_curso_xid", methods=["GET", "POST"])
 @jwt_required()
@@ -6291,7 +6291,7 @@ def api_leer_curso_xid():
         resultado = leer_curso_admin_por_id(registro_id)
         return jsonify(_api_serializar_datos(resultado or {}))
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_leer_cursos", methods=["GET"])
 @jwt_required()
@@ -6300,7 +6300,7 @@ def api_leer_cursos():
         resultado = leer_cursos()
         return jsonify(_api_serializar_datos(resultado or []))
     except Exception as e:
-        return jsonify({"code": -1, "data": [], "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": [], "message": "Excepción superior: " + repr(e)})
 
 
 # Tabla: contenido_curso
@@ -6313,7 +6313,7 @@ def api_guardar_contenido_curso():
             return jsonify({"code": 1, "data": {}, "message": "Contenido de curso insertado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al insertar contenido de curso."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_actualizar_contenido_curso", methods=["POST"])
 @jwt_required()
@@ -6326,7 +6326,7 @@ def api_actualizar_contenido_curso():
             return jsonify({"code": 1, "data": {}, "message": "Contenido de curso actualizado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al actualizar contenido de curso."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_eliminar_contenido_curso", methods=["POST"])
 @jwt_required()
@@ -6339,7 +6339,7 @@ def api_eliminar_contenido_curso():
             return jsonify({"code": 1, "data": {}, "message": "Contenido de curso eliminado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al eliminar contenido de curso."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_leer_contenido_curso_xid", methods=["GET", "POST"])
 @jwt_required()
@@ -6351,7 +6351,7 @@ def api_leer_contenido_curso_xid():
         resultado = leer_contenido_curso_por_id(registro_id)
         return jsonify(_api_serializar_datos(resultado or {}))
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_leer_contenidos_curso", methods=["GET"])
 @jwt_required()
@@ -6360,7 +6360,7 @@ def api_leer_contenidos_curso():
         resultado = leer_contenidos_curso_crud()
         return jsonify(_api_serializar_datos(resultado or []))
     except Exception as e:
-        return jsonify({"code": -1, "data": [], "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": [], "message": "Excepción superior: " + repr(e)})
 
 
 # Tabla: inscripciones_curso
@@ -6370,10 +6370,10 @@ def api_guardar_inscripcion_curso():
     try:
         data = _api_body_json()
         if insertar_inscripcion_curso(data["matricula"], data["curso_id"], data.get("estado_pago", "Pendiente")):
-            return jsonify({"code": 1, "data": {}, "message": "Inscripcion de curso insertado correctamente."})
-        return jsonify({"code": 0, "data": {}, "message": "Error al insertar inscripcion de curso."})
+            return jsonify({"code": 1, "data": {}, "message": "Inscripción de curso insertada correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al insertar inscripción de curso."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_actualizar_inscripcion_curso", methods=["POST"])
 @jwt_required()
@@ -6383,10 +6383,10 @@ def api_actualizar_inscripcion_curso():
         if not data.get("id"):
             return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
         if actualizar_inscripcion_curso_crud(data):
-            return jsonify({"code": 1, "data": {}, "message": "Inscripcion de curso actualizado correctamente."})
-        return jsonify({"code": 0, "data": {}, "message": "Error al actualizar inscripcion de curso."})
+            return jsonify({"code": 1, "data": {}, "message": "Inscripción de curso actualizada correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al actualizar inscripción de curso."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_eliminar_inscripcion_curso", methods=["POST"])
 @jwt_required()
@@ -6396,10 +6396,10 @@ def api_eliminar_inscripcion_curso():
         if not registro_id:
             return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
         if eliminar_inscripcion_curso(registro_id):
-            return jsonify({"code": 1, "data": {}, "message": "Inscripcion de curso eliminado correctamente."})
-        return jsonify({"code": 0, "data": {}, "message": "Error al eliminar inscripcion de curso."})
+            return jsonify({"code": 1, "data": {}, "message": "Inscripción de curso eliminada correctamente."})
+        return jsonify({"code": 0, "data": {}, "message": "Error al eliminar inscripción de curso."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_leer_inscripcion_curso_xid", methods=["GET", "POST"])
 @jwt_required()
@@ -6411,7 +6411,7 @@ def api_leer_inscripcion_curso_xid():
         resultado = leer_inscripcion_curso_por_id(registro_id)
         return jsonify(_api_serializar_datos(resultado or {}))
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_leer_inscripciones_curso", methods=["GET"])
 @jwt_required()
@@ -6420,7 +6420,7 @@ def api_leer_inscripciones_curso():
         resultado = leer_inscripciones_curso()
         return jsonify(_api_serializar_datos(resultado or []))
     except Exception as e:
-        return jsonify({"code": -1, "data": [], "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": [], "message": "Excepción superior: " + repr(e)})
 
 
 # ============================================================
@@ -6439,10 +6439,10 @@ def api_guardar_tramite():
             data.get("estado", "Pendiente"), data.get("fecha_solicitud")
         )
         if insertar_tramite(objTramite):
-            return jsonify({"code": 1, "data": {}, "message": "Tramite insertado correctamente."})
+            return jsonify({"code": 1, "data": {}, "message": "Trámite insertado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al insertar tramite."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_actualizar_tramite", methods=["POST"])
 @jwt_required()
@@ -6452,10 +6452,10 @@ def api_actualizar_tramite():
         if not data.get("id"):
             return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
         if actualizar_tramite_crud(data):
-            return jsonify({"code": 1, "data": {}, "message": "Tramite actualizado correctamente."})
+            return jsonify({"code": 1, "data": {}, "message": "Trámite actualizado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al actualizar tramite."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_eliminar_tramite", methods=["POST"])
 @jwt_required()
@@ -6465,10 +6465,10 @@ def api_eliminar_tramite():
         if not registro_id:
             return jsonify({"code": 0, "data": {}, "message": "Debe enviar el id."})
         if eliminar_tramite(registro_id):
-            return jsonify({"code": 1, "data": {}, "message": "Tramite eliminado correctamente."})
+            return jsonify({"code": 1, "data": {}, "message": "Trámite eliminado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al eliminar tramite."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_leer_tramite_xid", methods=["GET", "POST"])
 @jwt_required()
@@ -6480,7 +6480,7 @@ def api_leer_tramite_xid():
         resultado = leer_tramite_por_id(registro_id)
         return jsonify(_api_serializar_datos(resultado or {}))
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_leer_tramites", methods=["GET"])
 @jwt_required()
@@ -6489,7 +6489,7 @@ def api_leer_tramites():
         resultado = leer_tramites()
         return jsonify(_api_serializar_datos(resultado or []))
     except Exception as e:
-        return jsonify({"code": -1, "data": [], "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": [], "message": "Excepción superior: " + repr(e)})
 
 
 # Tabla: tickets
@@ -6502,7 +6502,7 @@ def api_guardar_ticket():
             return jsonify({"code": 1, "data": {}, "message": "Ticket insertado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al insertar ticket."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_actualizar_ticket", methods=["POST"])
 @jwt_required()
@@ -6515,7 +6515,7 @@ def api_actualizar_ticket():
             return jsonify({"code": 1, "data": {}, "message": "Ticket actualizado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al actualizar ticket."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_eliminar_ticket", methods=["POST"])
 @jwt_required()
@@ -6528,7 +6528,7 @@ def api_eliminar_ticket():
             return jsonify({"code": 1, "data": {}, "message": "Ticket eliminado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al eliminar ticket."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_leer_ticket_xid", methods=["GET", "POST"])
 @jwt_required()
@@ -6540,7 +6540,7 @@ def api_leer_ticket_xid():
         resultado = leer_ticket_por_id(registro_id)
         return jsonify(_api_serializar_datos(resultado or {}))
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_leer_tickets", methods=["GET"])
 @jwt_required()
@@ -6549,7 +6549,7 @@ def api_leer_tickets():
         resultado = leer_tickets()
         return jsonify(_api_serializar_datos(resultado or []))
     except Exception as e:
-        return jsonify({"code": -1, "data": [], "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": [], "message": "Excepción superior: " + repr(e)})
 
 
 # Tabla: notificaciones
@@ -6562,7 +6562,7 @@ def api_guardar_notificacion():
             return jsonify({"code": 1, "data": {}, "message": "Notificacion insertado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al insertar notificacion."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_actualizar_notificacion", methods=["POST"])
 @jwt_required()
@@ -6575,7 +6575,7 @@ def api_actualizar_notificacion():
             return jsonify({"code": 1, "data": {}, "message": "Notificacion actualizado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al actualizar notificacion."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_eliminar_notificacion", methods=["POST"])
 @jwt_required()
@@ -6588,7 +6588,7 @@ def api_eliminar_notificacion():
             return jsonify({"code": 1, "data": {}, "message": "Notificacion eliminado correctamente."})
         return jsonify({"code": 0, "data": {}, "message": "Error al eliminar notificacion."})
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_leer_notificacion_xid", methods=["GET", "POST"])
 @jwt_required()
@@ -6600,7 +6600,7 @@ def api_leer_notificacion_xid():
         resultado = leer_notificacion_por_id(registro_id)
         return jsonify(_api_serializar_datos(resultado or {}))
     except Exception as e:
-        return jsonify({"code": -1, "data": {}, "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": {}, "message": "Excepción superior: " + repr(e)})
 
 @app.route("/api_leer_notificaciones", methods=["GET"])
 @jwt_required()
@@ -6609,7 +6609,7 @@ def api_leer_notificaciones():
         resultado = leer_notificaciones_crud()
         return jsonify(_api_serializar_datos(resultado or []))
     except Exception as e:
-        return jsonify({"code": -1, "data": [], "message": "Excepcion superior: " + repr(e)})
+        return jsonify({"code": -1, "data": [], "message": "Excepción superior: " + repr(e)})
 
 
 # ============================================================

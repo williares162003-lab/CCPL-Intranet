@@ -26,7 +26,7 @@
       <h3 class="resumen-valor">{{ vencidas or 0 }}</h3>
     </article>
     <article class="resumen-card">
-      <p class="resumen-label">Voucher en revision</p>
+      <p class="resumen-label">Voucher en revisión</p>
       <h3 class="resumen-valor">{{ en_revision or 0 }}</h3>
     </article>
   </section>
@@ -35,7 +35,7 @@
     <div class="tarjeta-encabezado">
       <div>
         <h3 class="titulo-seccion sin-margen">Formas de pago</h3>
-        <p class="texto-secundario">Elige pago automatico o registra un voucher para revision administrativa.</p>
+        <p class="texto-secundario">Elige pago automático o registra un voucher para revisión administrativa.</p>
       </div>
     </div>
     <div class="medios-pago-grid">
@@ -74,7 +74,7 @@
         </div>
       </article>
       {% else %}
-      <p class="mensaje-vacio">Aun no hay medios de pago activos para voucher.</p>
+      <p class="mensaje-vacio">Aún no hay medios de pago activos para voucher.</p>
       {% endfor %}
     </div>
   </section>
@@ -243,7 +243,7 @@
                   Pago interno
                 </a>
                 {% if row.evidencia %}
-                <span class="estado-badge estado-pendiente">En revision</span>
+                <span class="estado-badge estado-pendiente">En revisión</span>
                 {% elif medios_pago %}
                 <button
                   type="button"
@@ -310,7 +310,7 @@
 
         <div class="form-grid">
           <div>
-            <label class="etiqueta-campo">Numero de operacion *</label>
+            <label class="etiqueta-campo">Número de operación *</label>
             <input name="numero_operacion" required class="campo-formulario" placeholder="Ej: 000123456">
           </div>
           <div>

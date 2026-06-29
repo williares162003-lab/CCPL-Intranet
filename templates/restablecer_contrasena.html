@@ -22,8 +22,8 @@
 
         <div class="login-card">
           <div>
-            <h2>Nueva contrasena</h2>
-            <p>Ingrese el codigo enviado a {{ correo or 'su correo registrado' }}.</p>
+            <h2>Nueva contraseña</h2>
+            <p>Ingrese el código enviado a {{ correo or 'su correo registrado' }}.</p>
           </div>
 
           {% with messages = get_flashed_messages(with_categories=true) %}
@@ -40,16 +40,16 @@
 
           <form class="login-form" method="post">
             <div class="login-field">
-              <label for="codigo">Codigo de verificacion</label>
+              <label for="codigo">Código de verificación</label>
               <div class="login-input-wrap">
                 <span class="material-symbols-outlined">pin</span>
                 <input class="login-input" id="codigo" name="codigo"
-                       placeholder="6 digitos" inputmode="numeric" maxlength="6" required />
+                       placeholder="6 dígitos" inputmode="numeric" maxlength="6" required />
               </div>
             </div>
 
             <div class="login-field">
-              <label for="password">Nueva contrasena</label>
+              <label for="password">Nueva contraseña</label>
               <div class="login-input-wrap">
                 <span class="material-symbols-outlined">lock_reset</span>
                 <input class="login-input" id="password" name="password"
@@ -58,20 +58,20 @@
             </div>
 
             <div class="login-field">
-              <label for="confirmar">Confirmar contrasena</label>
+              <label for="confirmar">Confirmar contraseña</label>
               <div class="login-input-wrap">
                 <span class="material-symbols-outlined">verified_user</span>
                 <input class="login-input" id="confirmar" name="confirmar"
-                       placeholder="Repita la nueva contrasena" type="password" required />
+                       placeholder="Repita la nueva contraseña" type="password" required />
               </div>
             </div>
 
             <button class="boton boton-primario boton-ancho" type="submit">
-              <span>Actualizar contrasena</span>
+              <span>Actualizar contraseña</span>
               <span class="material-symbols-outlined">check_circle</span>
             </button>
 
-            <a href="{{ url_for('recuperar_contrasena') }}" class="login-link-centro">Solicitar otro codigo</a>
+            <a href="{{ url_for('recuperar_contrasena') }}" class="login-link-centro">Solicitar otro código</a>
           </form>
         </div>
       </div>

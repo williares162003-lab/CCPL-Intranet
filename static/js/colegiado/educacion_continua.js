@@ -47,7 +47,7 @@ function mostrarCurso(boton) {
       : '<span class="estado-badge estado-pendiente">Pago pendiente</span>';
 
   document.getElementById("modal-descripcion-curso").textContent =
-    boton.dataset.description || "Aun no hay descripcion registrada.";
+    boton.dataset.description || "Aún no hay descripcion registrada.";
   renderizarMateriales(materiales);
 
   const acciones = document.getElementById("modal-acciones");
@@ -74,7 +74,7 @@ function renderizarMateriales(materiales) {
   if (!materiales.length) {
     const vacio = document.createElement("p");
     vacio.className = "texto-pequeno";
-    vacio.textContent = "Aun no hay materiales publicados para este curso.";
+    vacio.textContent = "Aún no hay materiales publicados para este curso.";
     contenedor.appendChild(vacio);
     return;
   }

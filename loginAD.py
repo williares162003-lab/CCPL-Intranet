@@ -176,7 +176,7 @@ def actualizar_password_con_codigo(matricula, codigo, nueva_password):
                     if not registro:
                         return {
                             "ok": False,
-                            "mensaje": "El codigo no es valido o ya vencio."
+                            "mensaje": "El código no es válido o ya venció."
                         }
 
                     cursor.execute(
@@ -194,13 +194,13 @@ def actualizar_password_con_codigo(matricula, codigo, nueva_password):
                 conn.commit()
             return {
                 "ok": True,
-                "mensaje": "Contrasena actualizada correctamente."
+                "mensaje": "Contraseña actualizada correctamente."
             }
     except Exception as e:
         print("Error actualizar_password_con_codigo:", repr(e))
     return {
         "ok": False,
-        "mensaje": "No se pudo actualizar la contrasena."
+        "mensaje": "No se pudo actualizar la contraseña."
     }
 
 

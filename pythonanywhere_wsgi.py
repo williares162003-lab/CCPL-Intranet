@@ -28,7 +28,7 @@ os.environ["DB_USER"] = "TrabajoDAWEB"
 os.environ["DB_PASSWORD"] = "CAMBIAR_PASSWORD_MYSQL"
 os.environ["DB_NAME"] = "TrabajoDAWEB$colegiocontadores"
 
-# Correo del sistema para recuperar contrasena.
+# Correo del sistema para recuperar contraseña.
 os.environ["CCPL_SMTP_HOST"] = "smtp.gmail.com"
 os.environ["CCPL_SMTP_PORT"] = "587"
 os.environ["CCPL_SMTP_USER"] = "intranet162003@gmail.com"

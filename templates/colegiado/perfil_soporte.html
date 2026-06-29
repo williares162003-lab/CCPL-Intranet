@@ -124,7 +124,7 @@
               <h3>{{ t.asunto }}</h3>
             </div>
             <span class="estado-badge {% if t.estado == 'Cerrado' %}estado-cerrado{% elif t.estado[:2] == 'En' %}estado-revision{% else %}estado-abierto{% endif %}">
-              {{ 'En Revision' if t.estado == 'En atencion' else t.estado }}
+              {{ 'En Revisión' if t.estado == 'En atencion' else t.estado }}
             </span>
           </div>
           <p class="ticket-descripcion">{{ t.descripcion }}</p>
@@ -137,7 +137,7 @@
             {% endif %}
           </div>
           {% else %}
-          <p class="texto-pequeno">Soporte aun no registra respuesta.</p>
+          <p class="texto-pequeno">Soporte aún no registra respuesta.</p>
           {% endif %}
         </article>
         {% else %}

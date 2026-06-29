@@ -66,7 +66,7 @@
     </div>
     <div class="filtro-campo filtro-busqueda">
       <label class="etiqueta-campo">Buscar</label>
-      <input name="q" value="{{ busqueda }}" class="campo-formulario" placeholder="Colegiado, matricula o curso">
+      <input name="q" value="{{ busqueda }}" class="campo-formulario" placeholder="Colegiado, matrícula o curso">
     </div>
     <div class="filtro-campo filtro-cantidad">
       <label class="etiqueta-campo">Mostrar</label>
@@ -141,7 +141,7 @@
               {% endif %}
             </td>
             <td>
-              <form action="{{ url_for('ponente_actualizar_progreso', inscripcion_id=item.inscripcion_id) }}" method="POST" class="seguimiento-form" data-confirm="Desea actualizar el progreso del colegiado?">
+              <form action="{{ url_for('ponente_actualizar_progreso', inscripcion_id=item.inscripcion_id) }}" method="POST" class="seguimiento-form" data-confirm="¿Desea actualizar el progreso del colegiado?">
                 <input type="hidden" name="curso_id" value="{{ item.curso_id }}">
                 <input type="hidden" name="origen" value="seguimiento">
                 <input name="progreso" type="number" min="0" max="100" value="{{ item.progreso }}" class="campo-formulario" required>

@@ -34,7 +34,7 @@ function validarFormEvidenciaPago(form) {
 
   const operacion = form.querySelector('[name="numero_operacion"]');
   if (!operacion.value.trim()) {
-    mostrarErrorCampo(operacion, "Ingrese el numero de operacion.");
+    mostrarErrorCampo(operacion, "Ingrese el número de operacion.");
     valido = false;
   }
 
@@ -82,7 +82,7 @@ function validarFormAdelanto(form) {
     valido = false;
   }
   if (mesNum < 1 || mesNum > 12) {
-    mostrarErrorCampo(mesInicio, "Seleccione un mes valido.");
+    mostrarErrorCampo(mesInicio, "Seleccione un mes válido.");
     valido = false;
   }
   if (anioNum === anioActual && mesNum < mesActual) {

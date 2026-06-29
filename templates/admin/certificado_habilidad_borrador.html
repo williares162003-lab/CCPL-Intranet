@@ -8,7 +8,7 @@
 </head>
 <body>
   <div class="certificado-toolbar">
-    <a class="boton-volver" href="{{ url_for('admin_tramites') }}">Volver a tramites</a>
+    <a class="boton-volver" href="{{ url_for('admin_tramites') }}">Volver a trámites</a>
     <a class="boton-imprimir" href="{{ pdf_url }}" target="_blank" rel="noopener">Abrir PDF</a>
     <button type="button" class="boton-imprimir" onclick="window.print()">Imprimir</button>
   </div>
@@ -20,7 +20,7 @@
 
     <section class="certificado-overlay certificado-identidad">
       <p>CPC. {{ certificado.nombre|upper }}</p>
-      <span>MATRICULA {{ certificado.matricula|upper }}</span>
+      <span>MATRÍCULA {{ certificado.matricula|upper }}</span>
     </section>
 
     <p class="certificado-overlay certificado-fecha">

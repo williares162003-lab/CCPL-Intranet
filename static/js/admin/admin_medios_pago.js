@@ -41,7 +41,7 @@ function validarFormMedioPago(form) {
 
   const cuenta = form.querySelector('[name="numero_cuenta"]');
   if (!cuenta.value.trim()) {
-    mostrarErrorCampo(cuenta, "Ingrese el numero o identificador de cuenta.");
+    mostrarErrorCampo(cuenta, "Ingrese el número o identificador de cuenta.");
     valido = false;
   }
 

@@ -8,13 +8,13 @@
 <div class="pagina espaciado">
   <section class="encabezado-con-panel no-print">
     <div>
-      <p class="etiqueta-seccion">Facturacion</p>
+      <p class="etiqueta-seccion">Facturación</p>
       <h2 class="titulo-pagina">Comprobante fiscal</h2>
-      <p class="texto-apoyo">Documento preparado para emision electronica SUNAT.</p>
+      <p class="texto-apoyo">Documento preparado para emisión electrónica SUNAT.</p>
     </div>
     <div class="fila-wrap">
       <a href="{{ url_for('admin_facturacion') }}" class="boton boton-secundario">
-        <span class="material-symbols-outlined">arrow_back</span> Facturacion
+        <span class="material-symbols-outlined">arrow_back</span> Facturación
       </a>
       {% if comprobante.estado in ['Pendiente', 'Rechazado'] %}
       <form action="{{ url_for('admin_enviar_comprobante_fiscal', fiscal_id=comprobante.id) }}"
@@ -37,21 +37,21 @@
         <img src="{{ url_for('static', filename='imagenes/escudo-ccpl.png') }}"
              alt="CCPL" class="fiscal-logo">
         <div>
-          <h2>{{ config_facturacion.razon_social or 'Colegio de Contadores Publicos de Lambayeque' }}</h2>
+          <h2>{{ config_facturacion.razon_social or 'Colegio de Contadores Públicos de Lambayeque' }}</h2>
           <p>{{ config_facturacion.nombre_comercial or 'CCPL' }}</p>
           <p>{{ config_facturacion.direccion or 'Lambayeque' }}</p>
         </div>
       </div>
       <div class="fiscal-serie-box">
         <p>RUC {{ config_facturacion.ruc or '-' }}</p>
-        <h1>{{ comprobante.tipo_comprobante|upper }} DE VENTA ELECTRONICA</h1>
+        <h1>{{ comprobante.tipo_comprobante|upper }} DE VENTA ELECTRÓNICA</h1>
         <strong>{{ numero_comprobante }}</strong>
       </div>
     </header>
 
     <section class="fiscal-meta">
       <div>
-        <span>Fecha de emision</span>
+        <span>Fecha de emisión</span>
         <strong>{{ comprobante.fecha_emision }}</strong>
       </div>
       <div>
@@ -71,9 +71,9 @@
     <section class="fiscal-cliente">
       <p class="fiscal-section-title">Datos del adquirente o usuario</p>
       <div class="fiscal-info-grid">
-        <p><span>Senor(es)</span><strong>{{ comprobante.cliente_nombre }}</strong></p>
+        <p><span>Señor(es)</span><strong>{{ comprobante.cliente_nombre }}</strong></p>
         <p><span>{{ comprobante.tipo_documento_cliente }}</span><strong>{{ comprobante.numero_documento_cliente }}</strong></p>
-        <p><span>Matricula</span><strong>{{ comprobante.matricula }}</strong></p>
+        <p><span>Matrícula</span><strong>{{ comprobante.matricula }}</strong></p>
         <p><span>Correo</span><strong>{{ comprobante.cliente_correo or comprobante.correo or '-' }}</strong></p>
       </div>
     </section>
@@ -82,7 +82,7 @@
       <table>
         <thead>
           <tr>
-            <th>Descripcion</th>
+            <th>Descripción</th>
             <th class="centro">Cant.</th>
             <th class="derecha">Valor unit.</th>
             <th class="derecha">Subtotal</th>
@@ -109,15 +109,15 @@
 
     <section class="fiscal-resumen">
       <div class="fiscal-observacion">
-        <p class="fiscal-section-title">Informacion SUNAT</p>
+        <p class="fiscal-section-title">Información SUNAT</p>
         <p>
           Estado:
           <span class="estado-badge {% if comprobante.estado == 'Anulado' %}estado-inactivo{% elif comprobante.estado == 'Aceptado' %}estado-pagado{% elif comprobante.estado == 'Rechazado' %}estado-vencida{% else %}estado-pendiente{% endif %}">
             {{ comprobante.estado }}
           </span>
         </p>
-        <p>CDR / Ticket: <strong>{{ comprobante.ticket_sunat or 'Pendiente de envio' }}</strong></p>
-        <p>{{ comprobante.cdr_descripcion or comprobante.cdr_estado or 'Documento preparado para envio electronico.' }}</p>
+        <p>CDR / Ticket: <strong>{{ comprobante.ticket_sunat or 'Pendiente de envío' }}</strong></p>
+        <p>{{ comprobante.cdr_descripcion or comprobante.cdr_estado or 'Documento preparado para envío electrónico.' }}</p>
         {% if comprobante.xml_archivo %}
         <a href="{{ url_for('static', filename=comprobante.xml_archivo) }}" target="_blank" class="no-print">
           Ver XML firmado
@@ -133,15 +133,15 @@
 
     <footer class="fiscal-footer">
       <div class="fiscal-qr">
-        <img src="{{ qr_fiscal }}" alt="Codigo QR del comprobante">
+        <img src="{{ qr_fiscal }}" alt="Código QR del comprobante">
       </div>
       <div class="fiscal-footer-text">
         <p>
-          Representacion impresa de la {{ comprobante.tipo_comprobante|lower }} de venta electronica.
-          Consulte el comprobante con los datos de serie, numero, RUC emisor y fecha de emision.
+          Representación impresa de la {{ comprobante.tipo_comprobante|lower }} de venta electrónica.
+          Consulte el comprobante con los datos de serie, número, RUC emisor y fecha de emisión.
         </p>
         <p>Hash: <strong>{{ comprobante.codigo_hash }}</strong></p>
-        <p>Documento generado por la Intranet CCPL. Modo de envio: {{ config_facturacion.modo_envio or 'SUNAT_BETA' }}.</p>
+        <p>Documento generado por la Intranet CCPL. Modo de envío: {{ config_facturacion.modo_envio or 'SUNAT_BETA' }}.</p>
       </div>
     </footer>
 
@@ -154,8 +154,8 @@
               class="anular-form"
               data-confirm="Desea anular este comprobante fiscal?">
           <textarea name="motivo" rows="3" required class="campo-formulario"
-                    placeholder="Motivo de anulacion"></textarea>
-          <button type="submit" class="boton-mini boton-rechazar">Confirmar anulacion</button>
+                    placeholder="Motivo de anulación"></textarea>
+          <button type="submit" class="boton-mini boton-rechazar">Confirmar anulación</button>
         </form>
       </details>
     </section>
@@ -180,8 +180,8 @@
   <section class="tarjeta-tabla no-print">
     <div class="tarjeta-encabezado">
       <div>
-        <h3 class="titulo-seccion sin-margen">Auditoria SUNAT</h3>
-        <p class="texto-secundario">Registro de emision, envio y anulaciones.</p>
+        <h3 class="titulo-seccion sin-margen">Auditoría SUNAT</h3>
+        <p class="texto-secundario">Registro de emisión, envío y anulaciones.</p>
       </div>
     </div>
     <div class="tabla-responsive">
@@ -189,7 +189,7 @@
         <thead>
           <tr>
             <th>Fecha</th>
-            <th>Accion</th>
+            <th>Acción</th>
             <th>Estado</th>
             <th>Mensaje</th>
           </tr>

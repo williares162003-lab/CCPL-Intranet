@@ -335,7 +335,7 @@ def _interpretar_respuesta_sunat(response):
         root = ET.fromstring(response.content)
     except ET.ParseError:
         respuesta["cdr_estado"] = "Error"
-        respuesta["cdr_descripcion"] = "SUNAT no devolvio XML valido."
+        respuesta["cdr_descripcion"] = "SUNAT no devolvió XML valido."
         return respuesta
 
     fault = root.find(".//faultstring")
@@ -352,14 +352,14 @@ def _interpretar_respuesta_sunat(response):
             break
     if application_response is None or not application_response.text:
         respuesta["cdr_estado"] = "Observado"
-        respuesta["cdr_descripcion"] = "SUNAT no devolvio CDR en la respuesta."
+        respuesta["cdr_descripcion"] = "SUNAT no devolvió CDR en la respuesta."
         return respuesta
 
     respuesta["aceptado"] = response.status_code == 200
     respuesta["ticket"] = "CDR-" + date.today().strftime("%Y%m%d")
     respuesta["codigo"] = "CDR_RECIBIDO"
     respuesta["cdr_estado"] = "Aceptado" if respuesta["aceptado"] else "Observado"
-    respuesta["cdr_descripcion"] = "SUNAT devolvio CDR para el comprobante."
+    respuesta["cdr_descripcion"] = "SUNAT devolvió CDR para el comprobante."
     respuesta["cdr_base64"] = application_response.text
     return respuesta
 

@@ -180,7 +180,7 @@ function _inicializarBuscadorColegiado() {
   async function buscar() {
     const q = input.value.trim();
     hidden.value = "";
-    seleccion.textContent = "Seleccione un resultado para usarlo en la inscripcion.";
+    seleccion.textContent = "Seleccione un resultado para usarlo en la inscripción.";
 
     if (q.length < 2) {
       results.innerHTML = "";
@@ -207,7 +207,7 @@ function _inicializarBuscadorColegiado() {
       });
       results.classList.remove("hidden");
     } catch (error) {
-      mostrarMensaje("No se pudo realizar la busqueda.");
+      mostrarMensaje("No se pudo realizar la búsqueda.");
     }
   }
 

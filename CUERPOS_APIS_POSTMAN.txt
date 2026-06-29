@@ -1,0 +1,993 @@
+CUERPOS JSON PARA POSTMAN - APIS CCPL
+=====================================
+
+Usar primero:
+
+POST /api/token
+
+{
+  "username": "admin",
+  "password": "admin2024"
+}
+
+Luego copiar el access_token y enviarlo en Headers:
+
+Authorization: JWT TU_TOKEN_AQUI
+Content-Type: application/json
+
+Reglas generales:
+- Para api_guardar_* usa el cuerpo indicado.
+- Para api_actualizar_* usa el mismo cuerpo de guardar y agrega "id": 1.
+- Para api_eliminar_* usa:
+
+{
+  "id": 1
+}
+
+- Para api_leer_*_xid puedes usar GET con ?id=1 o POST con:
+
+{
+  "id": 1
+}
+
+
+1. especialidades_colegiado
+---------------------------
+
+POST /api_guardar_especialidad_colegiado
+
+{
+  "nombre": "Perito Contable",
+  "activo": 1
+}
+
+POST /api_actualizar_especialidad_colegiado
+
+{
+  "id": 1,
+  "nombre": "Perito Contable Actualizado",
+  "activo": 1
+}
+
+POST /api_eliminar_especialidad_colegiado
+
+{
+  "id": 1
+}
+
+POST /api_leer_especialidad_colegiado_xid
+
+{
+  "id": 1
+}
+
+
+2. colegiados
+-------------
+
+POST /api_guardar_colegiado
+
+{
+  "nombre": "Juan Carlos Perez Ruiz",
+  "matricula": "99001-Z",
+  "documento": "78945612",
+  "especialidad_id": 2,
+  "especialidad": "Perito Contable",
+  "correo": "juan.perez@correo.com",
+  "telefono": "987654321",
+  "direccion": "Av. Principal 123, Chiclayo",
+  "fecha_colegiatura": "2020-06-15",
+  "vigencia": "31 de Diciembre de 2026",
+  "estado": "Vigente",
+  "epc_points": 0,
+  "password": "cpc123"
+}
+
+POST /api_actualizar_colegiado
+
+{
+  "id": 1,
+  "nombre": "Juan Carlos Perez Ruiz",
+  "matricula": "99001-Z",
+  "documento": "78945612",
+  "especialidad_id": 2,
+  "especialidad": "Perito Contable",
+  "correo": "juan.perez@correo.com",
+  "telefono": "987654321",
+  "direccion": "Av. Principal 123, Chiclayo",
+  "fecha_colegiatura": "2020-06-15",
+  "vigencia": "31 de Diciembre de 2026",
+  "estado": "Vigente",
+  "epc_points": 10
+}
+
+POST /api_eliminar_colegiado
+
+{
+  "id": 1
+}
+
+POST /api_leer_colegiado_xid
+
+{
+  "id": 1
+}
+
+
+3. usuarios
+-----------
+
+POST /api_guardar_usuario
+
+{
+  "matricula": "99001-Z",
+  "password": "cpc123",
+  "rol": "colegiado",
+  "activo": 1
+}
+
+POST /api_actualizar_usuario
+
+{
+  "id": 1,
+  "matricula": "99001-Z",
+  "password": "cpc123",
+  "rol": "colegiado",
+  "activo": 1
+}
+
+POST /api_eliminar_usuario
+
+{
+  "id": 1
+}
+
+POST /api_leer_usuario_xid
+
+{
+  "id": 1
+}
+
+
+4. recuperacion_password
+------------------------
+
+POST /api_guardar_recuperacion_password
+
+{
+  "matricula": "99001-Z",
+  "correo": "juan.perez@correo.com",
+  "codigo_hash": "123456_HASH",
+  "usado": 0,
+  "fecha_expiracion": "2026-06-26 23:59:00"
+}
+
+POST /api_actualizar_recuperacion_password
+
+{
+  "id": 1,
+  "matricula": "99001-Z",
+  "correo": "juan.perez@correo.com",
+  "codigo_hash": "123456_HASH",
+  "usado": 1,
+  "fecha_expiracion": "2026-06-26 23:59:00",
+  "usado_en": "2026-06-26 21:00:00"
+}
+
+POST /api_eliminar_recuperacion_password
+
+{
+  "id": 1
+}
+
+POST /api_leer_recuperacion_password_xid
+
+{
+  "id": 1
+}
+
+
+5. cuotas
+---------
+
+POST /api_guardar_cuota
+
+{
+  "matricula": "99001-Z",
+  "fecha": "2026-06-26",
+  "fecha_vencimiento": "2026-07-10",
+  "concepto": "Cuota ordinaria - Junio 2026",
+  "monto": 80.00,
+  "estado": "Pendiente",
+  "tipo": "mensual",
+  "periodo_mes": 6,
+  "periodo_anio": 2026
+}
+
+POST /api_actualizar_cuota
+
+{
+  "id": 1,
+  "matricula": "99001-Z",
+  "fecha": "2026-06-26",
+  "fecha_vencimiento": "2026-07-10",
+  "concepto": "Cuota ordinaria - Junio 2026",
+  "monto": 80.00,
+  "estado": "Pagado",
+  "tipo": "mensual",
+  "periodo_mes": 6,
+  "periodo_anio": 2026
+}
+
+POST /api_eliminar_cuota
+
+{
+  "id": 1
+}
+
+POST /api_leer_cuota_xid
+
+{
+  "id": 1
+}
+
+
+6. medios_pago
+---------------
+
+POST /api_guardar_medio_pago
+
+{
+  "nombre": "Yape",
+  "descripcion": "Pago por aplicativo Yape",
+  "numero_cuenta": "999888777",
+  "titular": "Colegio de Contadores Publicos de Lambayeque",
+  "activo": 1
+}
+
+POST /api_actualizar_medio_pago
+
+{
+  "id": 1,
+  "nombre": "Yape",
+  "descripcion": "Pago por aplicativo Yape",
+  "numero_cuenta": "999888777",
+  "titular": "Colegio de Contadores Publicos de Lambayeque",
+  "activo": 1
+}
+
+POST /api_eliminar_medio_pago
+
+{
+  "id": 1
+}
+
+POST /api_leer_medio_pago_xid
+
+{
+  "id": 1
+}
+
+
+7. evidencias_pago
+------------------
+
+POST /api_guardar_evidencia_pago
+
+{
+  "cuota_id": 1,
+  "colegiado_id": 1,
+  "medio_pago_id": 1,
+  "fecha_pago": "2026-06-26",
+  "numero_operacion": "OP123456",
+  "monto": 80.00,
+  "comentario": "Pago realizado por Yape",
+  "archivo": "voucher_demo.jpg",
+  "estado": "Pendiente"
+}
+
+POST /api_actualizar_evidencia_pago
+
+{
+  "id": 1,
+  "cuota_id": 1,
+  "colegiado_id": 1,
+  "medio_pago_id": 1,
+  "fecha_pago": "2026-06-26",
+  "numero_operacion": "OP123456",
+  "monto": 80.00,
+  "comentario": "Pago validado",
+  "archivo": "voucher_demo.jpg",
+  "estado": "Aprobado",
+  "accion_revision": "Aprobado",
+  "revisado_por_matricula": "admin",
+  "revisado_por_nombre": "Administrador CCPL",
+  "detalle_revision": "Comprobante aprobado por administración.",
+  "revisado_en": "2026-06-26 21:00:00"
+}
+
+POST /api_eliminar_evidencia_pago
+
+{
+  "id": 1
+}
+
+POST /api_leer_evidencia_pago_xid
+
+{
+  "id": 1
+}
+
+
+8. transacciones_pago
+---------------------
+
+POST /api_guardar_transaccion_pago
+
+{
+  "cuota_id": 1,
+  "colegiado_id": 1,
+  "evidencia_id": 1,
+  "proveedor": "Mercado Pago",
+  "metodo": "Tarjeta",
+  "codigo_transaccion": "TXN-API-001",
+  "codigo_autorizacion": "AUTH-001",
+  "monto": 80.00,
+  "moneda": "PEN",
+  "estado": "Pagado",
+  "respuesta_pasarela": "Pago aprobado",
+  "pagado_en": "2026-06-26 20:00:00"
+}
+
+POST /api_actualizar_transaccion_pago
+
+{
+  "id": 1,
+  "cuota_id": 1,
+  "colegiado_id": 1,
+  "evidencia_id": 1,
+  "proveedor": "Mercado Pago",
+  "metodo": "Tarjeta",
+  "codigo_transaccion": "TXN-API-001",
+  "codigo_autorizacion": "AUTH-001",
+  "monto": 80.00,
+  "moneda": "PEN",
+  "estado": "Pagado",
+  "respuesta_pasarela": "Pago actualizado",
+  "pagado_en": "2026-06-26 20:00:00"
+}
+
+POST /api_eliminar_transaccion_pago
+
+{
+  "id": 1
+}
+
+POST /api_leer_transaccion_pago_xid
+
+{
+  "id": 1
+}
+
+
+9. comprobantes_pago
+--------------------
+
+POST /api_guardar_comprobante_pago
+
+{
+  "transaccion_id": 1,
+  "cuota_id": 1,
+  "colegiado_id": 1,
+  "evidencia_id": 1,
+  "tipo_comprobante": "Boleta Interna",
+  "serie": "B001",
+  "numero": 1001,
+  "fecha_emision": "2026-06-26",
+  "concepto": "Cuota ordinaria - Junio 2026",
+  "subtotal": 80.00,
+  "igv": 0.00,
+  "total": 80.00,
+  "moneda": "PEN",
+  "estado": "Emitido",
+  "codigo_hash": "HASH-DEMO-001"
+}
+
+POST /api_actualizar_comprobante_pago
+
+{
+  "id": 1,
+  "transaccion_id": 1,
+  "cuota_id": 1,
+  "colegiado_id": 1,
+  "evidencia_id": 1,
+  "tipo_comprobante": "Boleta Interna",
+  "serie": "B001",
+  "numero": 1001,
+  "fecha_emision": "2026-06-26",
+  "concepto": "Cuota ordinaria - Junio 2026",
+  "subtotal": 80.00,
+  "igv": 0.00,
+  "total": 80.00,
+  "moneda": "PEN",
+  "estado": "Anulado",
+  "codigo_hash": "HASH-DEMO-001",
+  "anulado_por_matricula": "admin",
+  "anulado_por_nombre": "Administrador CCPL",
+  "motivo_anulacion": "Anulación de prueba",
+  "anulado_en": "2026-06-26 21:00:00"
+}
+
+POST /api_eliminar_comprobante_pago
+
+{
+  "id": 1
+}
+
+POST /api_leer_comprobante_pago_xid
+
+{
+  "id": 1
+}
+
+
+10. configuracion_mercado_pago
+-------------------------------
+
+POST /api_guardar_configuracion_mercado_pago
+
+{
+  "access_token": "TEST_ACCESS_TOKEN_AQUI",
+  "public_key": "TEST_PUBLIC_KEY_AQUI",
+  "modo": "TEST",
+  "activo": 1
+}
+
+POST /api_actualizar_configuracion_mercado_pago
+
+{
+  "id": 1,
+  "access_token": "TEST_ACCESS_TOKEN_AQUI",
+  "public_key": "TEST_PUBLIC_KEY_AQUI",
+  "modo": "TEST",
+  "activo": 1
+}
+
+POST /api_eliminar_configuracion_mercado_pago
+
+{
+  "id": 1
+}
+
+POST /api_leer_configuracion_mercado_pago_xid
+
+{
+  "id": 1
+}
+
+
+11. ordenes_mercado_pago
+-------------------------
+
+POST /api_guardar_orden_mercado_pago
+
+{
+  "cuota_id": 1,
+  "colegiado_id": 1,
+  "external_reference": "CUOTA-1-API",
+  "preference_id": "PREF-001",
+  "init_point": "https://www.mercadopago.com.pe",
+  "sandbox_init_point": "https://sandbox.mercadopago.com.pe",
+  "estado": "Pendiente",
+  "mp_payment_id": "PAY-001",
+  "mp_status": "pending",
+  "mp_status_detail": "pending_waiting_payment",
+  "merchant_order_id": "MO-001",
+  "respuesta_preferencia": "{}",
+  "respuesta_pago": "{}"
+}
+
+POST /api_actualizar_orden_mercado_pago
+
+{
+  "id": 1,
+  "cuota_id": 1,
+  "colegiado_id": 1,
+  "external_reference": "CUOTA-1-API",
+  "preference_id": "PREF-001",
+  "init_point": "https://www.mercadopago.com.pe",
+  "sandbox_init_point": "https://sandbox.mercadopago.com.pe",
+  "estado": "Pagado",
+  "mp_payment_id": "PAY-001",
+  "mp_status": "approved",
+  "mp_status_detail": "accredited",
+  "merchant_order_id": "MO-001",
+  "respuesta_preferencia": "{}",
+  "respuesta_pago": "{}"
+}
+
+POST /api_eliminar_orden_mercado_pago
+
+{
+  "id": 1
+}
+
+POST /api_leer_orden_mercado_pago_xid
+
+{
+  "id": 1
+}
+
+
+12. configuracion_facturacion
+------------------------------
+
+POST /api_guardar_configuracion_facturacion
+
+{
+  "ruc": "20600000001",
+  "razon_social": "Colegio de Contadores Publicos de Lambayeque",
+  "nombre_comercial": "CCPL",
+  "direccion": "Lambayeque",
+  "serie_boleta": "B001",
+  "serie_factura": "F001",
+  "correlativo_boleta": 1,
+  "correlativo_factura": 1,
+  "modo_envio": "SUNAT_BETA",
+  "usuario_sol": "USUARIO_SOL",
+  "clave_sol": "CLAVE_SOL",
+  "certificado_ruta": "certificado.pfx",
+  "certificado_clave": "clavecertificado",
+  "endpoint_beta": "https://e-beta.sunat.gob.pe/ol-ti-itcpfegem-beta/billService",
+  "activo": 1
+}
+
+POST /api_actualizar_configuracion_facturacion
+
+{
+  "id": 1,
+  "ruc": "20600000001",
+  "razon_social": "Colegio de Contadores Publicos de Lambayeque",
+  "nombre_comercial": "CCPL",
+  "direccion": "Lambayeque",
+  "serie_boleta": "B001",
+  "serie_factura": "F001",
+  "correlativo_boleta": 1,
+  "correlativo_factura": 1,
+  "modo_envio": "SUNAT_BETA",
+  "usuario_sol": "USUARIO_SOL",
+  "clave_sol": "CLAVE_SOL",
+  "certificado_ruta": "certificado.pfx",
+  "certificado_clave": "clavecertificado",
+  "endpoint_beta": "https://e-beta.sunat.gob.pe/ol-ti-itcpfegem-beta/billService",
+  "activo": 1
+}
+
+POST /api_eliminar_configuracion_facturacion
+
+{
+  "id": 1
+}
+
+POST /api_leer_configuracion_facturacion_xid
+
+{
+  "id": 1
+}
+
+
+13. comprobantes_fiscales
+--------------------------
+
+POST /api_guardar_comprobante_fiscal
+
+{
+  "comprobante_pago_id": 1,
+  "transaccion_id": 1,
+  "cuota_id": 1,
+  "colegiado_id": 1,
+  "tipo_comprobante": "Boleta",
+  "serie": "B001",
+  "numero": 1001,
+  "fecha_emision": "2026-06-26",
+  "tipo_documento_cliente": "DNI",
+  "numero_documento_cliente": "78945612",
+  "cliente_nombre": "Juan Carlos Perez Ruiz",
+  "cliente_correo": "juan.perez@correo.com",
+  "concepto": "Cuota ordinaria - Junio 2026",
+  "subtotal": 80.00,
+  "igv": 0.00,
+  "total": 80.00,
+  "moneda": "PEN",
+  "estado": "Pendiente"
+}
+
+POST /api_actualizar_comprobante_fiscal
+
+{
+  "id": 1,
+  "comprobante_pago_id": 1,
+  "transaccion_id": 1,
+  "cuota_id": 1,
+  "colegiado_id": 1,
+  "tipo_comprobante": "Boleta",
+  "serie": "B001",
+  "numero": 1001,
+  "fecha_emision": "2026-06-26",
+  "enviado_en": "2026-06-26 21:00:00",
+  "tipo_documento_cliente": "DNI",
+  "numero_documento_cliente": "78945612",
+  "cliente_nombre": "Juan Carlos Perez Ruiz",
+  "cliente_correo": "juan.perez@correo.com",
+  "concepto": "Cuota ordinaria - Junio 2026",
+  "subtotal": 80.00,
+  "igv": 0.00,
+  "total": 80.00,
+  "moneda": "PEN",
+  "estado": "Aceptado",
+  "ticket_sunat": "TCK-DEMO-001",
+  "codigo_sunat": "CDR-DEMO-001",
+  "cdr_estado": "Aceptado",
+  "cdr_descripcion": "Aceptado por SUNAT beta",
+  "codigo_hash": "HASH-FISCAL-001",
+  "xml_archivo": "boleta_demo.xml",
+  "pdf_archivo": "boleta_demo.pdf",
+  "json_envio": "{}",
+  "respuesta_sunat": "{}",
+  "emitido_por_matricula": "admin",
+  "emitido_por_nombre": "Administrador CCPL"
+}
+
+POST /api_eliminar_comprobante_fiscal
+
+{
+  "id": 1
+}
+
+POST /api_leer_comprobante_fiscal_xid
+
+{
+  "id": 1
+}
+
+
+14. comprobante_fiscal_detalle
+-------------------------------
+
+POST /api_guardar_comprobante_fiscal_detalle
+
+{
+  "comprobante_fiscal_id": 1,
+  "descripcion": "Cuota ordinaria - Junio 2026",
+  "cantidad": 1,
+  "valor_unitario": 80.00,
+  "subtotal": 80.00,
+  "igv": 0.00,
+  "total": 80.00
+}
+
+POST /api_actualizar_comprobante_fiscal_detalle
+
+{
+  "id": 1,
+  "comprobante_fiscal_id": 1,
+  "descripcion": "Cuota ordinaria - Junio 2026",
+  "cantidad": 1,
+  "valor_unitario": 80.00,
+  "subtotal": 80.00,
+  "igv": 0.00,
+  "total": 80.00
+}
+
+POST /api_eliminar_comprobante_fiscal_detalle
+
+{
+  "id": 1
+}
+
+POST /api_leer_comprobante_fiscal_detalle_xid
+
+{
+  "id": 1
+}
+
+
+15. facturacion_sunat_logs
+---------------------------
+
+POST /api_guardar_facturacion_sunat_log
+
+{
+  "comprobante_fiscal_id": 1,
+  "accion": "ENVIO_BETA",
+  "estado": "Pendiente",
+  "mensaje": "Comprobante preparado para envio SUNAT beta",
+  "payload": "{}"
+}
+
+POST /api_actualizar_facturacion_sunat_log
+
+{
+  "id": 1,
+  "comprobante_fiscal_id": 1,
+  "accion": "ENVIO_BETA",
+  "estado": "Aceptado",
+  "mensaje": "SUNAT acepto el comprobante",
+  "payload": "{}"
+}
+
+POST /api_eliminar_facturacion_sunat_log
+
+{
+  "id": 1
+}
+
+POST /api_leer_facturacion_sunat_log_xid
+
+{
+  "id": 1
+}
+
+
+16. cursos
+----------
+
+POST /api_guardar_curso
+
+{
+  "categoria": "Certificacion",
+  "titulo": "Auditoria Tributaria Aplicada",
+  "descripcion": "Curso de actualizacion profesional.",
+  "fecha_evento": "Inicio: 15 Jul 2026",
+  "estado": "Activo",
+  "monto": 180.00,
+  "monto_inhabil": 260.00,
+  "ponente": "CPC Luis Salazar",
+  "modalidad": "Virtual",
+  "duracion_horas": 18,
+  "fecha_inicio": "2026-07-15",
+  "fecha_fin": "2026-07-30",
+  "cupos": 40
+}
+
+POST /api_actualizar_curso
+
+{
+  "id": 1,
+  "categoria": "Certificacion",
+  "titulo": "Auditoria Tributaria Aplicada",
+  "descripcion": "Curso de actualizacion profesional.",
+  "fecha_evento": "Inicio: 15 Jul 2026",
+  "estado": "Activo",
+  "monto": 180.00,
+  "monto_inhabil": 260.00,
+  "ponente": "CPC Luis Salazar",
+  "modalidad": "Virtual",
+  "duracion_horas": 18,
+  "fecha_inicio": "2026-07-15",
+  "fecha_fin": "2026-07-30",
+  "cupos": 40
+}
+
+POST /api_eliminar_curso
+
+{
+  "id": 1
+}
+
+POST /api_leer_curso_xid
+
+{
+  "id": 1
+}
+
+
+17. contenido_curso
+-------------------
+
+POST /api_guardar_contenido_curso
+
+{
+  "curso_id": 1,
+  "titulo": "Material introductorio",
+  "descripcion": "Lectura base del curso.",
+  "enlace": "https://example.com/material",
+  "archivo": "material_intro.pdf"
+}
+
+POST /api_actualizar_contenido_curso
+
+{
+  "id": 1,
+  "curso_id": 1,
+  "titulo": "Material introductorio actualizado",
+  "descripcion": "Lectura base del curso actualizada.",
+  "enlace": "https://example.com/material",
+  "archivo": "material_intro.pdf"
+}
+
+POST /api_eliminar_contenido_curso
+
+{
+  "id": 1
+}
+
+POST /api_leer_contenido_curso_xid
+
+{
+  "id": 1
+}
+
+
+18. inscripciones_curso
+------------------------
+
+POST /api_guardar_inscripcion_curso
+
+{
+  "matricula": "99001-Z",
+  "curso_id": 1,
+  "estado_pago": "Pendiente"
+}
+
+POST /api_actualizar_inscripcion_curso
+
+{
+  "id": 1,
+  "curso_id": 1,
+  "colegiado_id": 1,
+  "progreso": 50,
+  "estado_pago": "Pagado",
+  "certificado": "certificado_demo.pdf"
+}
+
+POST /api_eliminar_inscripcion_curso
+
+{
+  "id": 1
+}
+
+POST /api_leer_inscripcion_curso_xid
+
+{
+  "id": 1
+}
+
+
+19. tramites
+------------
+
+POST /api_guardar_tramite
+
+{
+  "matricula": "99001-Z",
+  "nombre": "Juan Carlos Perez Ruiz",
+  "tipo_tramite": "Certificado de habilidad",
+  "asunto": "Solicitud de certificado de habilidad",
+  "descripcion": "Solicito certificado para tramite laboral.",
+  "archivo_solicitud": "sustento.pdf",
+  "estado": "Pendiente",
+  "fecha_solicitud": "2026-06-26"
+}
+
+POST /api_actualizar_tramite
+
+{
+  "id": 1,
+  "matricula": "99001-Z",
+  "nombre": "Juan Carlos Perez Ruiz",
+  "tipo_tramite": "Certificado de habilidad",
+  "asunto": "Solicitud de certificado de habilidad",
+  "descripcion": "Solicito certificado para tramite laboral.",
+  "archivo_solicitud": "sustento.pdf",
+  "archivo_respuesta": "certificado_habilidad.pdf",
+  "estado": "Aprobado",
+  "accion_revision": "Aprobado",
+  "revisado_por_matricula": "admin",
+  "revisado_por_nombre": "Administrador CCPL",
+  "detalle_revision": "Trámite aprobado por administración.",
+  "fecha_solicitud": "2026-06-26",
+  "fecha_respuesta": "2026-06-26",
+  "estado_firma": "Firmado",
+  "tipo_firma": "eDNI",
+  "firmado_por_matricula": "admin",
+  "firmado_por_nombre": "Administrador CCPL",
+  "detalle_firma": "Documento firmado digitalmente."
+}
+
+POST /api_eliminar_tramite
+
+{
+  "id": 1
+}
+
+POST /api_leer_tramite_xid
+
+{
+  "id": 1
+}
+
+
+20. tickets
+-----------
+
+POST /api_guardar_ticket
+
+{
+  "matricula": "99001-Z",
+  "categoria": "general",
+  "asunto": "Problema con mi cuenta",
+  "descripcion": "No puedo visualizar mis pagos."
+}
+
+POST /api_actualizar_ticket
+
+{
+  "id": 1,
+  "matricula": "99001-Z",
+  "categoria": "general",
+  "asunto": "Problema con mi cuenta",
+  "descripcion": "No puedo visualizar mis pagos.",
+  "estado": "Cerrado",
+  "respuesta_admin": "Se reviso la cuenta y ya puede ingresar."
+}
+
+POST /api_eliminar_ticket
+
+{
+  "id": 1
+}
+
+POST /api_leer_ticket_xid
+
+{
+  "id": 1
+}
+
+
+21. notificaciones
+------------------
+
+POST /api_guardar_notificacion
+
+{
+  "colegiado_id": 1,
+  "tipo": "cuota",
+  "titulo": "Cuota pendiente",
+  "mensaje": "Tiene una cuota pendiente por revisar.",
+  "link_endpoint": "estado_cuenta",
+  "link_url": "/estado-cuenta",
+  "link_text": "Ver cuota",
+  "relacion_tipo": "cuota",
+  "relacion_id": 1,
+  "leido": 0
+}
+
+POST /api_actualizar_notificacion
+
+{
+  "id": 1,
+  "colegiado_id": 1,
+  "tipo": "cuota",
+  "titulo": "Cuota pendiente",
+  "mensaje": "Tiene una cuota pendiente por revisar.",
+  "link_endpoint": "estado_cuenta",
+  "link_url": "/estado-cuenta",
+  "link_text": "Ver cuota",
+  "relacion_tipo": "cuota",
+  "relacion_id": 1,
+  "leido": 1,
+  "leido_en": "2026-06-26 21:00:00"
+}
+
+POST /api_eliminar_notificacion
+
+{
+  "id": 1
+}
+
+POST /api_leer_notificacion_xid
+
+{
+  "id": 1
+}

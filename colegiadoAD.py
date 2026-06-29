@@ -368,13 +368,13 @@ def importar_colegiados_masivo(registros):
                         _detalle_importacion(resumen, indice, matricula, documento, "Omitido", mensaje)
                         continue
                     if not re.fullmatch(r"\d{8}", documento):
-                        mensaje = "DNI invalido."
+                        mensaje = "DNI inválido."
                         resumen["omitidos"] += 1
                         resumen["errores"].append(f"Fila {indice}: {mensaje}")
                         _detalle_importacion(resumen, indice, matricula, documento, "Omitido", mensaje)
                         continue
                     if telefono and not re.fullmatch(r"9\d{8}", telefono):
-                        mensaje = "Telefono invalido."
+                        mensaje = "Teléfono inválido."
                         resumen["omitidos"] += 1
                         resumen["errores"].append(f"Fila {indice}: {mensaje}")
                         _detalle_importacion(resumen, indice, matricula, documento, "Omitido", mensaje)
@@ -399,7 +399,7 @@ def importar_colegiados_masivo(registros):
                         (matricula, documento)
                     )
                     if cursor.fetchone():
-                        mensaje = "Matricula o DNI ya registrado."
+                        mensaje = "Matrícula o DNI ya registrado."
                         resumen["omitidos"] += 1
                         resumen["errores"].append(f"Fila {indice}: {mensaje}")
                         _detalle_importacion(resumen, indice, matricula, documento, "Omitido", mensaje)
@@ -410,7 +410,7 @@ def importar_colegiados_masivo(registros):
                         (matricula,)
                     )
                     if cursor.fetchone():
-                        mensaje = "Ya existe un usuario con esa matricula."
+                        mensaje = "Ya existe un usuario con esa matrícula."
                         resumen["omitidos"] += 1
                         resumen["errores"].append(f"Fila {indice}: {mensaje}")
                         _detalle_importacion(resumen, indice, matricula, documento, "Omitido", mensaje)
@@ -752,12 +752,12 @@ def generar_cuotas_adelantadas_colegiado(p_matricula, p_anio, p_mes_inicio,
         except ValueError:
             return {
                 "ok": False,
-                "mensaje": "Ingrese un anio, mes y cantidad validos."
+                "mensaje": "Ingrese un año, mes y cantidad válidos."
             }
 
         hoy = date.today()
         if mes_inicio < 1 or mes_inicio > 12:
-            return {"ok": False, "mensaje": "Seleccione un mes inicial valido."}
+            return {"ok": False, "mensaje": "Seleccione un mes inicial válido."}
         if cantidad_meses < 1 or cantidad_meses > 12:
             return {
                 "ok": False,
@@ -790,7 +790,7 @@ def generar_cuotas_adelantadas_colegiado(p_matricula, p_anio, p_mes_inicio,
                     if not colegiado:
                         return {
                             "ok": False,
-                            "mensaje": "No se encontro el colegiado de la sesion."
+                            "mensaje": "No se encontró el colegiado de la sesión."
                         }
                     if colegiado.get("estado") != "Vigente":
                         return {
@@ -857,12 +857,12 @@ def generar_cuotas_anuales_colegiado(p_matricula, p_anio):
         try:
             anio = int(p_anio)
         except ValueError:
-            return {"ok": False, "mensaje": "Ingrese un anio valido."}
+            return {"ok": False, "mensaje": "Ingrese un año válido."}
 
         if anio != hoy.year:
             return {
                 "ok": False,
-                "mensaje": "Solo se puede generar el pago anual del anio actual."
+                "mensaje": "Solo se puede generar el pago anual del año actual."
             }
 
         conn = obtenerconexion()
@@ -883,7 +883,7 @@ def generar_cuotas_anuales_colegiado(p_matricula, p_anio):
                     if not colegiado:
                         return {
                             "ok": False,
-                            "mensaje": "No se encontro el colegiado de la sesion."
+                            "mensaje": "No se encontró el colegiado de la sesión."
                         }
                     if colegiado.get("estado") != "Vigente":
                         return {
@@ -902,7 +902,7 @@ def generar_cuotas_anuales_colegiado(p_matricula, p_anio):
                             "ok": False,
                             "mensaje": (
                                 "No se puede aplicar el descuento anual porque "
-                                "ya existen cuotas pagadas de este anio."
+                                "ya existen cuotas pagadas de este año."
                             )
                         }
 
@@ -1055,7 +1055,7 @@ def registrar_pago_demo_colegiado(p_cuota_id, p_matricula, p_metodo):
                     if not cuota:
                         return {"ok": False, "mensaje": "La cuota seleccionada no existe."}
                     if cuota["estado"] != "Pendiente":
-                        return {"ok": False, "mensaje": "Esta cuota ya fue pagada o no esta pendiente."}
+                        return {"ok": False, "mensaje": "Esta cuota ya fue pagada o no está pendiente."}
 
                     cursor.execute(
                         "SELECT id, serie, numero FROM comprobantes_pago "
@@ -1249,7 +1249,7 @@ def actualizar_configuracion_mercado_pago(datos):
         if modo == "PROD":
             modo = "PRODUCCION"
         if modo not in ["TEST", "PRODUCCION"]:
-            return {"ok": False, "mensaje": "Seleccione un modo valido para Mercado Pago."}
+            return {"ok": False, "mensaje": "Seleccione un modo válido para Mercado Pago."}
 
         activo = 1 if str(datos.get("activo") or "0") == "1" else 0
         access_token = (datos.get("access_token") or "").strip()
@@ -1345,7 +1345,7 @@ def _registrar_pago_aprobado_mercado_pago(cursor, orden, pago):
         (orden["cuota_id"],))
     cuota = cursor.fetchone()
     if not cuota:
-        return {"ok": False, "mensaje": "No se encontro la cuota relacionada."}
+        return {"ok": False, "mensaje": "No se encontró la cuota relacionada."}
 
     cursor.execute(
         "SELECT id, serie, numero FROM comprobantes_pago "
@@ -1454,7 +1454,7 @@ def crear_preferencia_mercado_pago(p_cuota_id, p_matricula, p_base_url):
                     if not cuota:
                         return {"ok": False, "mensaje": "La cuota seleccionada no pertenece al colegiado."}
                     if cuota.get("estado") != "Pendiente":
-                        return {"ok": False, "mensaje": "Esta cuota no esta pendiente de pago."}
+                        return {"ok": False, "mensaje": "Esta cuota no está pendiente de pago."}
 
                     external_reference = "CUOTA-" + str(p_cuota_id) + "-" + uuid4().hex[:10].upper()
                     base = (p_base_url or "").rstrip("/")
@@ -1576,7 +1576,7 @@ def confirmar_pago_mercado_pago(p_payment_id=None, p_external_reference=None):
                         (p_external_reference,))
                     orden = cursor.fetchone()
                     if not orden:
-                        return {"ok": False, "mensaje": "No se encontro la orden Mercado Pago."}
+                        return {"ok": False, "mensaje": "No se encontró la orden Mercado Pago."}
 
                     estado_mp = pago.get("status") or ""
                     estado_orden = "Pendiente"
@@ -1873,9 +1873,9 @@ def finalizar_inscripcion_curso(p_id, p_matricula=None):
                     inscripcion = cursor.fetchone()
 
                     if not inscripcion:
-                        return "No se encontro la inscripcion del curso."
+                        return "No se encontró la inscripción del curso."
                     if inscripcion["estado_pago"] != "Pagado":
-                        return "No se puede finalizar el curso porque el pago esta pendiente."
+                        return "No se puede finalizar el curso porque el pago está pendiente."
                     if inscripcion["progreso"] >= 100:
                         return "El curso ya se encuentra finalizado."
 
@@ -1915,7 +1915,7 @@ TRAMITES_ACTUALIZAN_BAJA = {
 
 
 def nombre_tipo_tramite(p_tipo):
-    return TIPOS_TRAMITE.get(p_tipo, p_tipo or "Tramite")
+    return TIPOS_TRAMITE.get(p_tipo, p_tipo or "Trámite")
 
 
 def tramite_requiere_sustento(p_tipo):
@@ -2107,13 +2107,13 @@ def actualizar_estado_tramite(p_id, p_estado, p_usuario_matricula=None,
                         (p_id,))
                     tramite = cursor.fetchone()
                     if not tramite:
-                        return {"ok": False, "mensaje": "No se encontro el tramite."}
+                        return {"ok": False, "mensaje": "No se encontró el trámite."}
 
                     usuario_matricula = p_usuario_matricula or "admin"
                     usuario_nombre = p_usuario_nombre or "Administrador CCPL"
                     detalle = (p_detalle or "").strip()
                     if not detalle:
-                        detalle = "Tramite actualizado a estado " + p_estado + "."
+                        detalle = "Trámite actualizado a estado " + p_estado + "."
 
                     sql =  "UPDATE tramites "
                     sql += "   SET estado = %s, accion_revision = %s, "
@@ -2165,11 +2165,11 @@ def actualizar_estado_tramite(p_id, p_estado, p_usuario_matricula=None,
                             "UPDATE colegiados SET estado = 'Inactivo' WHERE matricula = %s",
                             (tramite["matricula"],))
                 conn.commit()
-            return {"ok": True, "mensaje": "El estado del tramite fue actualizado."}
+            return {"ok": True, "mensaje": "El estado del trámite fue actualizado."}
         return {"ok": False, "mensaje": "No se pudo conectar con la base de datos."}
     except Exception as e:
         print(repr(e))
-        return {"ok": False, "mensaje": "No se pudo actualizar el tramite."}
+        return {"ok": False, "mensaje": "No se pudo actualizar el trámite."}
 
 
 # ============================================================

@@ -8,7 +8,7 @@
 
   <div class="encabezado-pagina">
     <div>
-      <p class="etiqueta-seccion">Administracion</p>
+      <p class="etiqueta-seccion">Administración</p>
       <h2 class="titulo-pagina">Reportes del sistema</h2>
       <p class="texto-apoyo">Consulta financiera, avance de cursos y situacion de colegiados.</p>
     </div>
@@ -46,7 +46,7 @@
       <span class="material-symbols-outlined">group</span>
       <div>
         <strong>Colegiados</strong>
-        <p>Vigencia, deuda y actividad academica.</p>
+        <p>Vigencia, deuda y actividad académica.</p>
       </div>
     </a>
   </section>
@@ -65,7 +65,7 @@
     <div class="filtro-campo filtro-busqueda">
       <label class="etiqueta-campo">Buscar</label>
       <input name="q" type="search" value="{{ busqueda }}"
-             placeholder="Nombre, matricula o concepto"
+             placeholder="Nombre, matrícula o concepto"
              class="campo-formulario" />
     </div>
     {% if reporte_activo == "financiero" %}
@@ -267,7 +267,7 @@
       <div class="panel-header">
         <div>
           <p class="etiqueta-seccion">Contable</p>
-          <h3>Pagos por metodo</h3>
+          <h3>Pagos por método</h3>
         </div>
       </div>
       {% if reporte_contable.por_metodo %}
@@ -276,7 +276,7 @@
         <div class="metrica-linea">
           <div>
             <strong>{{ item.metodo }}</strong>
-            <span>{{ item.total }} operacion(es)</span>
+            <span>{{ item.total }} operación(es)</span>
           </div>
           <p>S/ {{ "%.2f"|format(item.monto or 0) }}</p>
           <div class="progreso-linea"><span style="width: 100%"></span></div>
@@ -284,7 +284,7 @@
         {% endfor %}
       </div>
       {% else %}
-      <p class="mensaje-vacio compacto">Sin pagos registrados por metodo.</p>
+      <p class="mensaje-vacio compacto">Sin pagos registrados por método.</p>
       {% endif %}
     </article>
 
@@ -468,7 +468,7 @@
 
     <section class="tarjeta-tabla">
       <div class="tabla-toolbar">
-        <p>Ultimos {{ reporte_cursos.detalle|length }} cursos segun filtro</p>
+        <p>Últimos {{ reporte_cursos.detalle|length }} cursos según filtro</p>
         <p>Inscritos, pagos, certificados y progreso</p>
       </div>
       <div class="tabla-responsive">
@@ -634,7 +634,7 @@
 
     <section class="tarjeta-tabla">
       <div class="tabla-toolbar">
-        <p>Ultimos {{ reporte_colegiados.detalle|length }} colegiados segun filtro</p>
+        <p>Últimos {{ reporte_colegiados.detalle|length }} colegiados según filtro</p>
         <p>Deuda, cursos y certificados</p>
       </div>
       <div class="tabla-responsive">

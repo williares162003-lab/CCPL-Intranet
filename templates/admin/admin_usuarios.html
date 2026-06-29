@@ -8,8 +8,8 @@
 
   <div class="encabezado-pagina">
     <div>
-      <p class="etiqueta-seccion">Administracion</p>
-      <h2 class="titulo-pagina">Gestion de usuarios</h2>
+      <p class="etiqueta-seccion">Administración</p>
+      <h2 class="titulo-pagina">Gestión de usuarios</h2>
     </div>
     <button onclick="abrirModalNuevoUsuario()" class="boton boton-primario">
       <span class="material-symbols-outlined">person_add</span> Nuevo usuario
@@ -40,7 +40,7 @@
           <tr>
             <td>
               <p class="texto-principal">{{ u.matricula }}</p>
-              <p class="texto-pequeno">Contrasena registrada</p>
+              <p class="texto-pequeno">Contraseña registrada</p>
             </td>
             <td class="texto-secundario">{{ u.nombre }}</td>
             <td class="centro texto-principal">{{ u.rol }}</td>
@@ -89,9 +89,9 @@
       <form action="{{ url_for('admin_nuevo_usuario') }}" method="POST" class="formulario" data-usuario-form data-confirm="Desea registrar este usuario?">
         <div class="form-grid">
           <div class="campo-completo">
-            <label class="etiqueta-campo">Usuario o matricula *</label>
+            <label class="etiqueta-campo">Usuario o matrícula *</label>
             <input name="matricula" type="text" required placeholder="Ej: 23456-C o admin2" class="campo-formulario" />
-            <p class="ayuda-campo">Para rol colegiado, la matricula debe existir. Para ponente, usa el mismo nombre registrado en el curso.</p>
+            <p class="ayuda-campo">Para rol colegiado, la matrícula debe existir. Para ponente, use el mismo nombre registrado en el curso.</p>
           </div>
           <div>
             <label class="etiqueta-campo">Rol *</label>
@@ -110,8 +110,8 @@
             </select>
           </div>
           <div class="campo-completo">
-            <label class="etiqueta-campo">Contrasena *</label>
-            <input name="password" type="password" required placeholder="Contrasena inicial" class="campo-formulario" />
+            <label class="etiqueta-campo">Contraseña *</label>
+            <input name="password" type="password" required placeholder="Contraseña inicial" class="campo-formulario" />
           </div>
         </div>
 
@@ -143,7 +143,7 @@
       <form id="form-editar-usuario" method="POST" class="formulario" data-usuario-edit-form data-confirm="Desea guardar los cambios del usuario?">
         <div class="form-grid">
           <div class="campo-completo">
-            <label class="etiqueta-campo">Usuario o matricula</label>
+            <label class="etiqueta-campo">Usuario o matrícula</label>
             <p id="edit-usuario-matricula" class="texto-principal"></p>
           </div>
           <div>
@@ -162,7 +162,7 @@
             </select>
           </div>
           <div class="campo-completo">
-            <label class="etiqueta-campo">Nueva contrasena</label>
+            <label class="etiqueta-campo">Nueva contraseña</label>
             <input name="password" type="password" placeholder="Dejar vacio para mantener la actual" class="campo-formulario" />
           </div>
         </div>

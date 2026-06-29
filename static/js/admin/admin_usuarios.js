@@ -34,7 +34,7 @@ function validarUsuarioNuevo(form) {
 
   const matricula = form.querySelector('[name="matricula"]');
   if (!matricula.value.trim()) {
-    mostrarErrorCampo(matricula, "Ingrese usuario o matricula.");
+    mostrarErrorCampo(matricula, "Ingrese usuario o matrícula.");
     valido = false;
   }
 
@@ -46,7 +46,7 @@ function validarUsuarioNuevo(form) {
 
   const password = form.querySelector('[name="password"]');
   if (!password.value.trim()) {
-    mostrarErrorCampo(password, "Ingrese una contrasena.");
+    mostrarErrorCampo(password, "Ingrese una contraseña.");
     valido = false;
   }
 

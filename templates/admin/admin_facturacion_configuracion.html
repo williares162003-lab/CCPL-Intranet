@@ -7,13 +7,13 @@
 <div class="pagina">
   <div class="encabezado-pagina">
     <div>
-      <p class="etiqueta-seccion">Facturacion</p>
+      <p class="etiqueta-seccion">Facturación</p>
       <h2 class="titulo-pagina">Configuracion SUNAT</h2>
       <p class="texto-apoyo">Activa el envio beta usando el RUC, usuario SOL y certificado digital del emisor.</p>
     </div>
     <div class="fila-wrap no-print">
       <a href="{{ url_for('admin_facturacion') }}" class="boton boton-secundario">
-        <span class="material-symbols-outlined">arrow_back</span> Facturacion
+        <span class="material-symbols-outlined">arrow_back</span> Facturación
       </a>
     </div>
   </div>
@@ -49,7 +49,7 @@
   </section>
 
   <form method="POST" enctype="multipart/form-data" class="tarjeta-tabla proceso-form"
-        data-confirm="Desea guardar la configuracion de facturacion electronica?">
+        data-confirm="¿Desea guardar la configuración de facturación electrónica?">
     <div class="tabla-toolbar">
       <p>Datos del emisor</p>
       <p>{{ config.razon_social or "Sin configurar" }}</p>
@@ -80,7 +80,7 @@
       </div>
 
       <div class="filtro-campo config-span">
-        <label class="etiqueta-campo">Direccion fiscal *</label>
+        <label class="etiqueta-campo">Dirección fiscal *</label>
         <input name="direccion" value="{{ config.direccion or '' }}"
                class="campo-formulario" required>
       </div>
@@ -129,7 +129,7 @@
           {% if certificado_guardado %}
           Certificado guardado. Suba otro archivo solo si desea reemplazarlo.
           {% else %}
-          Aun no hay certificado valido guardado.
+          Aún no hay certificado válido guardado.
           {% endif %}
         </p>
       </div>

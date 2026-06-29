@@ -7,9 +7,9 @@
 <div class="pagina">
   <div class="encabezado-pagina">
     <div>
-      <p class="etiqueta-seccion">Administracion</p>
+      <p class="etiqueta-seccion">Administración</p>
       <h2 class="titulo-pagina">Pagos y comprobantes</h2>
-      <p class="texto-apoyo">Auditoria de pagos registrados, comprobantes internos y anulaciones.</p>
+      <p class="texto-apoyo">Auditoría de pagos registrados, comprobantes internos y anulaciones.</p>
     </div>
     <div class="fila-wrap no-print">
       <a href="{{ url_for('admin_pagos_demo_exportar', q=busqueda, estado_pago=estado_pago) }}"
@@ -47,7 +47,7 @@
         <span class="material-symbols-outlined">query_stats</span>
         <div>
           <p class="proceso-label">Reporte</p>
-          <h3>Pagos por metodo</h3>
+          <h3>Pagos por método</h3>
         </div>
       </div>
       <div class="metodo-lista">
@@ -55,12 +55,12 @@
         <div class="metodo-item">
           <div>
             <p class="texto-principal">{{ metodo.metodo }}</p>
-            <p class="texto-pequeno">{{ metodo.total }} operacion(es)</p>
+            <p class="texto-pequeno">{{ metodo.total }} operación(es)</p>
           </div>
           <strong>S/ {{ "%.2f"|format(metodo.monto or 0) }}</strong>
         </div>
         {% else %}
-        <p class="mensaje-vacio compacto">Aun no hay pagos registrados.</p>
+        <p class="mensaje-vacio compacto">Aún no hay pagos registrados.</p>
         {% endfor %}
       </div>
     </article>
@@ -84,7 +84,7 @@
     <div class="filtro-campo">
       <label class="etiqueta-campo">Buscar</label>
       <input name="q" type="search" value="{{ busqueda }}"
-             placeholder="Nombre, matricula, concepto o transaccion"
+             placeholder="Nombre, matrícula, concepto o transacción"
              class="campo-formulario" />
     </div>
     <div class="filtro-campo filtro-campo-tipo">
@@ -134,8 +134,8 @@
           <tr>
             <th>Colegiado</th>
             <th>Concepto</th>
-            <th>Metodo</th>
-            <th>Transaccion</th>
+            <th>Método</th>
+            <th>Transacción</th>
             <th class="derecha">Monto</th>
             <th class="centro">Pago</th>
             <th class="centro">Comprobante</th>
@@ -189,7 +189,7 @@
     </div>
 
     {% if paginacion.total_paginas > 1 %}
-    <nav class="paginacion" aria-label="Paginacion de pagos">
+    <nav class="paginacion" aria-label="Paginación de pagos">
       <a class="paginacion-link {% if paginacion.pagina == 1 %}disabled{% endif %}"
          href="{{ url_for('admin_pagos_demo', q=busqueda, estado_pago=estado_pago, estado_comprobante=estado_comprobante, por_pagina=por_pagina, pagina=paginacion.pagina - 1) }}">
         Anterior
@@ -212,7 +212,7 @@
     <div class="tarjeta-encabezado">
       <div>
         <h3 class="titulo-seccion sin-margen">Comprobantes internos</h3>
-        <p class="texto-secundario">Ultimos comprobantes generados por pagos registrados.</p>
+        <p class="texto-secundario">Últimos comprobantes generados por pagos registrados.</p>
       </div>
     </div>
     <div class="tabla-responsive">
@@ -224,9 +224,9 @@
             <th>Concepto</th>
             <th class="derecha">Total</th>
             <th class="centro">Estado</th>
-            <th>Anulacion</th>
+            <th>Anulación</th>
             <th class="centro">Fiscal</th>
-            <th class="centro">Accion</th>
+            <th class="centro">Acción</th>
           </tr>
         </thead>
         <tbody>
@@ -282,7 +282,7 @@
                 <form action="{{ url_for('admin_emitir_comprobante_fiscal', comprobante_pago_id=c.id) }}"
                       method="POST"
                       class="anular-form"
-                      data-confirm="Desea emitir el comprobante fiscal de este pago?">
+                      data-confirm="¿Desea emitir el comprobante fiscal de este pago?">
                   <select name="tipo_comprobante" class="campo-formulario">
                     <option value="Boleta">Boleta</option>
                     <option value="Factura">Factura</option>
@@ -301,14 +301,14 @@
                 <form action="{{ url_for('admin_anular_comprobante_pago_demo', comprobante_id=c.id) }}"
                       method="POST"
                       class="anular-form"
-                      data-confirm="Desea anular este comprobante?">
+                      data-confirm="¿Desea anular este comprobante?">
                   <textarea name="motivo" rows="3" required class="campo-formulario"
-                            placeholder="Motivo de anulacion"></textarea>
+                            placeholder="Motivo de anulación"></textarea>
                   <button type="submit" class="boton-mini boton-rechazar">Confirmar</button>
                 </form>
               </details>
               {% else %}
-              <span class="texto-pequeno">Sin accion</span>
+              <span class="texto-pequeno">Sin acción</span>
               {% endif %}
             </td>
           </tr>

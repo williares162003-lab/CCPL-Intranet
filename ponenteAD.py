@@ -419,7 +419,7 @@ def leer_notificaciones_ponente(p_ponente, p_limite=8):
             avisos.append({
                 "tipo": "cuota",
                 "titulo": "Pagos pendientes",
-                "mensaje": str(pagos) + " inscrito(s) aun figuran con pago pendiente.",
+                "mensaje": str(pagos) + " inscrito(s) aún figuran con pago pendiente.",
                 "link_endpoint": "ponente_seguimiento",
                 "link_text": "Ver inscritos",
                 "relacion_tipo": "pagos",

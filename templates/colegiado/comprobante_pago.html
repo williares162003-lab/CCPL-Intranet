@@ -26,7 +26,7 @@
       <div>
         <p class="comprobante-kicker">Colegio de Contadores Publicos de Lambayeque</p>
         <h2>{{ comprobante.tipo_comprobante }}</h2>
-        <p class="texto-secundario">Gestion profesional CCPL</p>
+        <p class="texto-secundario">Gestión profesional CCPL</p>
       </div>
       <div class="comprobante-numero">
         <span>{{ numero_comprobante }}</span>
@@ -38,14 +38,14 @@
       <div>
         <p class="resumen-label">Colegiado</p>
         <h3>{{ comprobante.nombre }}</h3>
-        <p>Matricula: {{ comprobante.matricula }}</p>
+        <p>Matrícula: {{ comprobante.matricula }}</p>
         <p>DNI: {{ comprobante.documento }}</p>
       </div>
       <div>
         <p class="resumen-label">Pago</p>
         <h3>{{ comprobante.metodo }}</h3>
-        <p>Transaccion: {{ comprobante.codigo_transaccion }}</p>
-        <p>Autorizacion: {{ comprobante.codigo_autorizacion }}</p>
+        <p>Transacción: {{ comprobante.codigo_transaccion }}</p>
+        <p>Autorización: {{ comprobante.codigo_autorizacion }}</p>
       </div>
     </section>
 
@@ -78,7 +78,7 @@
         </span>
       </div>
       <div>
-        <p class="resumen-label">Codigo de seguridad</p>
+        <p class="resumen-label">Código de seguridad</p>
         <p class="texto-mono">{{ comprobante.codigo_hash }}</p>
       </div>
     </footer>
@@ -90,7 +90,7 @@
         <div>
           <p class="texto-principal">Comprobante anulado</p>
           <p class="texto-secundario">
-            {{ comprobante.motivo_anulacion or 'Anulado por administracion.' }}
+            {{ comprobante.motivo_anulacion or 'Anulado por administración.' }}
           </p>
           <p class="texto-pequeno">
             {{ comprobante.anulado_por_nombre or '-' }}

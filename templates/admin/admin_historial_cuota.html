@@ -7,9 +7,9 @@
 <div class="pagina espaciado">
   <div class="encabezado-pagina">
     <div>
-      <p class="etiqueta-seccion">Auditoria financiera</p>
+      <p class="etiqueta-seccion">Auditoría financiera</p>
       <h2 class="titulo-pagina">Historial de cuota</h2>
-      <p class="texto-apoyo">Revision completa de cuota, evidencias, transacciones y comprobantes.</p>
+      <p class="texto-apoyo">Revisión completa de cuota, evidencias, transacciones y comprobantes.</p>
     </div>
     <a href="{{ url_for('admin_cuotas') }}" class="boton boton-secundario">
       <span class="material-symbols-outlined">arrow_back</span> Volver a cuotas
@@ -43,7 +43,7 @@
     <div class="tarjeta-encabezado">
       <div>
         <h3 class="titulo-seccion sin-margen">Evidencias</h3>
-        <p class="texto-secundario">Voucher, revision y usuario administrativo responsable.</p>
+        <p class="texto-secundario">Voucher, revisión y usuario administrativo responsable.</p>
       </div>
     </div>
     <div class="tabla-responsive">
@@ -54,7 +54,7 @@
             <th>Operacion</th>
             <th class="derecha">Monto</th>
             <th class="centro">Estado</th>
-            <th>Revision</th>
+            <th>Revisión</th>
             <th class="centro">Archivo</th>
           </tr>
         </thead>
@@ -79,7 +79,7 @@
               <p class="texto-pequeno">{{ ev.revisado_en }}</p>
               <p class="texto-pequeno">{{ ev.detalle_revision }}</p>
               {% else %}
-              <span class="texto-pequeno">Pendiente de revision</span>
+              <span class="texto-pequeno">Pendiente de revisión</span>
               {% endif %}
             </td>
             <td class="centro">
@@ -102,7 +102,7 @@
     <div class="tarjeta-encabezado">
       <div>
         <h3 class="titulo-seccion sin-margen">Transacciones</h3>
-        <p class="texto-secundario">Origen del pago y respuesta de pasarela/revision.</p>
+        <p class="texto-secundario">Origen del pago y respuesta de pasarela/revisión.</p>
       </div>
     </div>
     <div class="tabla-responsive">
@@ -112,7 +112,7 @@
             <th>Fecha</th>
             <th>Proveedor</th>
             <th>Metodo</th>
-            <th>Codigo</th>
+            <th>Código</th>
             <th class="derecha">Monto</th>
             <th class="centro">Estado</th>
           </tr>
@@ -162,7 +162,7 @@
             <th>Fecha</th>
             <th class="derecha">Total</th>
             <th class="centro">Estado</th>
-            <th>Anulacion</th>
+            <th>Anulación</th>
           </tr>
         </thead>
         <tbody>

@@ -8,8 +8,8 @@
 
   <div class="encabezado-pagina">
     <div>
-      <p class="etiqueta-seccion">Administracion</p>
-      <h2 class="titulo-pagina">Gestion de colegiados</h2>
+      <p class="etiqueta-seccion">Administración</p>
+      <h2 class="titulo-pagina">Gestión de colegiados</h2>
     </div>
     <div class="acciones-colegiados no-print">
       <a href="{{ url_for('admin_colegiados_exportar', q=busqueda, especialidad=especialidad_filtro, estado=estado_filtro, reconocimiento=reconocimiento_filtro) }}"
@@ -29,7 +29,7 @@
     <div class="filtro-campo filtro-busqueda">
       <label class="etiqueta-campo">Buscar</label>
       <input name="q" type="search" value="{{ busqueda }}"
-             placeholder="Nombre, matricula, DNI, correo o direccion"
+             placeholder="Nombre, matrícula, DNI, correo o dirección"
              class="campo-formulario" />
     </div>
     <div class="filtro-campo">
@@ -55,7 +55,7 @@
       <label class="etiqueta-campo">Reconocimiento</label>
       <select name="reconocimiento" class="campo-formulario">
         <option value="">Todos</option>
-        <option value="30" {% if reconocimiento_filtro == "30" %}selected{% endif %}>Proximos 30 anios</option>
+        <option value="30" {% if reconocimiento_filtro == "30" %}selected{% endif %}>Proximos 30 años</option>
       </select>
     </div>
     <button type="submit" class="boton boton-oscuro">
@@ -70,7 +70,7 @@
     <div>
       <p class="texto-principal">Importar colegiados</p>
       <p class="texto-secundario">
-        Cargue un CSV con nombre, matricula, DNI, especialidad, direccion, correo y telefono.
+        Cargue un CSV con nombre, matrícula, DNI, especialidad, dirección, correo y teléfono.
       </p>
     </div>
     <div class="importar-acciones">
@@ -103,7 +103,7 @@
       <span class="filtro-activo">Especialidad: {{ especialidad_filtro_nombre or especialidad_filtro }}</span>
       {% endif %}
       {% if reconocimiento_filtro == "30" %}
-      <span class="filtro-activo alerta">Reconocimiento: cumplen 30 anios en 12 meses</span>
+      <span class="filtro-activo alerta">Reconocimiento: cumplen 30 años en 12 meses</span>
       {% endif %}
     </div>
     <div class="tabla-responsive">
@@ -111,10 +111,10 @@
         <thead>
           <tr>
             <th>Nombre</th>
-            <th>Matricula</th>
+            <th>Matrícula</th>
             <th>Especialidad</th>
-            <th>Direccion</th>
-            <th>30 anios</th>
+            <th>Dirección</th>
+            <th>30 años</th>
             <th class="centro">EPC</th>
             <th class="centro">Estado</th>
             <th class="centro no-print">Acciones</th>
@@ -192,7 +192,7 @@
             <input name="nombre" type="text" required placeholder="Apellidos y nombres" class="campo-formulario" />
           </div>
           <div>
-            <label class="etiqueta-campo">Matricula *</label>
+            <label class="etiqueta-campo">Matrícula *</label>
             <input name="matricula" type="text" required placeholder="12345-A" class="campo-formulario" />
           </div>
           <div>
@@ -209,17 +209,17 @@
             </select>
           </div>
           <div class="campo-completo">
-            <label class="etiqueta-campo">Direccion *</label>
+            <label class="etiqueta-campo">Dirección *</label>
             <input name="direccion" type="text" required
                    placeholder="Av. / Calle / Distrito" class="campo-formulario" />
           </div>
           <div>
             <label class="etiqueta-campo">Fecha de colegiatura</label>
             <input name="fecha_colegiatura" type="date" class="campo-formulario" />
-            <p class="ayuda-campo">Sirve para alertar un anio antes de cumplir 30 anios.</p>
+            <p class="ayuda-campo">Sirve para alertar un año antes de cumplir 30 años.</p>
           </div>
           <div>
-            <label class="etiqueta-campo">Correo electronico *</label>
+            <label class="etiqueta-campo">Correo electrónico *</label>
             <input name="correo" type="email" required placeholder="correo@ejemplo.com" class="campo-formulario" />
           </div>
           <div>
@@ -227,9 +227,9 @@
             <input name="telefono" type="text" placeholder="987654321" class="campo-formulario" />
           </div>
           <div class="campo-completo">
-            <label class="etiqueta-campo">Contrasena de acceso *</label>
-            <input name="password" type="password" required placeholder="Contrasena inicial del colegiado" class="campo-formulario" />
-            <p class="ayuda-campo">El colegiado usara su matricula y esta contrasena para ingresar.</p>
+            <label class="etiqueta-campo">Contraseña de acceso *</label>
+            <input name="password" type="password" required placeholder="Contraseña inicial del colegiado" class="campo-formulario" />
+            <p class="ayuda-campo">El colegiado usará su matrícula y esta contraseña para ingresar.</p>
           </div>
         </div>
 
@@ -274,11 +274,11 @@
             </select>
           </div>
           <div class="campo-completo">
-            <label class="etiqueta-campo">Direccion</label>
+            <label class="etiqueta-campo">Dirección</label>
             <input id="edit-direccion" name="direccion" type="text" required class="campo-formulario" />
           </div>
           <div>
-            <label class="etiqueta-campo">Correo electronico</label>
+            <label class="etiqueta-campo">Correo electrónico</label>
             <input id="edit-correo" name="correo" type="email" class="campo-formulario" />
           </div>
           <div>

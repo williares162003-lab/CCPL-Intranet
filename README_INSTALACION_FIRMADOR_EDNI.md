@@ -24,20 +24,20 @@ El sistema web puede estar publicado en PythonAnywhere, pero la firma se hace en
 
 1. Descomprimir este ZIP en una carpeta de la computadora del administrador.
 2. Ejecutar `instalar_firmador_edni.bat`.
-3. Esperar a que termine la instalacion.
+3. Esperar a que termine la instalación.
 4. Ejecutar `iniciar_firmador_edni.bat`.
 5. Dejar abierta esa ventana mientras se firme desde el sistema.
 
 ## Uso desde el sistema
 
 1. Entrar al sistema publicado.
-2. Ir a `Tramites`.
-3. Abrir el tramite de certificado de habilidad.
+2. Ir a `Trámites`.
+3. Abrir el trámite de certificado de habilidad.
 4. Presionar `Firmar con eDNI`.
 5. Presionar `Verificar`.
 6. Si el DNIe esta listo, ingresar el PIN y presionar `Firmar con eDNI`.
 
-El PDF firmado se registra automaticamente en el tramite y queda disponible para el colegiado.
+El PDF firmado se registra automaticamente en el trámite y queda disponible para el colegiado.
 
 ## Seguridad
 

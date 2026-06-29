@@ -9,7 +9,7 @@
     <div>
       <p class="etiqueta-seccion">Pago interno CCPL</p>
       <h2 class="titulo-pagina">Confirmar pago interno</h2>
-      <p class="texto-apoyo">Registra un pago validado por administracion y genera el comprobante interno.</p>
+      <p class="texto-apoyo">Registra un pago validado por administración y genera el comprobante interno.</p>
     </div>
     <a href="{{ url_for('estado_cuenta') }}" class="boton boton-secundario">
       <span class="material-symbols-outlined">arrow_back</span> Volver
@@ -29,7 +29,7 @@
         <div>
           <p class="resumen-label">Colegiado</p>
           <h3 class="resumen-valor mini">{{ cuota.nombre }}</h3>
-          <p class="texto-secundario">Matricula {{ cuota.matricula }}</p>
+          <p class="texto-secundario">Matrícula {{ cuota.matricula }}</p>
         </div>
         <div>
           <p class="resumen-label">Monto a pagar</p>
@@ -65,7 +65,7 @@
           <span class="material-symbols-outlined">verified_user</span>
           <div>
             <p class="texto-principal">Ambiente interno CCPL</p>
-            <p class="texto-secundario">Se registra una transaccion interna y se genera un comprobante para trazabilidad.</p>
+            <p class="texto-secundario">Se registra una transacción interna y se genera un comprobante para trazabilidad.</p>
           </div>
         </div>
 
@@ -83,7 +83,7 @@
       <h3 class="titulo-seccion sin-margen">Proceso del pago</h3>
       <ol class="pasarela-pasos">
         <li>Validar cuota pendiente.</li>
-        <li>Registrar transaccion interna.</li>
+        <li>Registrar transacción interna.</li>
         <li>Marcar cuota como pagada.</li>
         <li>Emitir comprobante interno.</li>
       </ol>

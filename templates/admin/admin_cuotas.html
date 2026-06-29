@@ -8,7 +8,7 @@
 
   <div class="encabezado-pagina">
     <div>
-      <p class="etiqueta-seccion">Administracion</p>
+      <p class="etiqueta-seccion">Administración</p>
       <h2 class="titulo-pagina">Cuotas y pagos</h2>
     </div>
     <button onclick="abrirModalNueva()" class="boton boton-primario">
@@ -92,7 +92,7 @@
           <label class="etiqueta-campo">Colegiado *</label>
           <input type="search"
                  class="campo-formulario"
-                 placeholder="Escriba nombre o matricula"
+                 placeholder="Escriba nombre o matrícula"
                  autocomplete="off"
                  data-colegiado-input />
           <input type="hidden" name="matricula" data-colegiado-hidden />
@@ -156,7 +156,7 @@
           <label class="etiqueta-campo">Colegiado *</label>
           <input type="search"
                  class="campo-formulario"
-                 placeholder="Escriba nombre o matricula"
+                 placeholder="Escriba nombre o matrícula"
                  autocomplete="off"
                  data-colegiado-input />
           <input type="hidden" name="matricula" data-colegiado-hidden />
@@ -219,11 +219,11 @@
         </div>
       </div>
       <p class="proceso-texto">
-        Genera las cuotas de curso que falten y actualiza las que ya existen segun la inscripcion.
+        Genera las cuotas de curso que falten y actualiza las que ya existen según la inscripción.
       </p>
       <form action="{{ url_for('admin_procesar_cuotas_cursos') }}"
             method="POST"
-            data-confirm="Desea procesar las cuotas de cursos segun las inscripciones?">
+            data-confirm="¿Desea procesar las cuotas de cursos según las inscripciones?">
         <button type="submit" class="boton boton-oscuro boton-full">
           <span class="material-symbols-outlined">sync</span> Procesar cuotas de cursos
         </button>
@@ -235,7 +235,7 @@
     <div class="filtro-campo">
       <label class="etiqueta-campo">Buscar</label>
       <input name="q" type="search" value="{{ busqueda }}"
-             placeholder="Nombre, matricula o concepto"
+             placeholder="Nombre, matrícula o concepto"
              class="campo-formulario" />
     </div>
     <div class="filtro-campo filtro-campo-tipo">
@@ -392,7 +392,7 @@
           <label class="etiqueta-campo">Colegiado *</label>
           <input type="search"
                  class="campo-formulario"
-                 placeholder="Escriba nombre o matricula"
+                 placeholder="Escriba nombre o matrícula"
                  autocomplete="off"
                  data-colegiado-input />
           <input type="hidden" name="matricula" data-colegiado-hidden />

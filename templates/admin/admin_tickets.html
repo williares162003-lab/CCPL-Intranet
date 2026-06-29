@@ -7,7 +7,7 @@
 <div class="pagina espaciado-medio">
 
   <div>
-    <p class="etiqueta-seccion">Administracion</p>
+    <p class="etiqueta-seccion">Administración</p>
     <h2 class="titulo-pagina">Incidencias de soporte</h2>
     <p class="texto-apoyo">Gestiona, responde y cierra los tickets enviados por los colegiados.</p>
   </div>
@@ -36,7 +36,7 @@
             <th>Categoria</th>
             <th>Incidencia</th>
             <th class="centro">Estado</th>
-            <th>Respuesta / accion</th>
+            <th>Respuesta / acción</th>
           </tr>
         </thead>
         <tbody>
@@ -55,7 +55,7 @@
             </td>
             <td class="centro">
               <span class="estado-badge {% if t.estado == 'Cerrado' %}estado-cerrado{% elif t.estado[:2] == 'En' %}estado-revision{% else %}estado-abierto{% endif %}">
-                {{ 'En Revision' if t.estado == 'En atencion' else t.estado }}
+                {{ 'En Revisión' if t.estado == 'En atencion' else t.estado }}
               </span>
             </td>
             <td>
@@ -76,7 +76,7 @@
                   <div class="ticket-form-grid">
                     <select name="estado" class="campo-formulario campo-ticket">
                       <option value="Abierto" {% if t.estado == 'Abierto' %}selected{% endif %}>Abierto</option>
-                      <option value="En Revision" {% if t.estado[:2] == 'En' %}selected{% endif %}>En Revision</option>
+                      <option value="En Revision" {% if t.estado[:2] == 'En' %}selected{% endif %}>En Revisión</option>
                       <option value="Cerrado">Cerrado</option>
                     </select>
                     <textarea name="respuesta" rows="3" class="campo-formulario campo-ticket" placeholder="Respuesta para el colegiado">{{ t.respuesta_admin or '' }}</textarea>

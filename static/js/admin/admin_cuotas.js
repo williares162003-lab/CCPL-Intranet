@@ -150,7 +150,7 @@ function _inicializarBuscadorColegiado(picker) {
       });
       results.classList.remove("hidden");
     } catch (error) {
-      mostrarMensaje("No se pudo realizar la busqueda.");
+      mostrarMensaje("No se pudo realizar la búsqueda.");
     }
   }
 
@@ -223,7 +223,7 @@ function _validarFormPagoAdelantado(form) {
   const meses = parseInt(cantidad.value || "0", 10);
 
   if (mes < 1 || mes > 12) {
-    mostrarErrorCampo(mesInicio, "Seleccione un mes valido.");
+    mostrarErrorCampo(mesInicio, "Seleccione un mes válido.");
     valido = false;
   }
   if (meses < 1 || meses > 12) {

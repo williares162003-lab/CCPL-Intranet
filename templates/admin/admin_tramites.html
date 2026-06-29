@@ -6,9 +6,9 @@
 {% block content %}
 <div class="pagina espaciado-medio admin-tramites">
   <div>
-    <p class="etiqueta-seccion">Administracion</p>
-    <h2 class="titulo-pagina">Tramites</h2>
-    <p class="texto-apoyo">Revisa tramites administrativos, valida deuda, verifica sustentos de baja o traslado y sube el documento emitido cuando corresponda.</p>
+    <p class="etiqueta-seccion">Administración</p>
+    <h2 class="titulo-pagina">Trámites</h2>
+    <p class="texto-apoyo">Revisa trámites administrativos, valida deuda, verifica sustentos de baja o traslado y sube el documento emitido cuando corresponda.</p>
   </div>
 
   <div class="filtros-pills">
@@ -24,7 +24,7 @@
 
   <form class="filtro-linea" method="GET">
     <div>
-      <label class="etiqueta-campo">Tipo de tramite</label>
+      <label class="etiqueta-campo">Tipo de trámite</label>
       <select name="tipo" class="campo-formulario">
         <option value="">Todos los tipos</option>
         {% for tipo in tipos_tramite %}
@@ -44,7 +44,7 @@
   <section class="tramites-panel">
     <div class="tramites-panel-header">
       <div>
-        <p class="texto-principal">{{ tramites|length }} tramite(s) encontrado(s)</p>
+        <p class="texto-principal">{{ tramites|length }} trámite(s) encontrado(s)</p>
         <p class="texto-pequeno">Cada solicitud se revisa con deuda, sustento, documento emitido y firma cuando corresponde.</p>
       </div>
     </div>
@@ -136,7 +136,7 @@
               {% endif %}
             </div>
             {% else %}
-            <p class="texto-pequeno">Sin atencion registrada.</p>
+            <p class="texto-pequeno">Sin atención registrada.</p>
             {% endif %}
           </div>
         </div>
@@ -145,10 +145,10 @@
           <p class="acciones-titulo">Acciones</p>
 
           {% if t.estado[:2] != 'En' %}
-          <form action="{{ url_for('admin_estado_tramite', tid=t.id) }}" method="POST" data-confirm="Desea poner este tramite en revision?">
+          <form action="{{ url_for('admin_estado_tramite', tid=t.id) }}" method="POST" data-confirm="¿Desea poner este trámite en revisión?">
             <input type="hidden" name="estado" value="En Revision">
-            <input type="hidden" name="detalle_revision" value="Tramite tomado para revision administrativa.">
-            <button type="submit" class="boton-mini boton-revision">Poner en revision</button>
+            <input type="hidden" name="detalle_revision" value="Trámite tomado para revisión administrativa.">
+            <button type="submit" class="boton-mini boton-revision">Poner en revisión</button>
           </form>
           {% endif %}
 
@@ -172,13 +172,13 @@
             {% elif falta_sustento %}
             <button type="button" class="boton-mini boton-aprobar boton-deshabilitado" disabled title="Debe tener documento sustentatorio">Aprobar</button>
             {% elif t.tipo_tramite == 'certificado_habilidad' %}
-            <p class="texto-pequeno ayuda-firma">Este tramite solo se aprueba con firma eDNI desde el sistema.</p>
+            <p class="texto-pequeno ayuda-firma">Este trámite solo se aprueba con firma eDNI desde el sistema.</p>
             {% else %}
             <details class="accion-detalle">
-              <summary class="boton-mini boton-aprobar">Aprobar tramite</summary>
-              <form action="{{ url_for('admin_estado_tramite', tid=t.id) }}" method="POST" enctype="multipart/form-data" data-confirm="Desea aprobar este tramite?">
+              <summary class="boton-mini boton-aprobar">Aprobar trámite</summary>
+              <form action="{{ url_for('admin_estado_tramite', tid=t.id) }}" method="POST" enctype="multipart/form-data" data-confirm="¿Desea aprobar este trámite?">
                 <input type="hidden" name="estado" value="Aprobado">
-                <textarea class="campo-formulario campo-mini" name="detalle_revision" placeholder="Detalle de atencion">Tramite aprobado por administracion.</textarea>
+                <textarea class="campo-formulario campo-mini" name="detalle_revision" placeholder="Detalle de atención">Trámite aprobado por administración.</textarea>
                 <label class="archivo-mini">
                   Archivo emitido
                   <input name="archivo_respuesta" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp">
@@ -192,9 +192,9 @@
           {% if t.estado != 'Rechazado' %}
           <details class="accion-detalle">
             <summary class="boton-mini boton-rechazar">Rechazar</summary>
-            <form action="{{ url_for('admin_estado_tramite', tid=t.id) }}" method="POST" data-confirm="Desea rechazar este tramite?">
+            <form action="{{ url_for('admin_estado_tramite', tid=t.id) }}" method="POST" data-confirm="¿Desea rechazar este trámite?">
               <input type="hidden" name="estado" value="Rechazado">
-              <textarea class="campo-formulario campo-mini" name="detalle_revision" placeholder="Motivo de rechazo">Tramite rechazado por administracion.</textarea>
+              <textarea class="campo-formulario campo-mini" name="detalle_revision" placeholder="Motivo de rechazo">Trámite rechazado por administración.</textarea>
               <button type="submit" class="boton-mini boton-rechazar">Confirmar rechazo</button>
             </form>
           </details>
@@ -203,8 +203,8 @@
       </article>
       {% else %}
       <div class="tramites-vacio">
-        <p class="texto-principal">No hay tramites con este filtro.</p>
-        <p class="texto-pequeno">Cambie el estado o tipo de tramite para ampliar la busqueda.</p>
+        <p class="texto-principal">No hay trámites con este filtro.</p>
+        <p class="texto-pequeno">Cambie el estado o tipo de trámite para ampliar la búsqueda.</p>
       </div>
       {% endfor %}
     </div>

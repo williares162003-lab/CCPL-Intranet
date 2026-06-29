@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return "No se pudo usar la llave privada del certificado de firma. Verifique que el DNIe este insertado, activo y con PIN correcto.";
     }
     if (texto.includes("no module named")) {
-      return "Falta una dependencia del modulo de firma. Revise la instalacion antes de volver a intentar.";
+      return "Falta una dependencia del módulo de firma. Revise la instalación antes de volver a intentar.";
     }
     if (texto.includes("pkcs11") || texto.includes("middleware")) {
       return "No se pudo acceder al certificado del DNIe. Revise el driver RENIEC, el middleware y que el DNIe este insertado.";
@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (texto.includes("failed to fetch") || texto.includes("networkerror")) {
       return "No se pudo conectar con el firmador local. Ejecute iniciar_firmador_edni.bat en esta computadora y vuelva a verificar.";
     }
-    return error?.message || "Revise la instalacion del firmador eDNI antes de continuar.";
+    return error?.message || "Revise la instalación del firmador eDNI antes de continuar.";
   };
 
   const setEstado = (tipo, titulo, detalle, icono) => {
@@ -150,7 +150,7 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const respuesta = await fetch(config.dataset.estadoUrl, { method: "GET" });
       const data = await respuesta.json().catch(() => null);
-      if (!data) throw new Error("Sin respuesta del modulo de firma eDNI.");
+      if (!data) throw new Error("Sin respuesta del módulo de firma eDNI.");
       const ok = data.code === 1 || data.ok === true || data.estado === "ok";
       const tieneCertificado = Array.isArray(data.certificados) && data.certificados.length > 0;
       const tieneCertificadoFirma = data.certificado_firma_detectado === true || (
@@ -211,7 +211,7 @@ document.addEventListener("DOMContentLoaded", () => {
         })
       });
       const firmaData = await firmaRespuesta.json().catch(() => null);
-      if (!firmaData) throw new Error("El firmador no devolvio una respuesta legible.");
+      if (!firmaData) throw new Error("El firmador no devolvió una respuesta legible.");
       if (!firmaRespuesta.ok) {
         throw new Error(mensajeFirmaAmigable(firmaData));
       }

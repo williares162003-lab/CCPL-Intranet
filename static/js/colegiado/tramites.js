@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (ayudaDocumento) {
       ayudaDocumento.textContent = obligatorio
         ? "Adjunte el documento de baja o traslado en PDF o imagen"
-        : "PDF o imagen, si el tramite lo requiere";
+        : "PDF o imagen, si el trámite lo requiere";
     }
   }
 
@@ -57,13 +57,13 @@ document.addEventListener("DOMContentLoaded", function () {
     let valido = true;
 
     if (tipo && !tipo.value.trim()) {
-      mostrarErrorCampo(tipo, "Seleccione el tipo de tramite.");
+      mostrarErrorCampo(tipo, "Seleccione el tipo de trámite.");
       valido = false;
     }
 
     const asunto = form.querySelector('[name="asunto"]');
     if (asunto && !asunto.value.trim()) {
-      mostrarErrorCampo(asunto, "Ingrese el asunto del tramite.");
+      mostrarErrorCampo(asunto, "Ingrese el asunto del trámite.");
       valido = false;
     }
 
