@@ -1,9 +1,11 @@
+/* Aula virtual: contenedor principal */
 .aula-page {
   display: grid;
   gap: 20px;
   padding-bottom: 28px;
 }
 
+/* Aula virtual: cabecera del curso */
 .aula-hero {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 260px;
@@ -17,10 +19,12 @@
   box-shadow: var(--sombra);
 }
 
+/* Aula virtual del ponente: cabecera en modo gestion */
 .aula-hero-gestion {
   border-top-color: var(--dorado);
 }
 
+/* Aula virtual: ruta o breadcrumb del curso */
 .aula-breadcrumb {
   margin: 0 0 12px;
   color: var(--texto-claro);
@@ -28,6 +32,7 @@
   font-weight: 700;
 }
 
+/* Aula virtual: titulo del curso */
 .aula-hero h2 {
   margin: 4px 0 10px;
   color: var(--azul);
@@ -35,11 +40,13 @@
   line-height: 1.15;
 }
 
+/* Aula virtual: descripcion del curso */
 .aula-hero p {
   max-width: 780px;
   line-height: 1.55;
 }
 
+/* Aula virtual: etiquetas de informacion del curso */
 .aula-meta {
   display: flex;
   flex-wrap: wrap;
@@ -47,6 +54,7 @@
   margin-top: 16px;
 }
 
+/* Aula virtual: etiqueta individual de informacion */
 .aula-meta span {
   display: inline-flex;
   align-items: center;
@@ -60,6 +68,7 @@
   font-weight: 800;
 }
 
+/* Aula virtual: tarjeta de estado o progreso */
 .aula-status {
   display: grid;
   align-content: center;
@@ -70,18 +79,21 @@
   border-radius: var(--radio);
 }
 
+/* Aula virtual: numero principal de estado o progreso */
 .aula-status strong {
   color: var(--azul);
   font-size: 34px;
   line-height: 1;
 }
 
+/* Aula virtual: grilla de resumen del curso */
 .aula-resumen-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 14px;
 }
 
+/* Aula virtual: tarjeta de resumen */
 .aula-resumen-item {
   display: grid;
   grid-template-columns: 42px minmax(0, 1fr);
@@ -95,6 +107,7 @@
   box-shadow: var(--sombra);
 }
 
+/* Aula virtual: icono de tarjeta de resumen */
 .aula-resumen-item > .material-symbols-outlined {
   display: flex;
   align-items: center;
@@ -106,6 +119,7 @@
   border-radius: var(--radio);
 }
 
+/* Aula virtual: numero o dato de tarjeta de resumen */
 .aula-resumen-item strong {
   display: block;
   margin-top: 4px;
@@ -114,6 +128,7 @@
   line-height: 1;
 }
 
+/* Aula virtual: pestanas de unidades */
 .aula-tabs {
   display: flex;
   flex-wrap: wrap;
@@ -122,6 +137,7 @@
   border-bottom: 2px solid rgba(198, 27, 44, 0.16);
 }
 
+/* Aula virtual: boton de pestana */
 .aula-tabs a {
   display: inline-flex;
   align-items: center;
@@ -136,12 +152,14 @@
   font-weight: 800;
 }
 
+/* Aula virtual: boton de pestana al pasar el mouse */
 .aula-tabs a:hover {
   color: var(--blanco);
   background: var(--rojo);
   border-color: var(--rojo);
 }
 
+/* Aula virtual: distribucion de contenido y panel lateral */
 .aula-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 330px;
@@ -149,6 +167,7 @@
   align-items: start;
 }
 
+/* Aula virtual: panel lateral derecho */
 .aula-sidebar {
   position: sticky;
   top: 84px;
@@ -161,6 +180,7 @@
   padding-right: 2px;
 }
 
+/* Aula virtual: contenido principal del curso */
 .aula-contenido {
   grid-column: 1;
   grid-row: 1;
@@ -169,6 +189,7 @@
   min-width: 0;
 }
 
+/* Aula virtual: cajas principales de navegacion, panel y seccion */
 .aula-nav,
 .aula-panel,
 .aula-seccion {
@@ -178,16 +199,19 @@
   box-shadow: var(--sombra);
 }
 
+/* Aula virtual: padding de navegacion y panel lateral */
 .aula-nav,
 .aula-panel {
   padding: 16px;
 }
 
+/* Aula virtual: lista de navegacion lateral */
 .aula-nav {
   display: grid;
   gap: 8px;
 }
 
+/* Aula virtual: enlace de navegacion lateral */
 .aula-nav a {
   display: block;
   padding: 10px 12px;
@@ -200,32 +224,38 @@
   line-height: 1.35;
 }
 
+/* Aula virtual: enlace lateral al pasar el mouse */
 .aula-nav a:hover {
   color: var(--azul);
   background: var(--celeste-claro);
   border-color: rgba(45, 154, 183, 0.28);
 }
 
+/* Aula virtual: panel lateral de informacion */
 .aula-panel {
   display: grid;
   gap: 12px;
 }
 
+/* Aula virtual: panel lateral de progreso */
 .aula-panel-progreso {
   border-top: 4px solid var(--dorado);
 }
 
+/* Aula virtual: numero de progreso en panel lateral */
 .aula-panel-progreso strong {
   color: var(--azul);
   font-size: 34px;
   line-height: 1;
 }
 
+/* Aula virtual: lista dentro del panel lateral */
 .aula-panel-lista {
   display: grid;
   gap: 8px;
 }
 
+/* Aula virtual: fila de datos del panel lateral */
 .aula-panel-lista p {
   display: flex;
   align-items: center;
@@ -241,29 +271,35 @@
   font-weight: 700;
 }
 
+/* Aula virtual: dato resaltado del panel lateral */
 .aula-panel-lista strong {
   color: var(--azul);
   font-size: 16px;
 }
 
+/* Aula virtual: formulario compacto del ponente */
 .formulario-compacto {
   gap: 10px;
 }
 
+/* Aula virtual: campos del formulario compacto */
 .formulario-compacto .campo-formulario {
   min-height: 38px;
   padding: 9px 11px;
   font-size: 13px;
 }
 
+/* Aula virtual: tarjeta de seccion o unidad */
 .aula-seccion {
   overflow: hidden;
 }
 
+/* Aula virtual: seccion general del curso */
 .aula-general {
   border-left: 4px solid var(--azul);
 }
 
+/* Aula virtual: cabecera de seccion o unidad */
 .aula-seccion-header {
   display: grid;
   gap: 8px;
@@ -272,6 +308,7 @@
   border-bottom: 1px solid var(--borde-claro);
 }
 
+/* Aula virtual: titulo de seccion o unidad */
 .aula-seccion-header h3 {
   margin: 0;
   color: var(--azul);
@@ -279,20 +316,24 @@
   line-height: 1.25;
 }
 
+/* Aula virtual: descripcion de seccion o unidad */
 .aula-seccion-header p {
   margin: 0;
 }
 
+/* Aula virtual: bloque de materiales o actividades */
 .aula-bloque {
   display: grid;
   gap: 12px;
   padding: 20px;
 }
 
+/* Aula virtual: grilla de datos generales */
 .aula-general-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+/* Aula virtual: tarjeta pequena de dato general */
 .aula-mini-dato {
   display: grid;
   grid-template-columns: 40px minmax(0, 1fr);
@@ -304,6 +345,7 @@
   border-radius: var(--radio);
 }
 
+/* Aula virtual: icono de dato general */
 .aula-mini-dato > .material-symbols-outlined {
   display: grid;
   width: 40px;
@@ -314,6 +356,7 @@
   border-radius: var(--radio);
 }
 
+/* Aula virtual: texto resaltado de dato general */
 .aula-mini-dato strong {
   display: block;
   margin-top: 4px;
@@ -322,10 +365,12 @@
   line-height: 1.35;
 }
 
+/* Aula virtual: bloques consecutivos dentro de una unidad */
 .aula-bloque + .aula-bloque {
   padding-top: 0;
 }
 
+/* Aula virtual: titulo de bloque de materiales o actividades */
 .aula-bloque-title {
   display: flex;
   align-items: center;
@@ -335,10 +380,12 @@
   border-left: 4px solid var(--rojo);
 }
 
+/* Aula virtual: icono del titulo de bloque */
 .aula-bloque-title .material-symbols-outlined {
   color: var(--rojo);
 }
 
+/* Aula virtual: texto del titulo de bloque */
 .aula-bloque-title h4 {
   margin: 0;
   color: var(--texto-suave);
@@ -346,6 +393,7 @@
   font-weight: 800;
 }
 
+/* Aula virtual: item de material o recurso */
 .aula-item {
   display: grid;
   grid-template-columns: 38px minmax(0, 1fr);
@@ -356,6 +404,7 @@
   border-radius: var(--radio);
 }
 
+/* Aula virtual: icono del item de material */
 .aula-item > .material-symbols-outlined {
   display: flex;
   align-items: center;
@@ -367,87 +416,107 @@
   border-radius: var(--radio);
 }
 
+/* Aula virtual: acciones dentro del item */
 .aula-item .fila-wrap,
 .aula-item .boton-link {
   margin-top: 8px;
 }
 
+/* Aula virtual: contenedor de tabla con scroll horizontal */
 .tabla-responsive {
   overflow-x: auto;
 }
 
+/* Aula virtual: ancho minimo de tabla de datos */
 .tabla-responsive .tabla-datos {
   min-width: 720px;
 }
 
+/* Responsive: aula virtual en pantallas medianas */
 @media (max-width: 1120px) {
+  /* Responsive: cabecera y layout en una columna */
   .aula-hero,
   .aula-layout {
     grid-template-columns: 1fr;
   }
 
+  /* Responsive: contenido y sidebar sin posicion fija */
   .aula-contenido,
   .aula-sidebar {
     grid-column: auto;
     grid-row: auto;
   }
 
+  /* Responsive: resumen en dos columnas */
   .aula-resumen-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  /* Responsive: panel lateral deja de ser sticky */
   .aula-sidebar {
     position: static;
     max-height: none;
     overflow: visible;
   }
 
+  /* Responsive: datos generales en una columna */
   .aula-general-grid {
     grid-template-columns: 1fr;
   }
 }
 
+/* Responsive: aula virtual en celulares */
 @media (max-width: 640px) {
+  /* Responsive movil: menos padding en cabecera */
   .aula-hero {
     padding: 18px;
   }
 
+  /* Responsive movil: titulo mas pequeno */
   .aula-hero h2 {
     font-size: 24px;
   }
 
+  /* Responsive movil: numero de estado mas pequeno */
   .aula-status strong {
     font-size: 28px;
   }
 
+  /* Responsive movil: resumen en una columna */
   .aula-resumen-grid {
     grid-template-columns: 1fr;
   }
 
+  /* Responsive movil: pestanas con scroll horizontal */
   .aula-tabs {
     flex-wrap: nowrap;
     overflow-x: auto;
     padding-bottom: 12px;
   }
 
+  /* Responsive movil: pestana no se encoge */
   .aula-tabs a {
     flex: 0 0 auto;
   }
 
+  /* Responsive movil: menos padding en secciones */
   .aula-seccion-header,
   .aula-bloque {
     padding: 16px;
   }
 
+  /* Responsive movil: item de material en una columna */
   .aula-item {
     grid-template-columns: 1fr;
   }
 
+  /* Responsive movil: icono de material mas pequeno */
   .aula-item > .material-symbols-outlined {
     width: 34px;
     height: 34px;
   }
 
+  /* Responsive movil: filas separadas en vertical */
   .fila-separada {
     align-items: flex-start;
     flex-direction: column;
