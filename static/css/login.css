@@ -1,3 +1,4 @@
+/* Pantalla completa del login */
 .login-page {
   min-height: 100vh;
   display: grid;
@@ -6,7 +7,7 @@
 }
 
 
-
+/* Panel izquierdo con imagen institucional */
 .login-hero {
   position: relative;
   display: flex;
@@ -16,6 +17,7 @@
   background: var(--azul-profundo);
 }
 
+/* Brillo superior del panel izquierdo */
 .login-hero::before {
   content: "";
   position: absolute;
@@ -25,6 +27,7 @@
   z-index: 0;
 }
 
+/* Imagen de fondo del panel izquierdo */
 .login-image {
   position: absolute;
   inset: 0;
@@ -36,6 +39,7 @@
   transform: scale(1.01);
 }
 
+/* Capa azul encima de la imagen del login */
 .login-overlay {
   position: absolute;
   inset: 0;
@@ -48,6 +52,7 @@
     );
 }
 
+/* Texto y logo dentro del panel izquierdo */
 .login-hero-content {
   position: relative;
   z-index: 1;
@@ -56,7 +61,7 @@
 }
 
 
-
+/* Logo institucional del panel izquierdo */
 .login-logo {
   display: flex;
   align-items: center;
@@ -72,6 +77,7 @@
   box-shadow: 0 16px 34px rgba(0, 0, 0, 0.18);
 }
 
+/* Imagen del logo en login y version movil */
 .login-logo-img,
 .login-mobile-logo {
   display: block;
@@ -80,6 +86,7 @@
   object-fit: contain;
 }
 
+/* Titulo principal del login */
 .login-title {
   margin: 0;
   font-size: 40px;
@@ -89,6 +96,7 @@
   text-shadow: 0 4px 20px rgba(0,0,0,0.4);
 }
 
+/* Descripcion debajo del titulo */
 .login-description {
   margin: 18px 0 0;
   padding-left: 16px;
@@ -98,6 +106,7 @@
   border-left: 4px solid var(--dorado);
 }
 
+/* Panel derecho donde va el formulario */
 .login-form-section {
   display: flex;
   align-items: center;
@@ -105,17 +114,20 @@
   padding: 48px 24px;
 }
 
+/* Ancho maximo del formulario */
 .login-card-wrap {
   width: 100%;
   max-width: 448px;
 }
 
+/* Logo superior que aparece en pantallas pequenas */
 .login-mobile-brand {
   display: none;
   margin-bottom: 32px;
   text-align: center;
 }
 
+/* Caja del logo movil */
 .login-mobile-logo {
   max-width: 280px;
   margin: 0 auto;
@@ -127,6 +139,7 @@
   box-shadow: var(--sombra);
 }
 
+/* Texto pequeno bajo el logo movil */
 .login-mobile-brand p {
   margin: 4px 0 0;
   color: var(--texto-claro);
@@ -134,7 +147,7 @@
 }
 
 
-
+/* Tarjeta blanca del formulario */
 .login-card {
   position: relative;
   padding: 32px;
@@ -145,6 +158,7 @@
   overflow: hidden;
 }
 
+/* Linea dorada superior de la tarjeta */
 .login-card::before {
   content: "";
   position: absolute;
@@ -153,6 +167,7 @@
   pointer-events: none;
 }
 
+/* Titulo Bienvenido o Recuperar contrasena */
 .login-card h2 {
   margin: 0;
   color: var(--azul);
@@ -160,25 +175,28 @@
   font-weight: 800;
 }
 
+/* Texto descriptivo de la tarjeta */
 .login-card p {
   margin: 8px 0 0;
   color: var(--texto-suave);
   font-size: 14px;
 }
 
+/* Mensajes de error o exito del login */
 .login-alerts {
   display: grid;
   gap: 8px;
   margin: 24px 0;
 }
 
+/* Formulario de login o recuperacion */
 .login-form {
   display: grid;
   gap: 20px;
   margin-top: 32px;
 }
 
-
+/* Etiqueta de cada campo */
 .login-field label {
   display: block;
   margin-bottom: 8px;
@@ -187,10 +205,12 @@
   font-weight: 700;
 }
 
+/* Contenedor del input con icono */
 .login-input-wrap {
   position: relative;
 }
 
+/* Icono dentro del input */
 .login-input-wrap .material-symbols-outlined {
   position: absolute;
   left: 16px;
@@ -201,6 +221,7 @@
   transition: 0.25s ease;
 }
 
+/* Campo de texto del login */
 .login-input {
   width: 100%;
   min-height: 52px;
@@ -212,21 +233,24 @@
   transition: all 0.25s ease;
 }
 
+/* Campo de texto al pasar el mouse */
 .login-input:hover {
   border-color: var(--celeste);
 }
 
+/* Campo de texto seleccionado */
 .login-input:focus {
   border-color: var(--rojo);
   background: var(--blanco);
   box-shadow: 0 0 0 3px rgba(201, 41, 46, 0.11);
 }
 
+/* Icono del input cuando el campo esta seleccionado */
 .login-input-wrap:focus-within .material-symbols-outlined {
   color: var(--rojo);
 }
 
-
+/* Fila de Recordarme y Olvide mi contrasena */
 .remember-row {
   display: flex;
   align-items: center;
@@ -235,12 +259,14 @@
   font-size: 14px;
 }
 
+/* Checkbox de Recordarme */
 .remember-row input {
   width: 16px;
   height: 16px;
   accent-color: var(--azul);
 }
 
+/* Enlace Olvide mi contrasena */
 .login-link-secundario {
   margin-left: auto;
   color: var(--azul);
@@ -249,11 +275,13 @@
   text-decoration: none;
 }
 
+/* Enlaces al pasar el mouse */
 .login-link-secundario:hover,
 .login-link-centro:hover {
   text-decoration: underline;
 }
 
+/* Enlace centrado para volver al login */
 .login-link-centro {
   color: var(--azul);
   font-size: 13px;
@@ -262,24 +290,28 @@
   text-decoration: none;
 }
 
+/* Paginas simples sin panel izquierdo */
 .login-page-simple {
   grid-template-columns: 1fr;
 }
 
+/* Muestra el logo movil en paginas simples */
 .login-mobile-brand.visible {
   display: block;
 }
 
+/* Centra verticalmente el formulario en paginas simples */
 .login-page-simple .login-form-section {
   min-height: 100vh;
 }
 
+/* Espacio del formulario en paginas simples */
 .login-page-simple .login-form {
   margin-top: 24px;
 }
 
 
-
+/* Pie inferior del login */
 .login-footer {
   margin-top: 24px;
   color: var(--texto-claro);
@@ -287,15 +319,19 @@
   text-align: center;
 }
 
+/* Responsive: login en tablets y celulares */
 @media (max-width: 1024px) {
+  /* Login responsive: una sola columna */
   .login-page {
     grid-template-columns: 1fr;
   }
 
+  /* Oculta el panel izquierdo en movil */
   .login-hero {
     display: none;
   }
 
+  /* Muestra logo superior en movil */
   .login-mobile-brand {
     display: block;
   }
