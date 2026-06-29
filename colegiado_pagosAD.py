@@ -1,0 +1,946 @@
+import json
+import os
+import re
+import unicodedata
+from datetime import date, datetime, timedelta
+from urllib import error, request
+from uuid import uuid4
+from bd import obtenerconexion
+
+# ============================================================
+# PAGOS DEMO Y COMPROBANTES INTERNOS
+# ============================================================
+
+MONTO_CUOTA_ORDINARIA = 80.00
+DESCUENTO_CUOTA_ANUAL = 10.00
+
+
+def _ultimo_dia_mes(p_anio, p_mes):
+    if p_mes == 12:
+        siguiente = date(p_anio + 1, 1, 1)
+    else:
+        siguiente = date(p_anio, p_mes + 1, 1)
+    return siguiente - timedelta(days=1)
+
+
+def _nombre_mes(p_mes):
+    meses = [
+        "", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+    ]
+    return meses[int(p_mes)] if p_mes else ""
+
+
+def obtener_configuracion_cuotas_colegiado():
+    hoy = date.today()
+    return {
+        "anio": hoy.year,
+        "mes_inicio": hoy.month,
+        "cantidad_meses": 3,
+        "monto_mensual": MONTO_CUOTA_ORDINARIA,
+        "mensaje": (
+            "Puedes generar cuotas futuras para pagarlas por adelantado. "
+            "Las cuotas vencidas se muestran directamente en la tabla."
+        ),
+    }
+
+
+def obtener_configuracion_pago_anual_colegiado():
+    hoy = date.today()
+    habilitado = hoy.month in [1, 2, 3]
+    monto_base = MONTO_CUOTA_ORDINARIA * 12
+    monto_descuento = monto_base * (DESCUENTO_CUOTA_ANUAL / 100)
+    return {
+        "anio": hoy.year,
+        "habilitado": habilitado,
+        "ventana_label": "Enero a marzo " + str(hoy.year),
+        "monto_mensual": MONTO_CUOTA_ORDINARIA,
+        "descuento": DESCUENTO_CUOTA_ANUAL,
+        "monto_total": monto_base - monto_descuento,
+        "mensaje": (
+            "Disponible para pago anual con descuento."
+            if habilitado else
+            "El pago anual con descuento se habilita automaticamente de enero a marzo."
+        ),
+    }
+
+
+def generar_cuotas_adelantadas_colegiado(p_matricula, p_anio, p_mes_inicio,
+                                         p_cantidad_meses):
+    try:
+        try:
+            anio = int(p_anio)
+            mes_inicio = int(p_mes_inicio)
+            cantidad_meses = int(p_cantidad_meses)
+        except ValueError:
+            return {
+                "ok": False,
+                "mensaje": "Ingrese un año, mes y cantidad válidos."
+            }
+
+        hoy = date.today()
+        if mes_inicio < 1 or mes_inicio > 12:
+            return {"ok": False, "mensaje": "Seleccione un mes inicial válido."}
+        if cantidad_meses < 1 or cantidad_meses > 12:
+            return {
+                "ok": False,
+                "mensaje": "La cantidad de meses debe estar entre 1 y 12."
+            }
+        if mes_inicio + cantidad_meses - 1 > 12:
+            return {
+                "ok": False,
+                "mensaje": "El rango de meses no puede pasar de diciembre."
+            }
+        if anio < hoy.year or (anio == hoy.year and mes_inicio < hoy.month):
+            return {
+                "ok": False,
+                "mensaje": "Para periodos vencidos usa las cuotas pendientes ya generadas."
+            }
+
+        conn = obtenerconexion()
+        generadas = 0
+        existentes = 0
+        ya_pagadas = 0
+        periodos = []
+        if conn:
+            with conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(
+                        "SELECT id, matricula, nombre, estado "
+                        "FROM colegiados WHERE matricula = %s",
+                        (p_matricula,))
+                    colegiado = cursor.fetchone()
+                    if not colegiado:
+                        return {
+                            "ok": False,
+                            "mensaje": "No se encontró el colegiado de la sesión."
+                        }
+                    if colegiado.get("estado") != "Vigente":
+                        return {
+                            "ok": False,
+                            "mensaje": "Solo los colegiados vigentes pueden adelantar cuotas."
+                        }
+
+                    for mes in range(mes_inicio, mes_inicio + cantidad_meses):
+                        periodo = f"{_nombre_mes(mes)} {anio}"
+                        cursor.execute(
+                            "SELECT id, estado FROM cuotas "
+                            "WHERE colegiado_id = %s AND tipo = 'mensual' "
+                            "AND periodo_anio = %s AND periodo_mes = %s",
+                            (colegiado["id"], anio, mes))
+                        cuota = cursor.fetchone()
+
+                        if cuota:
+                            if cuota.get("estado") == "Pagado":
+                                ya_pagadas += 1
+                                periodos.append(periodo + " (pagada)")
+                            else:
+                                existentes += 1
+                                periodos.append(periodo + " (pendiente)")
+                            continue
+
+                        fecha_periodo = date(anio, mes, 1)
+                        vencimiento = _ultimo_dia_mes(anio, mes)
+                        concepto = "Cuota Ordinaria - " + periodo
+                        sql =  "INSERT INTO cuotas "
+                        sql += "(colegiado_id, fecha, fecha_emision, fecha_vencimiento, "
+                        sql += " concepto, monto, estado, tipo, periodo_mes, periodo_anio) "
+                        sql += "VALUES (%s, %s, %s, %s, %s, %s, 'Pendiente', 'mensual', %s, %s)"
+                        cursor.execute(sql, (colegiado["id"], fecha_periodo,
+                                            fecha_periodo, vencimiento,
+                                            concepto, MONTO_CUOTA_ORDINARIA,
+                                            mes, anio))
+                        generadas += 1
+                        periodos.append(periodo)
+                conn.commit()
+
+            return {
+                "ok": True,
+                "generadas": generadas,
+                "existentes": existentes,
+                "ya_pagadas": ya_pagadas,
+                "periodos": periodos,
+                "monto_mensual": MONTO_CUOTA_ORDINARIA,
+            }
+        return {"ok": False, "mensaje": "No se pudo conectar con la base de datos."}
+    except Exception as e:
+        print(repr(e))
+        return {"ok": False, "mensaje": "No se pudieron generar las cuotas adelantadas."}
+
+
+def generar_cuotas_anuales_colegiado(p_matricula, p_anio):
+    try:
+        hoy = date.today()
+        if hoy.month not in [1, 2, 3]:
+            return {
+                "ok": False,
+                "mensaje": "El pago anual con descuento solo se habilita de enero a marzo."
+            }
+
+        try:
+            anio = int(p_anio)
+        except ValueError:
+            return {"ok": False, "mensaje": "Ingrese un año válido."}
+
+        if anio != hoy.year:
+            return {
+                "ok": False,
+                "mensaje": "Solo se puede generar el pago anual del año actual."
+            }
+
+        conn = obtenerconexion()
+        generadas = 0
+        actualizadas = 0
+        monto_mensual = round(
+            MONTO_CUOTA_ORDINARIA * (1 - (DESCUENTO_CUOTA_ANUAL / 100)),
+            2
+        )
+        if conn:
+            with conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(
+                        "SELECT id, matricula, nombre, estado "
+                        "FROM colegiados WHERE matricula = %s",
+                        (p_matricula,))
+                    colegiado = cursor.fetchone()
+                    if not colegiado:
+                        return {
+                            "ok": False,
+                            "mensaje": "No se encontró el colegiado de la sesión."
+                        }
+                    if colegiado.get("estado") != "Vigente":
+                        return {
+                            "ok": False,
+                            "mensaje": "Solo los colegiados vigentes pueden generar pago anual."
+                        }
+
+                    cursor.execute(
+                        "SELECT COUNT(*) AS total FROM cuotas "
+                        "WHERE colegiado_id = %s AND tipo = 'mensual' "
+                        "AND periodo_anio = %s AND estado = 'Pagado'",
+                        (colegiado["id"], anio))
+                    pagadas = (cursor.fetchone() or {}).get("total", 0) or 0
+                    if pagadas > 0:
+                        return {
+                            "ok": False,
+                            "mensaje": (
+                                "No se puede aplicar el descuento anual porque "
+                                "ya existen cuotas pagadas de este año."
+                            )
+                        }
+
+                    for mes in range(1, 13):
+                        fecha_periodo = date(anio, mes, 1)
+                        vencimiento = _ultimo_dia_mes(anio, mes)
+                        concepto = (
+                            f"Cuota Ordinaria - {_nombre_mes(mes)} {anio} "
+                            "(Pago anual con descuento)"
+                        )
+                        cursor.execute(
+                            "SELECT id FROM cuotas "
+                            "WHERE colegiado_id = %s AND tipo = 'mensual' "
+                            "AND periodo_anio = %s AND periodo_mes = %s",
+                            (colegiado["id"], anio, mes))
+                        cuota = cursor.fetchone()
+                        if cuota:
+                            cursor.execute(
+                                "UPDATE cuotas "
+                                "SET fecha = %s, fecha_emision = %s, "
+                                "    fecha_vencimiento = %s, concepto = %s, "
+                                "    monto = %s, estado = 'Pendiente', fecha_pago = NULL "
+                                "WHERE id = %s",
+                                (fecha_periodo, fecha_periodo, vencimiento,
+                                 concepto, monto_mensual, cuota["id"]))
+                            actualizadas += 1
+                        else:
+                            sql =  "INSERT INTO cuotas "
+                            sql += "(colegiado_id, fecha, fecha_emision, fecha_vencimiento, "
+                            sql += " concepto, monto, estado, tipo, periodo_mes, periodo_anio) "
+                            sql += "VALUES (%s, %s, %s, %s, %s, %s, 'Pendiente', 'mensual', %s, %s)"
+                            cursor.execute(sql, (colegiado["id"], fecha_periodo,
+                                                fecha_periodo, vencimiento,
+                                                concepto, monto_mensual, mes,
+                                                anio))
+                            generadas += 1
+                conn.commit()
+
+            return {
+                "ok": True,
+                "anio": anio,
+                "generadas": generadas,
+                "actualizadas": actualizadas,
+                "descuento": DESCUENTO_CUOTA_ANUAL,
+                "monto_mensual": monto_mensual,
+                "monto_total": monto_mensual * 12,
+            }
+        return {"ok": False, "mensaje": "No se pudo conectar con la base de datos."}
+    except Exception as e:
+        print(repr(e))
+        return {"ok": False, "mensaje": "No se pudieron generar las cuotas anuales."}
+
+
+def _tabla_pago_demo_no_existe(error):
+    texto = str(error).lower()
+    return (
+        "transacciones_pago" in texto
+        or "comprobantes_pago" in texto
+        or "doesn't exist" in texto
+        or "no existe" in texto
+    )
+
+
+def leer_cuota_pago_demo(p_cuota_id, p_matricula):
+    try:
+        conn = obtenerconexion()
+        if conn:
+            with conn:
+                with conn.cursor() as cursor:
+                    sql =  " SELECT q.id, q.colegiado_id, q.fecha, "
+                    sql += "        q.fecha_vencimiento, q.fecha_pago, "
+                    sql += "        q.concepto, q.monto, q.estado, q.tipo, "
+                    sql += "        q.curso_id, q.inscripcion_id, "
+                    sql += "        c.nombre, c.matricula, c.documento, c.correo "
+                    sql += "   FROM cuotas q "
+                    sql += "   JOIN colegiados c ON c.id = q.colegiado_id "
+                    sql += "  WHERE q.id = %s AND c.matricula = %s "
+                    cursor.execute(sql, (p_cuota_id, p_matricula))
+                    return cursor.fetchone()
+        return None
+    except Exception:
+        raise
+
+
+def leer_comprobantes_pago_colegiado(p_matricula):
+    try:
+        conn = obtenerconexion()
+        result = []
+        if conn:
+            with conn:
+                with conn.cursor() as cursor:
+                    sql =  " SELECT cp.id, cp.cuota_id, cp.tipo_comprobante, "
+                    sql += "        cp.serie, cp.numero, cp.fecha_emision, "
+                    sql += "        cp.concepto, cp.total, cp.estado, "
+                    sql += "        tp.metodo, tp.codigo_transaccion "
+                    sql += "   FROM comprobantes_pago cp "
+                    sql += "   JOIN colegiados c ON c.id = cp.colegiado_id "
+                    sql += "   JOIN transacciones_pago tp ON tp.id = cp.transaccion_id "
+                    sql += "  WHERE c.matricula = %s "
+                    sql += "  ORDER BY cp.fecha_emision DESC, cp.id DESC "
+                    cursor.execute(sql, (p_matricula,))
+                    result = cursor.fetchall()
+        return result
+    except Exception as e:
+        if _tabla_pago_demo_no_existe(e):
+            return []
+        raise
+
+
+def leer_comprobante_pago_colegiado(p_comprobante_id, p_matricula):
+    try:
+        conn = obtenerconexion()
+        if conn:
+            with conn:
+                with conn.cursor() as cursor:
+                    sql =  " SELECT cp.id, cp.cuota_id, cp.tipo_comprobante, "
+                    sql += "        cp.serie, cp.numero, cp.fecha_emision, "
+                    sql += "        cp.concepto, cp.subtotal, cp.igv, cp.total, "
+                    sql += "        cp.moneda, cp.estado, cp.codigo_hash, "
+                    sql += "        tp.proveedor, tp.metodo, tp.codigo_transaccion, "
+                    sql += "        tp.codigo_autorizacion, tp.pagado_en, "
+                    sql += "        c.nombre, c.matricula, c.documento, c.correo "
+                    sql += "   FROM comprobantes_pago cp "
+                    sql += "   JOIN transacciones_pago tp ON tp.id = cp.transaccion_id "
+                    sql += "   JOIN colegiados c ON c.id = cp.colegiado_id "
+                    sql += "  WHERE cp.id = %s AND c.matricula = %s "
+                    cursor.execute(sql, (p_comprobante_id, p_matricula))
+                    return cursor.fetchone()
+        return None
+    except Exception as e:
+        if _tabla_pago_demo_no_existe(e):
+            return None
+        raise
+
+
+def registrar_pago_demo_colegiado(p_cuota_id, p_matricula, p_metodo):
+    try:
+        conn = obtenerconexion()
+        if conn:
+            with conn:
+                with conn.cursor() as cursor:
+                    sql =  " SELECT q.id, q.colegiado_id, q.concepto, q.monto, "
+                    sql += "        q.estado, q.inscripcion_id, c.matricula "
+                    sql += "   FROM cuotas q "
+                    sql += "   JOIN colegiados c ON c.id = q.colegiado_id "
+                    sql += "  WHERE q.id = %s AND c.matricula = %s "
+                    sql += "  FOR UPDATE "
+                    cursor.execute(sql, (p_cuota_id, p_matricula))
+                    cuota = cursor.fetchone()
+                    if not cuota:
+                        return {"ok": False, "mensaje": "La cuota seleccionada no existe."}
+                    if cuota["estado"] != "Pendiente":
+                        return {"ok": False, "mensaje": "Esta cuota ya fue pagada o no está pendiente."}
+
+                    cursor.execute(
+                        "SELECT id, serie, numero FROM comprobantes_pago "
+                        "WHERE cuota_id = %s AND estado = 'Emitido' LIMIT 1",
+                        (cuota["id"],))
+                    comprobante_existente = cursor.fetchone()
+                    if comprobante_existente:
+                        numero = (
+                            str(comprobante_existente.get("serie") or "") +
+                            "-" +
+                            str(comprobante_existente.get("numero") or 0).zfill(8)
+                        )
+                        return {
+                            "ok": False,
+                            "mensaje": "La cuota ya tiene comprobante emitido: " + numero + ".",
+                        }
+
+                    codigo = "INT-" + uuid4().hex[:12].upper()
+                    autorizacion = "AUT-" + uuid4().hex[:10].upper()
+                    respuesta = (
+                        "Pago aprobado por canal interno CCPL. "
+                        "Registro administrativo para trazabilidad."
+                    )
+                    sql =  " INSERT INTO transacciones_pago "
+                    sql += " (cuota_id, colegiado_id, proveedor, metodo, "
+                    sql += "  codigo_transaccion, codigo_autorizacion, monto, "
+                    sql += "  moneda, estado, respuesta_pasarela, pagado_en) "
+                    sql += " VALUES (%s, %s, 'Pago Interno CCPL', %s, "
+                    sql += "         %s, %s, %s, 'PEN', 'Aprobado', %s, NOW()) "
+                    cursor.execute(sql, (cuota["id"], cuota["colegiado_id"],
+                                        p_metodo, codigo, autorizacion,
+                                        cuota["monto"], respuesta))
+                    transaccion_id = cursor.lastrowid
+
+                    sql =  " UPDATE cuotas "
+                    sql += "    SET estado = 'Pagado', fecha_pago = CURDATE() "
+                    sql += "  WHERE id = %s "
+                    cursor.execute(sql, (cuota["id"],))
+
+                    if cuota.get("inscripcion_id"):
+                        sql =  " UPDATE inscripciones_curso "
+                        sql += "    SET estado_pago = 'Pagado' "
+                        sql += "  WHERE id = %s "
+                        cursor.execute(sql, (cuota["inscripcion_id"],))
+
+                    tipo = "Boleta Interna"
+                    serie = "B001"
+                    cursor.execute(
+                        "SELECT COALESCE(MAX(numero), 0) + 1 AS siguiente "
+                        "FROM comprobantes_pago "
+                        "WHERE tipo_comprobante = %s AND serie = %s ",
+                        (tipo, serie)
+                    )
+                    fila = cursor.fetchone() or {}
+                    numero = fila.get("siguiente") or 1
+                    hash_demo = uuid4().hex.upper()
+
+                    sql =  " INSERT INTO comprobantes_pago "
+                    sql += " (transaccion_id, cuota_id, colegiado_id, "
+                    sql += "  tipo_comprobante, serie, numero, fecha_emision, "
+                    sql += "  concepto, subtotal, igv, total, moneda, estado, "
+                    sql += "  codigo_hash) "
+                    sql += " VALUES (%s, %s, %s, %s, %s, %s, CURDATE(), "
+                    sql += "         %s, %s, 0.00, %s, 'PEN', 'Emitido', %s) "
+                    cursor.execute(sql, (transaccion_id, cuota["id"],
+                                        cuota["colegiado_id"], tipo, serie,
+                                        numero, cuota["concepto"],
+                                        cuota["monto"], cuota["monto"],
+                                        hash_demo))
+                    comprobante_id = cursor.lastrowid
+                conn.commit()
+            return {
+                "ok": True,
+                "mensaje": "Pago aprobado y comprobante generado.",
+                "transaccion_id": transaccion_id,
+                "comprobante_id": comprobante_id,
+                "codigo_transaccion": codigo,
+            }
+        return {"ok": False, "mensaje": "No se pudo conectar con la base de datos."}
+    except Exception as e:
+        print(repr(e))
+        if _tabla_pago_demo_no_existe(e):
+            return {
+                "ok": False,
+                "mensaje": (
+                    "Actualice la base con database/schema.sql "
+                    "para crear las tablas de pagos internos."
+                ),
+            }
+        return {"ok": False, "mensaje": "No se pudo procesar el pago."}
+
+
+def _tabla_mercado_pago_no_existe(error):
+    texto = str(error).lower()
+    return (
+        "configuracion_mercado_pago" in texto
+        or "ordenes_mercado_pago" in texto
+        or "doesn't exist" in texto
+        or "no existe" in texto
+    )
+
+
+def _mercado_pago_config(cursor=None):
+    token_env = os.environ.get("MERCADOPAGO_ACCESS_TOKEN", "").strip()
+    public_env = os.environ.get("MERCADOPAGO_PUBLIC_KEY", "").strip()
+    config = {
+        "access_token": token_env,
+        "public_key": public_env,
+        "modo": "TEST",
+        "activo": 1 if token_env else 0,
+    }
+    if token_env:
+        return config
+
+    if cursor:
+        cursor.execute(
+            "SELECT access_token, public_key, modo "
+            "FROM configuracion_mercado_pago "
+            "WHERE activo = 1 "
+            "ORDER BY id ASC LIMIT 1"
+        )
+        fila = cursor.fetchone() or {}
+        config["access_token"] = (fila.get("access_token") or "").strip()
+        config["public_key"] = (fila.get("public_key") or "").strip()
+        config["modo"] = (fila.get("modo") or "TEST").strip()
+        config["activo"] = 1 if config["access_token"] else 0
+    return config
+
+
+def _obtener_configuracion_mercado_pago(cursor, bloquear=False):
+    sql =  " SELECT id, access_token, public_key, modo, activo "
+    sql += "   FROM configuracion_mercado_pago "
+    sql += "  ORDER BY id ASC "
+    sql += "  LIMIT 1 "
+    if bloquear:
+        sql += " FOR UPDATE "
+    cursor.execute(sql)
+    config = cursor.fetchone()
+    if config:
+        return config
+
+    cursor.execute(
+        "INSERT INTO configuracion_mercado_pago "
+        "(access_token, public_key, modo, activo) "
+        "VALUES (NULL, NULL, 'TEST', 1)"
+    )
+    cursor.execute(
+        "SELECT id, access_token, public_key, modo, activo "
+        "FROM configuracion_mercado_pago WHERE id = %s",
+        (cursor.lastrowid,))
+    return cursor.fetchone()
+
+
+def obtener_configuracion_mercado_pago():
+    try:
+        token_env = os.environ.get("MERCADOPAGO_ACCESS_TOKEN", "").strip()
+        public_env = os.environ.get("MERCADOPAGO_PUBLIC_KEY", "").strip()
+
+        conn = obtenerconexion()
+        if conn:
+            with conn:
+                with conn.cursor() as cursor:
+                    config = _obtener_configuracion_mercado_pago(cursor)
+                    token_bd = (config.get("access_token") or "").strip()
+                    public_bd = (config.get("public_key") or "").strip()
+                    modo = (config.get("modo") or "TEST").strip().upper()
+                    activo = int(config.get("activo") or 0)
+                    token_configurado = bool(token_env or token_bd)
+                    public_key_configurada = bool(public_env or public_bd)
+                    config["modo"] = modo
+                    config["activo"] = activo
+                    config["access_token_configurado"] = token_configurado
+                    config["public_key_configurada"] = public_key_configurada
+                    config["habilitado"] = bool(activo and token_configurado)
+                    config["origen_token"] = (
+                        "Variable de entorno" if token_env
+                        else "Base de datos" if token_bd
+                        else "Sin configurar"
+                    )
+                    return config
+        return None
+    except Exception as e:
+        if _tabla_mercado_pago_no_existe(e):
+            return None
+        raise
+
+
+def actualizar_configuracion_mercado_pago(datos):
+    try:
+        modo = (datos.get("modo") or "TEST").strip().upper()
+        if modo == "PROD":
+            modo = "PRODUCCION"
+        if modo not in ["TEST", "PRODUCCION"]:
+            return {"ok": False, "mensaje": "Seleccione un modo válido para Mercado Pago."}
+
+        activo = 1 if str(datos.get("activo") or "0") == "1" else 0
+        access_token = (datos.get("access_token") or "").strip()
+        public_key = (datos.get("public_key") or "").strip()
+        token_env = os.environ.get("MERCADOPAGO_ACCESS_TOKEN", "").strip()
+
+        conn = obtenerconexion()
+        if conn:
+            with conn:
+                with conn.cursor() as cursor:
+                    config = _obtener_configuracion_mercado_pago(cursor, bloquear=True)
+                    if not access_token:
+                        access_token = (config.get("access_token") or "").strip()
+                    if not public_key:
+                        public_key = (config.get("public_key") or "").strip()
+
+                    if activo and not (access_token or token_env):
+                        return {
+                            "ok": False,
+                            "mensaje": "Ingrese el Access Token de Mercado Pago o configure la variable de entorno.",
+                        }
+
+                    sql =  " UPDATE configuracion_mercado_pago "
+                    sql += "    SET access_token = %s, public_key = %s, "
+                    sql += "        modo = %s, activo = %s "
+                    sql += "  WHERE id = %s "
+                    cursor.execute(sql, (
+                        access_token or None,
+                        public_key or None,
+                        modo,
+                        activo,
+                        config["id"],
+                    ))
+                conn.commit()
+            return {
+                "ok": True,
+                "mensaje": "Configuracion de Mercado Pago actualizada.",
+            }
+        return {"ok": False, "mensaje": "No se pudo conectar con la base de datos."}
+    except Exception as e:
+        print(repr(e))
+        if _tabla_mercado_pago_no_existe(e):
+            return {
+                "ok": False,
+                "mensaje": "Actualice la base con database/alter_mercado_pago.sql.",
+            }
+        return {"ok": False, "mensaje": "No se pudo guardar la configuracion de Mercado Pago."}
+
+
+def _mercado_pago_base_local(base_url):
+    base = str(base_url or "").lower()
+    return (
+        "localhost" in base
+        or "127.0.0.1" in base
+        or base.startswith("http://192.168.")
+        or base.startswith("http://10.")
+    )
+
+
+def _mercado_pago_request(method, path, token, payload=None):
+    url = "https://api.mercadopago.com" + path
+    headers = {
+        "Authorization": "Bearer " + token,
+        "Content-Type": "application/json",
+    }
+    body = None
+    if payload is not None:
+        body = json.dumps(payload).encode("utf-8")
+
+    req = request.Request(url, data=body, headers=headers, method=method)
+    try:
+        with request.urlopen(req, timeout=20) as response:
+            raw = response.read().decode("utf-8")
+            return json.loads(raw) if raw else {}
+    except error.HTTPError as e:
+        raw = e.read().decode("utf-8")
+        try:
+            detalle = json.loads(raw)
+        except ValueError:
+            detalle = {"message": raw}
+        return {
+            "error": True,
+            "status": e.code,
+            "message": detalle.get("message") or detalle,
+            "detalle": detalle,
+        }
+
+
+def _registrar_pago_aprobado_mercado_pago(cursor, orden, pago):
+    cursor.execute(
+        "SELECT id, colegiado_id, concepto, monto, estado, inscripcion_id "
+        "FROM cuotas WHERE id = %s FOR UPDATE",
+        (orden["cuota_id"],))
+    cuota = cursor.fetchone()
+    if not cuota:
+        return {"ok": False, "mensaje": "No se encontró la cuota relacionada."}
+
+    cursor.execute(
+        "SELECT id, serie, numero FROM comprobantes_pago "
+        "WHERE cuota_id = %s AND estado = 'Emitido' LIMIT 1",
+        (cuota["id"],))
+    existente = cursor.fetchone()
+    if existente:
+        return {
+            "ok": True,
+            "mensaje": "La cuota ya tenia comprobante emitido.",
+            "comprobante_id": existente["id"],
+        }
+
+    payment_id = str(pago.get("id") or orden.get("mp_payment_id") or "")
+    codigo = "MP-" + payment_id if payment_id else "MP-" + uuid4().hex[:12].upper()
+    metodo = "Mercado Pago"
+    if pago.get("payment_method_id"):
+        metodo += " - " + str(pago.get("payment_method_id"))
+
+    cursor.execute(
+        "SELECT id FROM transacciones_pago "
+        "WHERE codigo_transaccion = %s LIMIT 1",
+        (codigo,))
+    transaccion = cursor.fetchone()
+    if transaccion:
+        transaccion_id = transaccion["id"]
+    else:
+        sql =  " INSERT INTO transacciones_pago "
+        sql += " (cuota_id, colegiado_id, proveedor, metodo, "
+        sql += "  codigo_transaccion, codigo_autorizacion, monto, moneda, "
+        sql += "  estado, respuesta_pasarela, pagado_en) "
+        sql += " VALUES (%s, %s, 'Mercado Pago', %s, %s, %s, %s, 'PEN', "
+        sql += "         'Aprobado', %s, NOW()) "
+        cursor.execute(sql, (
+            cuota["id"],
+            cuota["colegiado_id"],
+            metodo,
+            codigo,
+            str(pago.get("status_detail") or ""),
+            cuota["monto"],
+            json.dumps(pago, ensure_ascii=False),
+        ))
+        transaccion_id = cursor.lastrowid
+
+    cursor.execute(
+        "UPDATE cuotas SET estado = 'Pagado', fecha_pago = CURDATE() WHERE id = %s",
+        (cuota["id"],))
+
+    if cuota.get("inscripcion_id"):
+        cursor.execute(
+            "UPDATE inscripciones_curso SET estado_pago = 'Pagado' WHERE id = %s",
+            (cuota["inscripcion_id"],))
+
+    tipo = "Boleta Interna"
+    serie = "B001"
+    cursor.execute(
+        "SELECT COALESCE(MAX(numero), 0) + 1 AS siguiente "
+        "FROM comprobantes_pago "
+        "WHERE tipo_comprobante = %s AND serie = %s",
+        (tipo, serie))
+    numero = (cursor.fetchone() or {}).get("siguiente") or 1
+
+    sql =  " INSERT INTO comprobantes_pago "
+    sql += " (transaccion_id, cuota_id, colegiado_id, tipo_comprobante, "
+    sql += "  serie, numero, fecha_emision, concepto, subtotal, igv, "
+    sql += "  total, moneda, estado, codigo_hash) "
+    sql += " VALUES (%s, %s, %s, %s, %s, %s, CURDATE(), "
+    sql += "         %s, %s, 0.00, %s, 'PEN', 'Emitido', %s) "
+    cursor.execute(sql, (
+        transaccion_id,
+        cuota["id"],
+        cuota["colegiado_id"],
+        tipo,
+        serie,
+        numero,
+        cuota["concepto"],
+        cuota["monto"],
+        cuota["monto"],
+        uuid4().hex.upper(),
+    ))
+    return {
+        "ok": True,
+        "mensaje": "Pago Mercado Pago aprobado.",
+        "comprobante_id": cursor.lastrowid,
+    }
+
+
+def crear_preferencia_mercado_pago(p_cuota_id, p_matricula, p_base_url):
+    try:
+        conn = obtenerconexion()
+        if conn:
+            with conn:
+                with conn.cursor() as cursor:
+                    config = _mercado_pago_config(cursor)
+                    token = config.get("access_token")
+                    if not token:
+                        return {
+                            "ok": False,
+                            "mensaje": (
+                                "Falta configurar MERCADOPAGO_ACCESS_TOKEN "
+                                "o la tabla configuracion_mercado_pago."
+                            ),
+                        }
+
+                    cuota = leer_cuota_pago_demo(p_cuota_id, p_matricula)
+                    if not cuota:
+                        return {"ok": False, "mensaje": "La cuota seleccionada no pertenece al colegiado."}
+                    if cuota.get("estado") != "Pendiente":
+                        return {"ok": False, "mensaje": "Esta cuota no está pendiente de pago."}
+
+                    external_reference = "CUOTA-" + str(p_cuota_id) + "-" + uuid4().hex[:10].upper()
+                    base = (p_base_url or "").rstrip("/")
+                    retorno_url = base + "/pagos/mercado-pago/retorno"
+                    webhook_url = base + "/pagos/mercado-pago/webhook"
+                    payload = {
+                        "items": [{
+                            "title": cuota.get("concepto"),
+                            "quantity": 1,
+                            "currency_id": "PEN",
+                            "unit_price": float(cuota.get("monto") or 0),
+                        }],
+                        "payer": {
+                            "name": cuota.get("nombre"),
+                            "email": cuota.get("correo") or "pagos@ccpl.test",
+                        },
+                        "back_urls": {
+                            "success": retorno_url,
+                            "failure": retorno_url,
+                            "pending": retorno_url,
+                        },
+                        "external_reference": external_reference,
+                        "metadata": {
+                            "cuota_id": cuota.get("id"),
+                            "matricula": p_matricula,
+                        },
+                    }
+                    if _mercado_pago_base_local(base):
+                        payload["metadata"]["ambiente_local"] = True
+                    else:
+                        payload["auto_return"] = "approved"
+                        payload["notification_url"] = webhook_url
+
+                    respuesta = _mercado_pago_request(
+                        "POST",
+                        "/checkout/preferences",
+                        token,
+                        payload
+                    )
+                    if respuesta.get("error"):
+                        return {
+                            "ok": False,
+                            "mensaje": "Mercado Pago rechazo la preferencia: " + str(respuesta.get("message")),
+                        }
+
+                    sql =  " INSERT INTO ordenes_mercado_pago "
+                    sql += " (cuota_id, colegiado_id, external_reference, "
+                    sql += "  preference_id, init_point, sandbox_init_point, "
+                    sql += "  estado, respuesta_preferencia) "
+                    sql += " VALUES (%s, %s, %s, %s, %s, %s, 'Pendiente', %s) "
+                    cursor.execute(sql, (
+                        cuota["id"],
+                        cuota["colegiado_id"],
+                        external_reference,
+                        respuesta.get("id"),
+                        respuesta.get("init_point"),
+                        respuesta.get("sandbox_init_point"),
+                        json.dumps(respuesta, ensure_ascii=False),
+                    ))
+                conn.commit()
+
+            url_pago = respuesta.get("sandbox_init_point") or respuesta.get("init_point")
+            if str(config.get("modo")).upper() in ["PROD", "PRODUCCION", "PRODUCTION"]:
+                url_pago = respuesta.get("init_point") or url_pago
+            return {
+                "ok": True,
+                "mensaje": "Preferencia Mercado Pago creada.",
+                "url_pago": url_pago,
+                "preference_id": respuesta.get("id"),
+            }
+        return {"ok": False, "mensaje": "No se pudo conectar con la base de datos."}
+    except Exception as e:
+        print(repr(e))
+        if _tabla_mercado_pago_no_existe(e):
+            return {
+                "ok": False,
+                "mensaje": "Actualice la base con database/schema.sql para usar Mercado Pago.",
+            }
+        return {"ok": False, "mensaje": "No se pudo crear la preferencia de Mercado Pago."}
+
+
+def confirmar_pago_mercado_pago(p_payment_id=None, p_external_reference=None):
+    try:
+        conn = obtenerconexion()
+        if conn:
+            with conn:
+                with conn.cursor() as cursor:
+                    config = _mercado_pago_config(cursor)
+                    token = config.get("access_token")
+                    if not token:
+                        return {"ok": False, "mensaje": "Mercado Pago no tiene token configurado."}
+
+                    pago = {}
+                    if p_payment_id:
+                        pago = _mercado_pago_request(
+                            "GET",
+                            "/v1/payments/" + str(p_payment_id),
+                            token
+                        )
+                        if pago.get("error"):
+                            return {
+                                "ok": False,
+                                "mensaje": "No se pudo consultar el pago en Mercado Pago.",
+                            }
+                        p_external_reference = (
+                            p_external_reference
+                            or pago.get("external_reference")
+                            or (pago.get("metadata") or {}).get("external_reference")
+                        )
+
+                    if not p_external_reference:
+                        return {"ok": False, "mensaje": "No se recibio referencia externa del pago."}
+
+                    cursor.execute(
+                        "SELECT id, cuota_id, colegiado_id, estado "
+                        "FROM ordenes_mercado_pago "
+                        "WHERE external_reference = %s "
+                        "LIMIT 1 FOR UPDATE",
+                        (p_external_reference,))
+                    orden = cursor.fetchone()
+                    if not orden:
+                        return {"ok": False, "mensaje": "No se encontró la orden Mercado Pago."}
+
+                    estado_mp = pago.get("status") or ""
+                    estado_orden = "Pendiente"
+                    if estado_mp == "approved":
+                        estado_orden = "Aprobado"
+                    elif estado_mp in ["rejected", "cancelled", "refunded", "charged_back"]:
+                        estado_orden = "Rechazado"
+
+                    sql =  " UPDATE ordenes_mercado_pago "
+                    sql += "    SET estado = %s, mp_payment_id = %s, "
+                    sql += "        mp_status = %s, mp_status_detail = %s, "
+                    sql += "        merchant_order_id = %s, respuesta_pago = %s "
+                    sql += "  WHERE id = %s "
+                    cursor.execute(sql, (
+                        estado_orden,
+                        str(pago.get("id") or p_payment_id or ""),
+                        estado_mp,
+                        str(pago.get("status_detail") or ""),
+                        str(pago.get("merchant_order_id") or ""),
+                        json.dumps(pago, ensure_ascii=False),
+                        orden["id"],
+                    ))
+
+                    resultado = {
+                        "ok": estado_orden == "Aprobado",
+                        "mensaje": "El pago esta " + estado_orden + ".",
+                    }
+                    if estado_orden == "Aprobado":
+                        resultado = _registrar_pago_aprobado_mercado_pago(
+                            cursor,
+                            orden,
+                            pago
+                        )
+                conn.commit()
+            return resultado
+        return {"ok": False, "mensaje": "No se pudo conectar con la base de datos."}
+    except Exception as e:
+        print(repr(e))
+        if _tabla_mercado_pago_no_existe(e):
+            return {
+                "ok": False,
+                "mensaje": "Actualice la base con database/schema.sql para usar Mercado Pago.",
+            }
+        return {"ok": False, "mensaje": "No se pudo confirmar el pago Mercado Pago."}

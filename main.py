@@ -24,172 +24,145 @@ from helpers import (_correo_oculto, _fecha_certificado_habilidad,
                      _resumen_fecha_curso, _texto_pdf, _validar_correo,
                      _validar_dni_peru, _validar_nombre_peru,
                      _validar_telefono_peru)
-from loginAD import (autenticar_usuario, buscar_usuario_recuperacion,
-                     registrar_codigo_recuperacion,
-                     actualizar_password_con_codigo,
-                     leer_recuperaciones_password,
-                     leer_recuperacion_password_por_id,
-                     insertar_recuperacion_password_crud,
-                     actualizar_recuperacion_password_crud,
-                     eliminar_recuperacion_password)
-from colegiadoAD import (clsColegiado, leer_colegiados,
-                         leer_especialidades_colegiados, buscar_colegiados,
-                         insertar_colegiado, actualizar_colegiado,
-                         importar_colegiados_masivo,
-                         toggle_estado_colegiado,
-                         colegiado_vigente_con_deuda_pendiente,
-                         leer_colegiado_por_matricula,
-                         actualizar_perfil_colegiado,
-                         leer_cursos_colegiado,
-                         leer_cursos_disponibles_colegiado,
-                         leer_curso_inscrito_colegiado,
-                         leer_certificado_curso_colegiado,
-                         leer_cuota_pago_demo,
-                         registrar_pago_demo_colegiado,
-                         obtener_configuracion_cuotas_colegiado,
-                         generar_cuotas_adelantadas_colegiado,
-                         obtener_configuracion_pago_anual_colegiado,
-                         generar_cuotas_anuales_colegiado,
-                         obtener_configuracion_mercado_pago,
-                         actualizar_configuracion_mercado_pago,
-                         crear_preferencia_mercado_pago,
-                         confirmar_pago_mercado_pago,
-                         leer_comprobantes_pago_colegiado,
-                         leer_comprobante_pago_colegiado,
-                         clsTramite, leer_tipos_tramite, leer_tramites,
-                         tramite_requiere_sustento,
-                         leer_tramite_por_id, insertar_tramite,
-                         actualizar_estado_tramite,
-                         colegiado_tiene_deuda_pendiente_matricula,
-                         leer_notificaciones_colegiado,
-                         contar_notificaciones_no_leidas,
-                         insertar_notificacion_matricula,
-                         marcar_notificacion_leida,
-                         eliminar_notificaciones_leidas,
-                         insertar_ticket, leer_tickets, leer_tickets_colegiado,
-                         leer_ticket_por_id, actualizar_estado_ticket,
-                         leer_especialidad_colegiado_por_id,
-                         insertar_especialidad_colegiado_crud,
-                         actualizar_especialidad_colegiado_crud,
-                         eliminar_especialidad_colegiado,
-                         leer_colegiado_por_id, eliminar_colegiado,
-                         actualizar_tramite_crud, eliminar_tramite,
-                         actualizar_ticket_crud, eliminar_ticket,
-                         leer_notificaciones_crud, leer_notificacion_por_id,
-                         insertar_notificacion_crud,
-                         actualizar_notificacion_crud,
-                         eliminar_notificacion)
-from adminAD import (clsUsuario, leer_usuarios, insertar_usuario,
-                     actualizar_usuario,
-                     clsCuota, leer_cuotas, contar_cuotas, resumir_cuotas,
-                     insertar_cuota, pagar_cuota,
-                     eliminar_cuota, leer_historial_cuota_admin,
-                      obtener_resumen_cuotas_mensuales,
-                      procesar_cuotas_mensuales,
-                      obtener_resumen_pago_anual,
-                      registrar_pago_anual_anticipado,
-                      obtener_resumen_pago_adelantado,
-                      registrar_pago_adelantado_cuotas,
-                      procesar_cuotas_cursos_faltantes,
-                     clsMedioPago, leer_medios_pago, insertar_medio_pago,
-                     actualizar_medio_pago, eliminar_medio_pago,
-                     leer_evidencias_pago, registrar_evidencia_pago,
-                     actualizar_estado_evidencia_pago,
-                     leer_transacciones_pago_demo,
-                     contar_transacciones_pago_demo,
-                     leer_comprobantes_pago_demo_admin,
-                     contar_comprobantes_pago_demo_admin,
-                     leer_comprobante_pago_demo_admin,
-                     resumir_pagos_demo,
-                     leer_reporte_contable_demo,
-                     anular_comprobante_pago_demo,
-                     leer_comprobantes_fiscales,
-                     contar_comprobantes_fiscales,
-                     leer_comprobante_fiscal_admin,
-                     resumir_facturacion,
-                     obtener_configuracion_facturacion,
-                     actualizar_configuracion_facturacion,
-                     emitir_comprobante_fiscal_desde_interno,
-                     enviar_comprobante_fiscal_sunat,
-                     anular_comprobante_fiscal,
-                     clsCurso, leer_cursos,
-                     leer_inscripciones_curso, contar_inscripciones_curso,
-                     resumir_inscripciones_curso, insertar_inscripcion_curso,
-                     validar_inscripcion_curso,
-                     contar_inscritos_curso, actualizar_pago_inscripcion_curso,
-                     actualizar_certificado_curso,
-                     leer_estado_certificado_curso,
-                     insertar_curso, actualizar_curso, eliminar_curso,
-                     curso_tiene_inscripciones, curso_ya_finalizo,
-                     leer_dashboard_admin, leer_reporte_financiero,
-                     leer_reporte_cursos, leer_reporte_colegiados,
-                     leer_usuario_por_id, eliminar_usuario,
-                     leer_cuota_por_id, actualizar_cuota,
-                     leer_medio_pago_por_id,
-                     leer_evidencia_pago_por_id,
-                     insertar_evidencia_pago_crud,
-                     actualizar_evidencia_pago_crud,
-                     eliminar_evidencia_pago,
-                     leer_transacciones_pago_crud,
-                     leer_transaccion_pago_por_id,
-                     insertar_transaccion_pago_crud,
-                     actualizar_transaccion_pago_crud,
-                     eliminar_transaccion_pago,
-                     leer_comprobantes_pago_crud,
-                     leer_comprobante_pago_por_id,
-                     insertar_comprobante_pago_crud,
-                     actualizar_comprobante_pago_crud,
-                     eliminar_comprobante_pago,
-                     leer_configuraciones_mercado_pago_crud,
-                     leer_configuracion_mercado_pago_por_id,
-                     insertar_configuracion_mercado_pago_crud,
-                     actualizar_configuracion_mercado_pago_crud,
-                     eliminar_configuracion_mercado_pago,
-                     leer_ordenes_mercado_pago_crud,
-                     leer_orden_mercado_pago_por_id,
-                     insertar_orden_mercado_pago_crud,
-                     actualizar_orden_mercado_pago_crud,
-                     eliminar_orden_mercado_pago,
-                     leer_configuraciones_facturacion_crud,
-                     leer_configuracion_facturacion_por_id,
-                     insertar_configuracion_facturacion_crud,
-                     actualizar_configuracion_facturacion_crud,
-                     eliminar_configuracion_facturacion,
-                     insertar_comprobante_fiscal_crud,
-                     actualizar_comprobante_fiscal_crud,
-                     eliminar_comprobante_fiscal,
-                     leer_comprobantes_fiscales_detalle_crud,
-                     leer_comprobante_fiscal_detalle_por_id,
-                     insertar_comprobante_fiscal_detalle_crud,
-                     actualizar_comprobante_fiscal_detalle_crud,
-                     eliminar_comprobante_fiscal_detalle,
-                     leer_facturacion_sunat_logs_crud,
-                     leer_facturacion_sunat_log_por_id,
-                     insertar_facturacion_sunat_log_crud,
-                     actualizar_facturacion_sunat_log_crud,
-                     eliminar_facturacion_sunat_log,
-                     leer_curso_admin_por_id,
-                     leer_inscripcion_curso_por_id,
-                     actualizar_inscripcion_curso_crud,
-                     eliminar_inscripcion_curso)
-from ponenteAD import (leer_cursos_ponente, leer_curso_ponente,
-                       leer_curso_por_id, leer_inscripcion_detalle,
-                       leer_matriculas_inscritos_curso,
-                       leer_inscritos_curso_ponente,
-                       actualizar_contenido_curso_ponente,
-                       clsContenidoCurso, leer_contenidos_curso,
-                       insertar_contenido_curso_ponente,
-                       eliminar_contenido_curso_ponente,
-                       leer_seguimiento_ponente, contar_seguimiento_ponente,
-                       resumir_seguimiento_ponente,
-                       actualizar_progreso_curso_ponente,
-                       leer_notificaciones_ponente,
-                       contar_notificaciones_ponente,
-                       leer_contenidos_curso_crud,
-                       leer_contenido_curso_por_id,
-                       insertar_contenido_curso_crud,
-                       actualizar_contenido_curso_crud,
-                       eliminar_contenido_curso)
+from loginAD import (
+    autenticar_usuario, buscar_usuario_recuperacion,
+    registrar_codigo_recuperacion, actualizar_password_con_codigo,
+    leer_recuperaciones_password, leer_recuperacion_password_por_id,
+    insertar_recuperacion_password_crud,
+    actualizar_recuperacion_password_crud, eliminar_recuperacion_password
+)
+from colegiado_modelosAD import clsColegiado, clsTramite
+from colegiado_perfilAD import (
+    leer_colegiados, leer_especialidades_colegiados, buscar_colegiados,
+    insertar_colegiado, actualizar_colegiado, importar_colegiados_masivo,
+    toggle_estado_colegiado, colegiado_vigente_con_deuda_pendiente,
+    leer_colegiado_por_matricula, actualizar_perfil_colegiado,
+    colegiado_tiene_deuda_pendiente_matricula,
+    leer_especialidad_colegiado_por_id, insertar_especialidad_colegiado_crud,
+    actualizar_especialidad_colegiado_crud, eliminar_especialidad_colegiado,
+    leer_colegiado_por_id, eliminar_colegiado
+)
+from colegiado_pagosAD import (
+    leer_cuota_pago_demo, registrar_pago_demo_colegiado,
+    obtener_configuracion_cuotas_colegiado,
+    generar_cuotas_adelantadas_colegiado,
+    obtener_configuracion_pago_anual_colegiado,
+    generar_cuotas_anuales_colegiado, obtener_configuracion_mercado_pago,
+    actualizar_configuracion_mercado_pago, crear_preferencia_mercado_pago,
+    confirmar_pago_mercado_pago, leer_comprobantes_pago_colegiado,
+    leer_comprobante_pago_colegiado
+)
+from colegiado_cursosAD import (
+    leer_cursos_colegiado, leer_cursos_disponibles_colegiado,
+    leer_curso_inscrito_colegiado, leer_certificado_curso_colegiado
+)
+from colegiado_tramitesAD import (
+    leer_tipos_tramite, leer_tramites, tramite_requiere_sustento,
+    leer_tramite_por_id, insertar_tramite, actualizar_estado_tramite,
+    actualizar_tramite_crud, eliminar_tramite
+)
+from colegiado_notificacionesAD import (
+    leer_notificaciones_colegiado, contar_notificaciones_no_leidas,
+    insertar_notificacion_matricula, marcar_notificacion_leida,
+    eliminar_notificaciones_leidas, leer_notificaciones_crud,
+    leer_notificacion_por_id, insertar_notificacion_crud,
+    actualizar_notificacion_crud, eliminar_notificacion
+)
+from colegiado_ticketsAD import (
+    insertar_ticket, leer_tickets, leer_tickets_colegiado,
+    leer_ticket_por_id, actualizar_estado_ticket, actualizar_ticket_crud,
+    eliminar_ticket
+)
+from admin_usuariosAD import (
+    clsUsuario, leer_usuarios, insertar_usuario, actualizar_usuario,
+    leer_usuario_por_id, eliminar_usuario
+)
+from admin_cuotasAD import (
+    clsCuota, leer_cuotas, contar_cuotas, resumir_cuotas, insertar_cuota,
+    pagar_cuota, eliminar_cuota, leer_historial_cuota_admin,
+    obtener_resumen_cuotas_mensuales, procesar_cuotas_mensuales,
+    obtener_resumen_pago_anual, registrar_pago_anual_anticipado,
+    obtener_resumen_pago_adelantado, registrar_pago_adelantado_cuotas,
+    procesar_cuotas_cursos_faltantes, leer_transacciones_pago_demo,
+    contar_transacciones_pago_demo, leer_comprobantes_pago_demo_admin,
+    contar_comprobantes_pago_demo_admin, leer_comprobante_pago_demo_admin,
+    resumir_pagos_demo, leer_reporte_contable_demo,
+    anular_comprobante_pago_demo, leer_cuota_por_id, actualizar_cuota,
+    leer_transacciones_pago_crud, leer_transaccion_pago_por_id,
+    insertar_transaccion_pago_crud, actualizar_transaccion_pago_crud,
+    eliminar_transaccion_pago, leer_comprobantes_pago_crud,
+    leer_comprobante_pago_por_id, insertar_comprobante_pago_crud,
+    actualizar_comprobante_pago_crud, eliminar_comprobante_pago
+)
+from admin_medios_pagoAD import (
+    clsMedioPago, leer_medios_pago, insertar_medio_pago,
+    actualizar_medio_pago, eliminar_medio_pago, leer_evidencias_pago,
+    registrar_evidencia_pago, actualizar_estado_evidencia_pago,
+    leer_medio_pago_por_id, leer_evidencia_pago_por_id,
+    insertar_evidencia_pago_crud, actualizar_evidencia_pago_crud,
+    eliminar_evidencia_pago
+)
+from admin_facturacionAD import (
+    leer_comprobantes_fiscales, contar_comprobantes_fiscales,
+    leer_comprobante_fiscal_admin, resumir_facturacion,
+    obtener_configuracion_facturacion, actualizar_configuracion_facturacion,
+    emitir_comprobante_fiscal_desde_interno, enviar_comprobante_fiscal_sunat,
+    anular_comprobante_fiscal, leer_configuraciones_facturacion_crud,
+    leer_configuracion_facturacion_por_id,
+    insertar_configuracion_facturacion_crud,
+    actualizar_configuracion_facturacion_crud,
+    eliminar_configuracion_facturacion, insertar_comprobante_fiscal_crud,
+    actualizar_comprobante_fiscal_crud, eliminar_comprobante_fiscal,
+    leer_comprobantes_fiscales_detalle_crud,
+    leer_comprobante_fiscal_detalle_por_id,
+    insertar_comprobante_fiscal_detalle_crud,
+    actualizar_comprobante_fiscal_detalle_crud,
+    eliminar_comprobante_fiscal_detalle, leer_facturacion_sunat_logs_crud,
+    leer_facturacion_sunat_log_por_id, insertar_facturacion_sunat_log_crud,
+    actualizar_facturacion_sunat_log_crud, eliminar_facturacion_sunat_log
+)
+from admin_cursosAD import (
+    clsCurso, leer_cursos, leer_inscripciones_curso,
+    contar_inscripciones_curso, resumir_inscripciones_curso,
+    insertar_inscripcion_curso, validar_inscripcion_curso,
+    contar_inscritos_curso, actualizar_pago_inscripcion_curso,
+    actualizar_certificado_curso, leer_estado_certificado_curso,
+    insertar_curso, actualizar_curso, eliminar_curso,
+    curso_tiene_inscripciones, curso_ya_finalizo, leer_curso_admin_por_id,
+    leer_inscripcion_curso_por_id, actualizar_inscripcion_curso_crud,
+    eliminar_inscripcion_curso
+)
+from admin_dashboardAD import leer_dashboard_admin
+from admin_reportesAD import (
+    leer_reporte_financiero, leer_reporte_cursos, leer_reporte_colegiados
+)
+from admin_mercado_pagoAD import (
+    leer_configuraciones_mercado_pago_crud,
+    leer_configuracion_mercado_pago_por_id,
+    insertar_configuracion_mercado_pago_crud,
+    actualizar_configuracion_mercado_pago_crud,
+    eliminar_configuracion_mercado_pago, leer_ordenes_mercado_pago_crud,
+    leer_orden_mercado_pago_por_id, insertar_orden_mercado_pago_crud,
+    actualizar_orden_mercado_pago_crud, eliminar_orden_mercado_pago
+)
+from ponente_modelosAD import clsContenidoCurso
+from ponente_cursosAD import (
+    leer_cursos_ponente, leer_curso_ponente, leer_curso_por_id,
+    leer_inscripcion_detalle, leer_matriculas_inscritos_curso,
+    leer_inscritos_curso_ponente
+)
+from ponente_contenidoAD import (
+    actualizar_contenido_curso_ponente, leer_contenidos_curso,
+    insertar_contenido_curso_ponente, eliminar_contenido_curso_ponente,
+    actualizar_progreso_curso_ponente, leer_contenidos_curso_crud,
+    leer_contenido_curso_por_id, insertar_contenido_curso_crud,
+    actualizar_contenido_curso_crud, eliminar_contenido_curso
+)
+from ponente_seguimientoAD import (
+    leer_seguimiento_ponente, contar_seguimiento_ponente,
+    resumir_seguimiento_ponente
+)
+from ponente_notificacionesAD import leer_notificaciones_ponente, contar_notificaciones_ponente
 
 
 # ============================================================
