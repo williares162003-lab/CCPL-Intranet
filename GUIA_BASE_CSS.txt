@@ -1,0 +1,1707 @@
+GUIA DE USO - static/css/base.css
+============================================================
+
+Este archivo es global. Se carga desde templates/base.html y por eso afecta a las vistas que extienden ese layout.
+Tambien lo cargan directamente login.html, recuperar_contrasena.html y restablecer_contrasena.html.
+
+PLANTILLAS QUE RECIBEN base.css
+------------------------------------------------------------
+- templates/admin/admin_colegiados.html
+- templates/admin/admin_comprobante_fiscal.html
+- templates/admin/admin_cuotas.html
+- templates/admin/admin_cursos.html
+- templates/admin/admin_cursos_asignados.html
+- templates/admin/admin_dashboard.html
+- templates/admin/admin_evidencias_pago.html
+- templates/admin/admin_facturacion.html
+- templates/admin/admin_facturacion_configuracion.html
+- templates/admin/admin_firma_edni.html
+- templates/admin/admin_historial_cuota.html
+- templates/admin/admin_medios_pago.html
+- templates/admin/admin_mercado_pago_configuracion.html
+- templates/admin/admin_pagos_demo.html
+- templates/admin/admin_reportes.html
+- templates/admin/admin_tickets.html
+- templates/admin/admin_tramites.html
+- templates/admin/admin_usuarios.html
+- templates/admin/admin_validar_firma.html
+- templates/base.html
+- templates/colegiado/aula_curso.html
+- templates/colegiado/certificado_curso.html
+- templates/colegiado/comprobante_pago.html
+- templates/colegiado/constancia.html
+- templates/colegiado/dashboard.html
+- templates/colegiado/educacion_continua.html
+- templates/colegiado/estado_cuenta.html
+- templates/colegiado/notificaciones.html
+- templates/colegiado/pagos.html
+- templates/colegiado/pasarela_demo.html
+- templates/colegiado/perfil_soporte.html
+- templates/colegiado/tramites.html
+- templates/login.html
+- templates/ponente/ponente_curso.html
+- templates/ponente/ponente_dashboard.html
+- templates/ponente/ponente_notificaciones.html
+- templates/ponente/ponente_seguimiento.html
+- templates/recuperar_contrasena.html
+- templates/restablecer_contrasena.html
+
+CLASES DE base.css
+------------------------------------------------------------
+.acceso-card
+  Hace: Tarjeta de acceso rapido.
+  Seccion CSS: TARJETAS Y CONTENEDORES
+  HTML donde aparece:
+    - templates/colegiado/dashboard.html
+
+.accesos-grid
+  Hace: Grilla de accesos rapidos.
+  Seccion CSS: FILAS, FILTROS Y GRILLAS
+  HTML donde aparece: no aparece directamente o se usa por JS/estado combinado
+
+.accion-card
+  Hace: Tarjeta de accion.
+  Seccion CSS: TARJETAS Y CONTENEDORES
+  HTML donde aparece: no aparece directamente o se usa por JS/estado combinado
+
+.acciones-formulario
+  Hace: Fila de botones al final de un formulario.
+  Seccion CSS: FORMULARIOS GENERALES, RESPONSIVE
+  HTML donde aparece:
+    - templates/admin/admin_colegiados.html
+    - templates/admin/admin_cuotas.html
+    - templates/admin/admin_cursos.html
+    - templates/admin/admin_cursos_asignados.html
+    - templates/admin/admin_medios_pago.html
+    - templates/admin/admin_usuarios.html
+    - templates/colegiado/estado_cuenta.html
+    - templates/colegiado/pagos.html
+    - templates/colegiado/pasarela_demo.html
+    - templates/colegiado/perfil_soporte.html
+    - templates/colegiado/tramites.html
+    - templates/ponente/ponente_curso.html
+    - ... y 1 archivo(s) mas
+
+.acciones-tabla
+  Hace: Contenedor de botones dentro de tablas.
+  Seccion CSS: ESTADOS, BADGES Y ACCIONES DE TABLA
+  HTML donde aparece:
+    - templates/admin/admin_colegiados.html
+    - templates/admin/admin_cuotas.html
+    - templates/admin/admin_cursos.html
+    - templates/admin/admin_cursos_asignados.html
+    - templates/admin/admin_evidencias_pago.html
+    - templates/admin/admin_facturacion.html
+    - templates/admin/admin_medios_pago.html
+
+.active
+  Hace: Clase global de apoyo visual usada por el sistema.
+  Seccion CSS: FILAS, FILTROS Y GRILLAS
+  HTML donde aparece:
+    - templates/colegiado/notificaciones.html
+
+.activo
+  Hace: Marca visualmente la opcion activa.
+  Seccion CSS: FILAS, FILTROS Y GRILLAS, SIDEBAR, LOGO Y NAVEGACION
+  HTML donde aparece:
+    - templates/admin/admin_cuotas.html
+    - templates/admin/admin_cursos_asignados.html
+    - templates/admin/admin_facturacion.html
+    - templates/admin/admin_medios_pago.html
+    - templates/admin/admin_pagos_demo.html
+    - templates/admin/admin_reportes.html
+    - templates/admin/admin_tickets.html
+    - templates/admin/admin_tramites.html
+    - templates/admin/admin_usuarios.html
+    - templates/base.html
+    - templates/colegiado/perfil_soporte.html
+
+.alerta
+  Hace: Caja base para mensajes de exito, aviso o error.
+  Seccion CSS: MENSAJES Y ALERTAS DEL SISTEMA
+  HTML donde aparece:
+    - templates/admin/admin_colegiados.html
+    - templates/base.html
+    - templates/login.html
+    - templates/recuperar_contrasena.html
+    - templates/restablecer_contrasena.html
+
+.alerta-error
+  Hace: Mensaje de error.
+  Seccion CSS: MENSAJES Y ALERTAS DEL SISTEMA
+  HTML donde aparece:
+    - templates/base.html
+    - templates/login.html
+    - templates/recuperar_contrasena.html
+    - templates/restablecer_contrasena.html
+
+.alerta-success
+  Hace: Mensaje de exito.
+  Seccion CSS: MENSAJES Y ALERTAS DEL SISTEMA
+  HTML donde aparece:
+    - templates/base.html
+    - templates/login.html
+    - templates/recuperar_contrasena.html
+    - templates/restablecer_contrasena.html
+
+.alerta-warning
+  Hace: Mensaje de advertencia.
+  Seccion CSS: MENSAJES Y ALERTAS DEL SISTEMA
+  HTML donde aparece:
+    - templates/base.html
+
+.ancho
+  Hace: Variante de modal mas ancho.
+  Seccion CSS: MODALES Y CONFIRMACIONES
+  HTML donde aparece:
+    - templates/admin/admin_colegiados.html
+    - templates/admin/admin_cursos.html
+    - templates/admin/admin_usuarios.html
+
+.app-shell
+  Hace: Contenedor general que une sidebar y contenido.
+  Seccion CSS: ESTRUCTURA GENERAL DEL SISTEMA
+  HTML donde aparece:
+    - templates/base.html
+
+.ayuda-campo
+  Hace: Texto pequeno de ayuda bajo un campo.
+  Seccion CSS: FORMULARIOS GENERALES
+  HTML donde aparece:
+    - templates/admin/admin_colegiados.html
+    - templates/admin/admin_cursos.html
+    - templates/admin/admin_usuarios.html
+
+.badge-notificacion
+  Hace: Contador rojo de notificaciones.
+  Seccion CSS: CONTENIDO PRINCIPAL Y BARRA SUPERIOR
+  HTML donde aparece:
+    - templates/base.html
+
+.barra-contenido
+  Hace: Distribuye titulo y acciones dentro de la barra superior.
+  Seccion CSS: CONTENIDO PRINCIPAL Y BARRA SUPERIOR, RESPONSIVE
+  HTML donde aparece:
+    - templates/base.html
+
+.barra-superior
+  Hace: Barra superior fija con titulo, notificaciones y usuario.
+  Seccion CSS: CONTENIDO PRINCIPAL Y BARRA SUPERIOR
+  HTML donde aparece:
+    - templates/base.html
+
+.boton
+  Hace: Estilo base de boton normal.
+  Seccion CSS: BOTONES GENERALES, RESPONSIVE
+  HTML donde aparece:
+    - templates/admin/admin_colegiados.html
+    - templates/admin/admin_comprobante_fiscal.html
+    - templates/admin/admin_cuotas.html
+    - templates/admin/admin_cursos.html
+    - templates/admin/admin_cursos_asignados.html
+    - templates/admin/admin_evidencias_pago.html
+    - templates/admin/admin_facturacion.html
+    - templates/admin/admin_facturacion_configuracion.html
+    - templates/admin/admin_firma_edni.html
+    - templates/admin/admin_historial_cuota.html
+    - templates/admin/admin_medios_pago.html
+    - templates/admin/admin_mercado_pago_configuracion.html
+    - ... y 25 archivo(s) mas
+
+.boton-abrir
+  Hace: Boton para abrir/ver documento.
+  Seccion CSS: BOTONES GENERALES
+  HTML donde aparece:
+    - templates/admin/admin_tickets.html
+    - templates/admin/admin_tramites.html
+
+.boton-ancho
+  Hace: Hace que el boton ocupe todo el ancho.
+  Seccion CSS: BOTONES GENERALES
+  HTML donde aparece:
+    - templates/base.html
+    - templates/colegiado/aula_curso.html
+    - templates/colegiado/educacion_continua.html
+    - templates/colegiado/perfil_soporte.html
+    - templates/login.html
+    - templates/ponente/ponente_curso.html
+    - templates/recuperar_contrasena.html
+    - templates/restablecer_contrasena.html
+
+.boton-aprobar
+  Hace: Boton para aprobar.
+  Seccion CSS: BOTONES GENERALES
+  HTML donde aparece:
+    - templates/admin/admin_evidencias_pago.html
+    - templates/admin/admin_tramites.html
+
+.boton-cerrar
+  Hace: Boton X para cerrar modal o panel.
+  Seccion CSS: MODALES Y CONFIRMACIONES
+  HTML donde aparece:
+    - templates/admin/admin_colegiados.html
+    - templates/admin/admin_cuotas.html
+    - templates/admin/admin_cursos.html
+    - templates/admin/admin_cursos_asignados.html
+    - templates/admin/admin_medios_pago.html
+    - templates/admin/admin_usuarios.html
+    - templates/base.html
+    - templates/colegiado/estado_cuenta.html
+    - templates/colegiado/pagos.html
+    - templates/colegiado/perfil_soporte.html
+    - templates/ponente/ponente_curso.html
+
+.boton-cerrar-ticket
+  Hace: Boton para cerrar ticket.
+  Seccion CSS: BOTONES GENERALES
+  HTML donde aparece: no aparece directamente o se usa por JS/estado combinado
+
+.boton-link
+  Hace: Boton con apariencia de enlace.
+  Seccion CSS: BOTONES GENERALES
+  HTML donde aparece:
+    - templates/admin/admin_cursos_asignados.html
+    - templates/admin/admin_evidencias_pago.html
+    - templates/admin/admin_historial_cuota.html
+    - templates/admin/admin_pagos_demo.html
+    - templates/admin/admin_tramites.html
+    - templates/colegiado/aula_curso.html
+    - templates/colegiado/certificado_curso.html
+    - templates/colegiado/dashboard.html
+    - templates/colegiado/educacion_continua.html
+    - templates/colegiado/estado_cuenta.html
+    - templates/colegiado/tramites.html
+    - templates/ponente/ponente_curso.html
+    - ... y 3 archivo(s) mas
+
+.boton-mini
+  Hace: Boton pequeno para tablas o acciones compactas.
+  Seccion CSS: BOTONES GENERALES
+  HTML donde aparece:
+    - templates/admin/admin_comprobante_fiscal.html
+    - templates/admin/admin_cursos.html
+    - templates/admin/admin_cursos_asignados.html
+    - templates/admin/admin_evidencias_pago.html
+    - templates/admin/admin_pagos_demo.html
+    - templates/admin/admin_tickets.html
+    - templates/admin/admin_tramites.html
+    - templates/colegiado/estado_cuenta.html
+    - templates/colegiado/notificaciones.html
+    - templates/colegiado/pagos.html
+    - templates/ponente/ponente_curso.html
+    - templates/ponente/ponente_notificaciones.html
+    - ... y 1 archivo(s) mas
+
+.boton-oscuro
+  Hace: Boton azul oscuro.
+  Seccion CSS: BOTONES GENERALES
+  HTML donde aparece:
+    - templates/admin/admin_colegiados.html
+    - templates/admin/admin_cuotas.html
+    - templates/admin/admin_cursos.html
+    - templates/admin/admin_cursos_asignados.html
+    - templates/admin/admin_evidencias_pago.html
+    - templates/admin/admin_facturacion.html
+    - templates/admin/admin_pagos_demo.html
+
+.boton-peligro
+  Hace: Boton de accion peligrosa o eliminar.
+  Seccion CSS: BOTONES GENERALES
+  HTML donde aparece:
+    - templates/admin/admin_cuotas.html
+    - templates/colegiado/notificaciones.html
+
+.boton-primario
+  Hace: Boton principal azul.
+  Seccion CSS: BOTONES GENERALES
+  HTML donde aparece:
+    - templates/admin/admin_colegiados.html
+    - templates/admin/admin_comprobante_fiscal.html
+    - templates/admin/admin_cuotas.html
+    - templates/admin/admin_cursos.html
+    - templates/admin/admin_cursos_asignados.html
+    - templates/admin/admin_facturacion.html
+    - templates/admin/admin_facturacion_configuracion.html
+    - templates/admin/admin_firma_edni.html
+    - templates/admin/admin_medios_pago.html
+    - templates/admin/admin_mercado_pago_configuracion.html
+    - templates/admin/admin_pagos_demo.html
+    - templates/admin/admin_reportes.html
+    - ... y 23 archivo(s) mas
+
+.boton-rechazar
+  Hace: Boton para rechazar.
+  Seccion CSS: BOTONES GENERALES
+  HTML donde aparece:
+    - templates/admin/admin_comprobante_fiscal.html
+    - templates/admin/admin_cursos.html
+    - templates/admin/admin_evidencias_pago.html
+    - templates/admin/admin_pagos_demo.html
+    - templates/admin/admin_tramites.html
+    - templates/ponente/ponente_curso.html
+
+.boton-revision
+  Hace: Boton para poner en revision.
+  Seccion CSS: BOTONES GENERALES
+  HTML donde aparece:
+    - templates/admin/admin_tramites.html
+
+.boton-secundario
+  Hace: Boton secundario blanco.
+  Seccion CSS: BOTONES GENERALES
+  HTML donde aparece:
+    - templates/admin/admin_colegiados.html
+    - templates/admin/admin_comprobante_fiscal.html
+    - templates/admin/admin_cuotas.html
+    - templates/admin/admin_cursos.html
+    - templates/admin/admin_cursos_asignados.html
+    - templates/admin/admin_evidencias_pago.html
+    - templates/admin/admin_facturacion.html
+    - templates/admin/admin_facturacion_configuracion.html
+    - templates/admin/admin_firma_edni.html
+    - templates/admin/admin_historial_cuota.html
+    - templates/admin/admin_medios_pago.html
+    - templates/admin/admin_mercado_pago_configuracion.html
+    - ... y 18 archivo(s) mas
+
+.boton-whatsapp
+  Hace: Boton verde de WhatsApp.
+  Seccion CSS: BOTONES GENERALES
+  HTML donde aparece:
+    - templates/colegiado/perfil_soporte.html
+
+.brand-copy
+  Hace: Agrupa nombre CCPL y subtitulo del sidebar.
+  Seccion CSS: SIDEBAR, LOGO Y NAVEGACION
+  HTML donde aparece:
+    - templates/base.html
+
+.brand-icon
+  Hace: Caja visual que contiene el logo institucional.
+  Seccion CSS: SIDEBAR, LOGO Y NAVEGACION
+  HTML donde aparece:
+    - templates/base.html
+
+.brand-logo-img
+  Hace: Imagen del logo en el sidebar.
+  Seccion CSS: SIDEBAR, LOGO Y NAVEGACION
+  HTML donde aparece:
+    - templates/base.html
+
+.brand-row
+  Hace: Ordena logo y nombre de marca en el sidebar.
+  Seccion CSS: SIDEBAR, LOGO Y NAVEGACION
+  HTML donde aparece:
+    - templates/base.html
+
+.brand-subtitle
+  Hace: Subtitulo pequeno de la marca en sidebar.
+  Seccion CSS: SIDEBAR, LOGO Y NAVEGACION
+  HTML donde aparece:
+    - templates/base.html
+
+.brand-title
+  Hace: Texto principal de la marca en sidebar.
+  Seccion CSS: SIDEBAR, LOGO Y NAVEGACION
+  HTML donde aparece:
+    - templates/base.html
+
+.campo-completo
+  Hace: Campo de formulario que ocupa todo el ancho.
+  Seccion CSS: FORMULARIOS GENERALES
+  HTML donde aparece:
+    - templates/admin/admin_colegiados.html
+    - templates/admin/admin_usuarios.html
+    - templates/colegiado/perfil_soporte.html
+
+.campo-error
+  Hace: Estado visual de campo con error.
+  Seccion CSS: FORMULARIOS GENERALES
+  HTML donde aparece: no aparece directamente o se usa por JS/estado combinado
+
+.campo-formulario
+  Hace: Input, select o textarea base.
+  Seccion CSS: FORMULARIOS GENERALES
+  HTML donde aparece:
+    - templates/admin/admin_colegiados.html
+    - templates/admin/admin_comprobante_fiscal.html
+    - templates/admin/admin_cuotas.html
+    - templates/admin/admin_cursos.html
+    - templates/admin/admin_cursos_asignados.html
+    - templates/admin/admin_evidencias_pago.html
+    - templates/admin/admin_facturacion.html
+    - templates/admin/admin_facturacion_configuracion.html
+    - templates/admin/admin_firma_edni.html
+    - templates/admin/admin_medios_pago.html
+    - templates/admin/admin_mercado_pago_configuracion.html
+    - templates/admin/admin_pagos_demo.html
+    - ... y 11 archivo(s) mas
+
+.capitalizar
+  Hace: Capitaliza texto.
+  Seccion CSS: TEXTOS Y UTILIDADES BASICAS
+  HTML donde aparece:
+    - templates/admin/admin_tickets.html
+
+.centro
+  Hace: Alinea texto al centro.
+  Seccion CSS: TEXTOS Y UTILIDADES BASICAS
+  HTML donde aparece:
+    - templates/admin/admin_colegiados.html
+    - templates/admin/admin_comprobante_fiscal.html
+    - templates/admin/admin_cuotas.html
+    - templates/admin/admin_cursos.html
+    - templates/admin/admin_cursos_asignados.html
+    - templates/admin/admin_evidencias_pago.html
+    - templates/admin/admin_facturacion.html
+    - templates/admin/admin_historial_cuota.html
+    - templates/admin/admin_medios_pago.html
+    - templates/admin/admin_pagos_demo.html
+    - templates/admin/admin_reportes.html
+    - templates/admin/admin_tickets.html
+    - ... y 6 archivo(s) mas
+
+.columna-4
+  Hace: Columna que ocupa 4 espacios del layout.
+  Seccion CSS: FILAS, FILTROS Y GRILLAS, RESPONSIVE
+  HTML donde aparece:
+    - templates/colegiado/perfil_soporte.html
+    - templates/colegiado/tramites.html
+
+.columna-5
+  Hace: Columna que ocupa 5 espacios del layout.
+  Seccion CSS: FILAS, FILTROS Y GRILLAS, RESPONSIVE
+  HTML donde aparece: no aparece directamente o se usa por JS/estado combinado
+
+.columna-7
+  Hace: Columna que ocupa 7 espacios del layout.
+  Seccion CSS: FILAS, FILTROS Y GRILLAS, RESPONSIVE
+  HTML donde aparece: no aparece directamente o se usa por JS/estado combinado
+
+.columna-8
+  Hace: Columna que ocupa 8 espacios del layout.
+  Seccion CSS: FILAS, FILTROS Y GRILLAS, RESPONSIVE
+  HTML donde aparece:
+    - templates/colegiado/perfil_soporte.html
+    - templates/colegiado/tramites.html
+
+.confirmacion-acciones
+  Hace: Botones del modal de confirmacion.
+  Seccion CSS: MODALES Y CONFIRMACIONES
+  HTML donde aparece: no aparece directamente o se usa por JS/estado combinado
+
+.confirmacion-barra
+  Hace: Barra superior del modal de confirmacion.
+  Seccion CSS: MODALES Y CONFIRMACIONES
+  HTML donde aparece: no aparece directamente o se usa por JS/estado combinado
+
+.confirmacion-caja
+  Hace: Caja del modal de confirmacion.
+  Seccion CSS: MODALES Y CONFIRMACIONES
+  HTML donde aparece: no aparece directamente o se usa por JS/estado combinado
+
+.confirmacion-cuerpo
+  Hace: Contenido del modal de confirmacion.
+  Seccion CSS: MODALES Y CONFIRMACIONES
+  HTML donde aparece: no aparece directamente o se usa por JS/estado combinado
+
+.confirmacion-fondo
+  Hace: Fondo del modal de confirmacion.
+  Seccion CSS: MODALES Y CONFIRMACIONES
+  HTML donde aparece: no aparece directamente o se usa por JS/estado combinado
+
+.confirmacion-icono
+  Hace: Icono del modal de confirmacion.
+  Seccion CSS: MODALES Y CONFIRMACIONES
+  HTML donde aparece: no aparece directamente o se usa por JS/estado combinado
+
+.confirmacion-mensaje
+  Hace: Mensaje del modal de confirmacion.
+  Seccion CSS: MODALES Y CONFIRMACIONES
+  HTML donde aparece: no aparece directamente o se usa por JS/estado combinado
+
+.constancia-doc
+  Hace: Clase global de apoyo visual usada por el sistema.
+  Seccion CSS: ESTILOS PARA IMPRIMIR
+  HTML donde aparece:
+    - templates/colegiado/certificado_curso.html
+    - templates/colegiado/constancia.html
+
+.contenido
+  Hace: Contenedor principal a la derecha del sidebar.
+  Seccion CSS: CONTENIDO PRINCIPAL Y BARRA SUPERIOR
+  HTML donde aparece:
+    - templates/base.html
+
+.contenido-pagina
+  Hace: Espacio donde se renderiza cada pantalla.
+  Seccion CSS: CONTENIDO PRINCIPAL Y BARRA SUPERIOR, RESPONSIVE
+  HTML donde aparece:
+    - templates/base.html
+
+.dato-label
+  Hace: Etiqueta de un dato mostrado.
+  Seccion CSS: PAGINAS, ENCABEZADOS Y TITULOS
+  HTML donde aparece:
+    - templates/colegiado/aula_curso.html
+    - templates/colegiado/certificado_curso.html
+    - templates/colegiado/constancia.html
+    - templates/colegiado/dashboard.html
+    - templates/colegiado/educacion_continua.html
+    - templates/colegiado/perfil_soporte.html
+    - templates/colegiado/tramites.html
+    - templates/ponente/ponente_curso.html
+
+.derecha
+  Hace: Alinea texto a la derecha.
+  Seccion CSS: TEXTOS Y UTILIDADES BASICAS
+  HTML donde aparece:
+    - templates/admin/admin_comprobante_fiscal.html
+    - templates/admin/admin_cuotas.html
+    - templates/admin/admin_cursos.html
+    - templates/admin/admin_cursos_asignados.html
+    - templates/admin/admin_evidencias_pago.html
+    - templates/admin/admin_facturacion.html
+    - templates/admin/admin_historial_cuota.html
+    - templates/admin/admin_pagos_demo.html
+    - templates/admin/admin_reportes.html
+    - templates/colegiado/comprobante_pago.html
+    - templates/colegiado/estado_cuenta.html
+    - templates/colegiado/pagos.html
+
+.encabezado-con-panel
+  Hace: Encabezado alineado con panel lateral o acciones.
+  Seccion CSS: PAGINAS, ENCABEZADOS Y TITULOS, RESPONSIVE
+  HTML donde aparece:
+    - templates/admin/admin_comprobante_fiscal.html
+    - templates/colegiado/comprobante_pago.html
+    - templates/colegiado/dashboard.html
+    - templates/colegiado/educacion_continua.html
+    - templates/colegiado/pagos.html
+    - templates/colegiado/pasarela_demo.html
+    - templates/colegiado/tramites.html
+
+.encabezado-pagina
+  Hace: Encabezado de pantalla con titulo y acciones.
+  Seccion CSS: PAGINAS, ENCABEZADOS Y TITULOS, RESPONSIVE
+  HTML donde aparece:
+    - templates/admin/admin_colegiados.html
+    - templates/admin/admin_cuotas.html
+    - templates/admin/admin_cursos.html
+    - templates/admin/admin_cursos_asignados.html
+    - templates/admin/admin_evidencias_pago.html
+    - templates/admin/admin_facturacion.html
+    - templates/admin/admin_facturacion_configuracion.html
+    - templates/admin/admin_historial_cuota.html
+    - templates/admin/admin_medios_pago.html
+    - templates/admin/admin_mercado_pago_configuracion.html
+    - templates/admin/admin_pagos_demo.html
+    - templates/admin/admin_reportes.html
+    - ... y 5 archivo(s) mas
+
+.error-campo
+  Hace: Mensaje de error bajo un campo.
+  Seccion CSS: FORMULARIOS GENERALES
+  HTML donde aparece: no aparece directamente o se usa por JS/estado combinado
+
+.espaciado
+  Hace: Separacion grande entre bloques.
+  Seccion CSS: PAGINAS, ENCABEZADOS Y TITULOS
+  HTML donde aparece:
+    - templates/admin/admin_comprobante_fiscal.html
+    - templates/admin/admin_historial_cuota.html
+    - templates/colegiado/comprobante_pago.html
+    - templates/colegiado/dashboard.html
+    - templates/colegiado/educacion_continua.html
+    - templates/colegiado/estado_cuenta.html
+    - templates/colegiado/pagos.html
+    - templates/colegiado/pasarela_demo.html
+    - templates/colegiado/tramites.html
+    - templates/ponente/ponente_dashboard.html
+    - templates/ponente/ponente_notificaciones.html
+    - templates/ponente/ponente_seguimiento.html
+
+.espaciado-medio
+  Hace: Separacion media entre bloques.
+  Seccion CSS: PAGINAS, ENCABEZADOS Y TITULOS
+  HTML donde aparece:
+    - templates/admin/admin_firma_edni.html
+    - templates/admin/admin_tickets.html
+    - templates/admin/admin_tramites.html
+    - templates/admin/admin_validar_firma.html
+    - templates/colegiado/certificado_curso.html
+    - templates/colegiado/constancia.html
+    - templates/colegiado/notificaciones.html
+    - templates/colegiado/perfil_soporte.html
+
+.estado-abierto
+  Hace: Estado abierto.
+  Seccion CSS: ESTADOS, BADGES Y ACCIONES DE TABLA
+  HTML donde aparece:
+    - templates/admin/admin_tickets.html
+    - templates/colegiado/perfil_soporte.html
+
+.estado-alerta
+  Hace: Estado de alerta o problema.
+  Seccion CSS: ESTADOS, BADGES Y ACCIONES DE TABLA
+  HTML donde aparece:
+    - templates/admin/admin_cursos.html
+    - templates/admin/admin_reportes.html
+    - templates/admin/admin_tramites.html
+    - templates/admin/admin_validar_firma.html
+
+.estado-aprobado
+  Hace: Estado aprobado.
+  Seccion CSS: ESTADOS, BADGES Y ACCIONES DE TABLA
+  HTML donde aparece:
+    - templates/admin/admin_tramites.html
+    - templates/admin/admin_validar_firma.html
+    - templates/colegiado/tramites.html
+
+.estado-badge
+  Hace: Etiqueta redondeada de estado.
+  Seccion CSS: ESTADOS, BADGES Y ACCIONES DE TABLA
+  HTML donde aparece:
+    - templates/admin/admin_colegiados.html
+    - templates/admin/admin_comprobante_fiscal.html
+    - templates/admin/admin_cuotas.html
+    - templates/admin/admin_cursos.html
+    - templates/admin/admin_cursos_asignados.html
+    - templates/admin/admin_evidencias_pago.html
+    - templates/admin/admin_facturacion.html
+    - templates/admin/admin_historial_cuota.html
+    - templates/admin/admin_medios_pago.html
+    - templates/admin/admin_pagos_demo.html
+    - templates/admin/admin_reportes.html
+    - templates/admin/admin_tickets.html
+    - ... y 13 archivo(s) mas
+
+.estado-cerrado
+  Hace: Estado cerrado.
+  Seccion CSS: ESTADOS, BADGES Y ACCIONES DE TABLA
+  HTML donde aparece:
+    - templates/admin/admin_tickets.html
+    - templates/colegiado/perfil_soporte.html
+
+.estado-inactivo
+  Hace: Estado inactivo.
+  Seccion CSS: ESTADOS, BADGES Y ACCIONES DE TABLA
+  HTML donde aparece:
+    - templates/admin/admin_colegiados.html
+    - templates/admin/admin_comprobante_fiscal.html
+    - templates/admin/admin_evidencias_pago.html
+    - templates/admin/admin_facturacion.html
+    - templates/admin/admin_historial_cuota.html
+    - templates/admin/admin_medios_pago.html
+    - templates/admin/admin_pagos_demo.html
+    - templates/admin/admin_usuarios.html
+    - templates/colegiado/comprobante_pago.html
+    - templates/colegiado/estado_cuenta.html
+
+.estado-info
+  Hace: Estado informativo.
+  Seccion CSS: ESTADOS, BADGES Y ACCIONES DE TABLA
+  HTML donde aparece: no aparece directamente o se usa por JS/estado combinado
+
+.estado-neutro
+  Hace: Estado neutral.
+  Seccion CSS: ESTADOS, BADGES Y ACCIONES DE TABLA
+  HTML donde aparece:
+    - templates/admin/admin_cursos_asignados.html
+    - templates/admin/admin_reportes.html
+    - templates/admin/admin_tramites.html
+    - templates/colegiado/tramites.html
+    - templates/ponente/ponente_curso.html
+    - templates/ponente/ponente_seguimiento.html
+
+.estado-ok
+  Hace: Estado correcto.
+  Seccion CSS: ESTADOS, BADGES Y ACCIONES DE TABLA
+  HTML donde aparece: no aparece directamente o se usa por JS/estado combinado
+
+.estado-pagado
+  Hace: Estado pagado.
+  Seccion CSS: ESTADOS, BADGES Y ACCIONES DE TABLA
+  HTML donde aparece:
+    - templates/admin/admin_comprobante_fiscal.html
+    - templates/admin/admin_cuotas.html
+    - templates/admin/admin_cursos.html
+    - templates/admin/admin_cursos_asignados.html
+    - templates/admin/admin_evidencias_pago.html
+    - templates/admin/admin_facturacion.html
+    - templates/admin/admin_historial_cuota.html
+    - templates/admin/admin_pagos_demo.html
+    - templates/admin/admin_reportes.html
+    - templates/colegiado/aula_curso.html
+    - templates/colegiado/comprobante_pago.html
+    - templates/colegiado/educacion_continua.html
+    - ... y 5 archivo(s) mas
+
+.estado-pendiente
+  Hace: Estado pendiente.
+  Seccion CSS: ESTADOS, BADGES Y ACCIONES DE TABLA
+  HTML donde aparece:
+    - templates/admin/admin_comprobante_fiscal.html
+    - templates/admin/admin_cuotas.html
+    - templates/admin/admin_cursos.html
+    - templates/admin/admin_cursos_asignados.html
+    - templates/admin/admin_evidencias_pago.html
+    - templates/admin/admin_facturacion.html
+    - templates/admin/admin_historial_cuota.html
+    - templates/admin/admin_pagos_demo.html
+    - templates/admin/admin_reportes.html
+    - templates/colegiado/aula_curso.html
+    - templates/colegiado/educacion_continua.html
+    - templates/colegiado/estado_cuenta.html
+    - ... y 4 archivo(s) mas
+
+.estado-rechazado
+  Hace: Estado rechazado.
+  Seccion CSS: ESTADOS, BADGES Y ACCIONES DE TABLA
+  HTML donde aparece:
+    - templates/admin/admin_tramites.html
+    - templates/admin/admin_validar_firma.html
+    - templates/colegiado/tramites.html
+
+.estado-revision
+  Hace: Estado en revision.
+  Seccion CSS: ESTADOS, BADGES Y ACCIONES DE TABLA
+  HTML donde aparece:
+    - templates/admin/admin_colegiados.html
+    - templates/admin/admin_tickets.html
+    - templates/admin/admin_tramites.html
+    - templates/colegiado/perfil_soporte.html
+    - templates/colegiado/tramites.html
+
+.estado-vigente
+  Hace: Estado positivo vigente.
+  Seccion CSS: ESTADOS, BADGES Y ACCIONES DE TABLA
+  HTML donde aparece:
+    - templates/admin/admin_colegiados.html
+    - templates/admin/admin_medios_pago.html
+    - templates/admin/admin_reportes.html
+    - templates/admin/admin_usuarios.html
+
+.etiqueta-campo
+  Hace: Label de campo de formulario.
+  Seccion CSS: FORMULARIOS GENERALES
+  HTML donde aparece:
+    - templates/admin/admin_colegiados.html
+    - templates/admin/admin_cuotas.html
+    - templates/admin/admin_cursos.html
+    - templates/admin/admin_cursos_asignados.html
+    - templates/admin/admin_evidencias_pago.html
+    - templates/admin/admin_facturacion.html
+    - templates/admin/admin_facturacion_configuracion.html
+    - templates/admin/admin_firma_edni.html
+    - templates/admin/admin_medios_pago.html
+    - templates/admin/admin_mercado_pago_configuracion.html
+    - templates/admin/admin_pagos_demo.html
+    - templates/admin/admin_reportes.html
+    - ... y 9 archivo(s) mas
+
+.etiqueta-seccion
+  Hace: Etiqueta dorada superior de seccion.
+  Seccion CSS: PAGINAS, ENCABEZADOS Y TITULOS
+  HTML donde aparece:
+    - templates/admin/admin_colegiados.html
+    - templates/admin/admin_comprobante_fiscal.html
+    - templates/admin/admin_cuotas.html
+    - templates/admin/admin_cursos.html
+    - templates/admin/admin_cursos_asignados.html
+    - templates/admin/admin_dashboard.html
+    - templates/admin/admin_evidencias_pago.html
+    - templates/admin/admin_facturacion.html
+    - templates/admin/admin_facturacion_configuracion.html
+    - templates/admin/admin_firma_edni.html
+    - templates/admin/admin_historial_cuota.html
+    - templates/admin/admin_medios_pago.html
+    - ... y 23 archivo(s) mas
+
+.fecha-card
+  Hace: Tarjeta de fecha.
+  Seccion CSS: TARJETAS Y CONTENEDORES
+  HTML donde aparece:
+    - templates/colegiado/dashboard.html
+    - templates/colegiado/tramites.html
+
+.fila-flex
+  Hace: Fila flexible con elementos alineados.
+  Seccion CSS: FILAS, FILTROS Y GRILLAS, SIDEBAR, LOGO Y NAVEGACION
+  HTML donde aparece: no aparece directamente o se usa por JS/estado combinado
+
+.fila-separada
+  Hace: Fila con elementos separados a los extremos.
+  Seccion CSS: FILAS, FILTROS Y GRILLAS, RESPONSIVE
+  HTML donde aparece:
+    - templates/colegiado/certificado_curso.html
+    - templates/colegiado/constancia.html
+    - templates/colegiado/dashboard.html
+    - templates/colegiado/educacion_continua.html
+    - templates/colegiado/estado_cuenta.html
+    - templates/colegiado/notificaciones.html
+    - templates/colegiado/perfil_soporte.html
+    - templates/ponente/ponente_dashboard.html
+    - templates/ponente/ponente_notificaciones.html
+    - templates/ponente/ponente_seguimiento.html
+
+.fila-vacia
+  Hace: Fila de tabla sin registros.
+  Seccion CSS: ESTADOS, BADGES Y ACCIONES DE TABLA
+  HTML donde aparece:
+    - templates/admin/admin_reportes.html
+    - templates/admin/admin_tickets.html
+    - templates/colegiado/tramites.html
+    - templates/ponente/ponente_seguimiento.html
+
+.fila-wrap
+  Hace: Fila flexible que permite saltar de linea.
+  Seccion CSS: FILAS, FILTROS Y GRILLAS, RESPONSIVE
+  HTML donde aparece:
+    - templates/admin/admin_comprobante_fiscal.html
+    - templates/admin/admin_facturacion.html
+    - templates/admin/admin_facturacion_configuracion.html
+    - templates/admin/admin_mercado_pago_configuracion.html
+    - templates/admin/admin_pagos_demo.html
+    - templates/colegiado/aula_curso.html
+    - templates/colegiado/certificado_curso.html
+    - templates/colegiado/comprobante_pago.html
+    - templates/colegiado/constancia.html
+    - templates/colegiado/estado_cuenta.html
+    - templates/colegiado/notificaciones.html
+    - templates/ponente/ponente_curso.html
+
+.filter-pill
+  Hace: Variante de filtro tipo pill usada por compatibilidad.
+  Seccion CSS: FILAS, FILTROS Y GRILLAS
+  HTML donde aparece:
+    - templates/colegiado/notificaciones.html
+
+.filtro-pill
+  Hace: Boton de filtro tipo pill.
+  Seccion CSS: FILAS, FILTROS Y GRILLAS
+  HTML donde aparece:
+    - templates/admin/admin_tickets.html
+    - templates/admin/admin_tramites.html
+
+.filtros-pills
+  Hace: Contenedor de filtros tipo pill.
+  Seccion CSS: FILAS, FILTROS Y GRILLAS
+  HTML donde aparece:
+    - templates/admin/admin_tickets.html
+    - templates/admin/admin_tramites.html
+
+.form-grid
+  Hace: Formulario en dos columnas.
+  Seccion CSS: FORMULARIOS GENERALES, RESPONSIVE
+  HTML donde aparece:
+    - templates/admin/admin_colegiados.html
+    - templates/admin/admin_cuotas.html
+    - templates/admin/admin_cursos.html
+    - templates/admin/admin_medios_pago.html
+    - templates/admin/admin_usuarios.html
+    - templates/colegiado/estado_cuenta.html
+    - templates/colegiado/pagos.html
+    - templates/colegiado/pasarela_demo.html
+    - templates/colegiado/perfil_soporte.html
+    - templates/colegiado/tramites.html
+
+.formulario
+  Hace: Contenedor base de formulario.
+  Seccion CSS: FORMULARIOS GENERALES
+  HTML donde aparece:
+    - templates/admin/admin_colegiados.html
+    - templates/admin/admin_cuotas.html
+    - templates/admin/admin_cursos.html
+    - templates/admin/admin_cursos_asignados.html
+    - templates/admin/admin_medios_pago.html
+    - templates/admin/admin_usuarios.html
+    - templates/colegiado/estado_cuenta.html
+    - templates/colegiado/pagos.html
+    - templates/colegiado/pasarela_demo.html
+    - templates/colegiado/perfil_soporte.html
+    - templates/colegiado/tramites.html
+    - templates/ponente/ponente_curso.html
+
+.grid-cuatro
+  Hace: Grilla de cuatro columnas.
+  Seccion CSS: FILAS, FILTROS Y GRILLAS, RESPONSIVE
+  HTML donde aparece: no aparece directamente o se usa por JS/estado combinado
+
+.grid-dos
+  Hace: Grilla de dos columnas.
+  Seccion CSS: FILAS, FILTROS Y GRILLAS, RESPONSIVE
+  HTML donde aparece: no aparece directamente o se usa por JS/estado combinado
+
+.grid-seis
+  Hace: Grilla de seis columnas.
+  Seccion CSS: FILAS, FILTROS Y GRILLAS, RESPONSIVE
+  HTML donde aparece: no aparece directamente o se usa por JS/estado combinado
+
+.grid-tres
+  Hace: Grilla de tres columnas.
+  Seccion CSS: FILAS, FILTROS Y GRILLAS, RESPONSIVE
+  HTML donde aparece:
+    - templates/colegiado/dashboard.html
+    - templates/colegiado/estado_cuenta.html
+    - templates/colegiado/pagos.html
+
+.header-actions
+  Hace: Botones de la derecha: notificaciones, usuario y salir.
+  Seccion CSS: CONTENIDO PRINCIPAL Y BARRA SUPERIOR, SIDEBAR, LOGO Y NAVEGACION
+  HTML donde aparece:
+    - templates/base.html
+
+.header-kicker
+  Hace: Texto pequeno superior del encabezado.
+  Seccion CSS: CONTENIDO PRINCIPAL Y BARRA SUPERIOR, RESPONSIVE
+  HTML donde aparece:
+    - templates/base.html
+
+.header-title
+  Hace: Titulo de la pagina actual.
+  Seccion CSS: CONTENIDO PRINCIPAL Y BARRA SUPERIOR, RESPONSIVE
+  HTML donde aparece:
+    - templates/base.html
+
+.header-title-group
+  Hace: Agrupa subtitulo institucional y titulo de pagina.
+  Seccion CSS: CONTENIDO PRINCIPAL Y BARRA SUPERIOR
+  HTML donde aparece:
+    - templates/base.html
+
+.help-box
+  Hace: Caja amarilla de ayuda tecnica.
+  Seccion CSS: SIDEBAR, LOGO Y NAVEGACION
+  HTML donde aparece:
+    - templates/base.html
+
+.help-text
+  Hace: Texto descriptivo de ayuda.
+  Seccion CSS: SIDEBAR, LOGO Y NAVEGACION
+  HTML donde aparece:
+    - templates/base.html
+
+.help-title
+  Hace: Titulo de la caja de ayuda.
+  Seccion CSS: SIDEBAR, LOGO Y NAVEGACION
+  HTML donde aparece:
+    - templates/base.html
+
+.hidden
+  Hace: Oculta cualquier elemento de forma forzada.
+  Seccion CSS: VARIABLES Y REGLAS BASE
+  HTML donde aparece:
+    - templates/admin/admin_colegiados.html
+    - templates/admin/admin_cuotas.html
+    - templates/admin/admin_cursos.html
+    - templates/admin/admin_cursos_asignados.html
+    - templates/admin/admin_medios_pago.html
+    - templates/admin/admin_usuarios.html
+    - templates/base.html
+    - templates/colegiado/estado_cuenta.html
+    - templates/colegiado/pagos.html
+    - templates/colegiado/perfil_soporte.html
+    - templates/ponente/ponente_curso.html
+
+.icon-button
+  Hace: Boton cuadrado solo con icono.
+  Seccion CSS: CONTENIDO PRINCIPAL Y BARRA SUPERIOR
+  HTML donde aparece:
+    - templates/base.html
+
+.icon-fill
+  Hace: Hace que el icono aparezca relleno.
+  Seccion CSS: VARIABLES Y REGLAS BASE
+  HTML donde aparece:
+    - templates/base.html
+    - templates/colegiado/certificado_curso.html
+    - templates/colegiado/constancia.html
+    - templates/colegiado/educacion_continua.html
+    - templates/colegiado/notificaciones.html
+    - templates/ponente/ponente_dashboard.html
+
+.icon-text
+  Hace: Clase global de apoyo visual usada por el sistema.
+  Seccion CSS: SIDEBAR, LOGO Y NAVEGACION
+  HTML donde aparece: no aparece directamente o se usa por JS/estado combinado
+
+.icono-vacio
+  Hace: Icono para estados vacios.
+  Seccion CSS: PANEL DE NOTIFICACIONES
+  HTML donde aparece:
+    - templates/base.html
+    - templates/colegiado/notificaciones.html
+
+.layout-dos-columnas
+  Hace: Layout general de 12 columnas.
+  Seccion CSS: FILAS, FILTROS Y GRILLAS, RESPONSIVE
+  HTML donde aparece:
+    - templates/colegiado/perfil_soporte.html
+    - templates/colegiado/tramites.html
+
+.lista-panel
+  Hace: Lista de notificaciones.
+  Seccion CSS: PANEL DE NOTIFICACIONES
+  HTML donde aparece:
+    - templates/base.html
+
+.logout-button
+  Hace: Boton de cerrar sesion.
+  Seccion CSS: CONTENIDO PRINCIPAL Y BARRA SUPERIOR
+  HTML donde aparece:
+    - templates/base.html
+
+.material-symbols-outlined
+  Hace: Configura los iconos de Google Material Symbols.
+  Seccion CSS: SIDEBAR, LOGO Y NAVEGACION, VARIABLES Y REGLAS BASE
+  HTML donde aparece:
+    - templates/admin/admin_colegiados.html
+    - templates/admin/admin_comprobante_fiscal.html
+    - templates/admin/admin_cuotas.html
+    - templates/admin/admin_cursos.html
+    - templates/admin/admin_cursos_asignados.html
+    - templates/admin/admin_dashboard.html
+    - templates/admin/admin_evidencias_pago.html
+    - templates/admin/admin_facturacion.html
+    - templates/admin/admin_facturacion_configuracion.html
+    - templates/admin/admin_firma_edni.html
+    - templates/admin/admin_historial_cuota.html
+    - templates/admin/admin_medios_pago.html
+    - ... y 27 archivo(s) mas
+
+.mensajes-lista
+  Hace: Lista vertical de mensajes del sistema.
+  Seccion CSS: MENSAJES Y ALERTAS DEL SISTEMA
+  HTML donde aparece:
+    - templates/base.html
+
+.mensajes-wrapper
+  Hace: Contenedor de mensajes flash.
+  Seccion CSS: CONTENIDO PRINCIPAL Y BARRA SUPERIOR, MENSAJES Y ALERTAS DEL SISTEMA, RESPONSIVE
+  HTML donde aparece:
+    - templates/base.html
+
+.modal-barra
+  Hace: Barra superior del modal.
+  Seccion CSS: MODALES Y CONFIRMACIONES
+  HTML donde aparece:
+    - templates/admin/admin_colegiados.html
+    - templates/admin/admin_cuotas.html
+    - templates/admin/admin_cursos.html
+    - templates/admin/admin_cursos_asignados.html
+    - templates/admin/admin_medios_pago.html
+    - templates/admin/admin_usuarios.html
+    - templates/colegiado/estado_cuenta.html
+    - templates/colegiado/pagos.html
+    - templates/colegiado/perfil_soporte.html
+    - templates/ponente/ponente_curso.html
+
+.modal-caja
+  Hace: Caja principal del modal.
+  Seccion CSS: MODALES Y CONFIRMACIONES
+  HTML donde aparece:
+    - templates/admin/admin_colegiados.html
+    - templates/admin/admin_cuotas.html
+    - templates/admin/admin_cursos.html
+    - templates/admin/admin_cursos_asignados.html
+    - templates/admin/admin_medios_pago.html
+    - templates/admin/admin_usuarios.html
+    - templates/colegiado/estado_cuenta.html
+    - templates/colegiado/pagos.html
+    - templates/colegiado/perfil_soporte.html
+    - templates/ponente/ponente_curso.html
+
+.modal-cuerpo
+  Hace: Contenido interno del modal.
+  Seccion CSS: MODALES Y CONFIRMACIONES, RESPONSIVE
+  HTML donde aparece:
+    - templates/admin/admin_colegiados.html
+    - templates/admin/admin_cuotas.html
+    - templates/admin/admin_cursos.html
+    - templates/admin/admin_cursos_asignados.html
+    - templates/admin/admin_medios_pago.html
+    - templates/admin/admin_usuarios.html
+    - templates/colegiado/estado_cuenta.html
+    - templates/colegiado/pagos.html
+    - templates/colegiado/perfil_soporte.html
+    - templates/ponente/ponente_curso.html
+
+.modal-fondo
+  Hace: Fondo oscuro de modal.
+  Seccion CSS: MODALES Y CONFIRMACIONES
+  HTML donde aparece:
+    - templates/admin/admin_colegiados.html
+    - templates/admin/admin_cuotas.html
+    - templates/admin/admin_cursos.html
+    - templates/admin/admin_cursos_asignados.html
+    - templates/admin/admin_medios_pago.html
+    - templates/admin/admin_usuarios.html
+    - templates/colegiado/estado_cuenta.html
+    - templates/colegiado/pagos.html
+    - templates/colegiado/perfil_soporte.html
+    - templates/ponente/ponente_curso.html
+
+.modal-header
+  Hace: Cabecera del modal.
+  Seccion CSS: MODALES Y CONFIRMACIONES
+  HTML donde aparece:
+    - templates/admin/admin_colegiados.html
+    - templates/admin/admin_cuotas.html
+    - templates/admin/admin_cursos.html
+    - templates/admin/admin_cursos_asignados.html
+    - templates/admin/admin_medios_pago.html
+    - templates/admin/admin_usuarios.html
+    - templates/colegiado/estado_cuenta.html
+    - templates/colegiado/pagos.html
+    - templates/colegiado/perfil_soporte.html
+    - templates/ponente/ponente_curso.html
+
+.modal-subtitulo
+  Hace: Subtitulo pequeno dentro de modal.
+  Seccion CSS: PAGINAS, ENCABEZADOS Y TITULOS
+  HTML donde aparece:
+    - templates/admin/admin_colegiados.html
+    - templates/admin/admin_cuotas.html
+    - templates/admin/admin_cursos.html
+    - templates/admin/admin_cursos_asignados.html
+    - templates/admin/admin_medios_pago.html
+    - templates/admin/admin_usuarios.html
+    - templates/colegiado/estado_cuenta.html
+    - templates/colegiado/pagos.html
+    - templates/colegiado/perfil_soporte.html
+    - templates/ponente/ponente_curso.html
+
+.modal-titulo
+  Hace: Titulo del modal.
+  Seccion CSS: MODALES Y CONFIRMACIONES
+  HTML donde aparece:
+    - templates/admin/admin_colegiados.html
+    - templates/admin/admin_cuotas.html
+    - templates/admin/admin_cursos.html
+    - templates/admin/admin_cursos_asignados.html
+    - templates/admin/admin_medios_pago.html
+    - templates/admin/admin_usuarios.html
+    - templates/colegiado/estado_cuenta.html
+    - templates/colegiado/pagos.html
+    - templates/colegiado/perfil_soporte.html
+    - templates/ponente/ponente_curso.html
+
+.nav-link
+  Hace: Boton/enlace de navegacion del sidebar.
+  Seccion CSS: SIDEBAR, LOGO Y NAVEGACION
+  HTML donde aparece:
+    - templates/base.html
+
+.no-print
+  Hace: Oculta elementos al imprimir.
+  Seccion CSS: ESTILOS PARA IMPRIMIR
+  HTML donde aparece:
+    - templates/admin/admin_colegiados.html
+    - templates/admin/admin_comprobante_fiscal.html
+    - templates/admin/admin_facturacion.html
+    - templates/admin/admin_facturacion_configuracion.html
+    - templates/admin/admin_mercado_pago_configuracion.html
+    - templates/admin/admin_pagos_demo.html
+    - templates/admin/admin_reportes.html
+    - templates/colegiado/certificado_curso.html
+    - templates/colegiado/comprobante_pago.html
+    - templates/colegiado/constancia.html
+    - templates/colegiado/estado_cuenta.html
+
+.notif-backdrop
+  Hace: Capa para cerrar notificaciones al hacer clic fuera.
+  Seccion CSS: PANEL DE NOTIFICACIONES
+  HTML donde aparece:
+    - templates/base.html
+
+.notif-cuota
+  Hace: Color de notificacion de cuota.
+  Seccion CSS: PANEL DE NOTIFICACIONES
+  HTML donde aparece:
+    - templates/base.html
+    - templates/colegiado/notificaciones.html
+
+.notif-curso
+  Hace: Color de notificacion de curso.
+  Seccion CSS: PANEL DE NOTIFICACIONES
+  HTML donde aparece:
+    - templates/base.html
+    - templates/colegiado/notificaciones.html
+
+.notif-fecha
+  Hace: Fecha de una notificacion.
+  Seccion CSS: PANEL DE NOTIFICACIONES
+  HTML donde aparece:
+    - templates/base.html
+
+.notif-link
+  Hace: Enlace de una notificacion.
+  Seccion CSS: PANEL DE NOTIFICACIONES
+  HTML donde aparece:
+    - templates/base.html
+
+.notif-mini-icon
+  Hace: Icono pequeno de notificacion.
+  Seccion CSS: PANEL DE NOTIFICACIONES
+  HTML donde aparece:
+    - templates/base.html
+
+.notif-panel
+  Hace: Panel flotante de notificaciones.
+  Seccion CSS: PANEL DE NOTIFICACIONES
+  HTML donde aparece:
+    - templates/base.html
+
+.notif-panel-header
+  Hace: Cabecera del panel de notificaciones.
+  Seccion CSS: PANEL DE NOTIFICACIONES
+  HTML donde aparece:
+    - templates/base.html
+
+.notif-sistema
+  Hace: Color de notificacion de sistema.
+  Seccion CSS: PANEL DE NOTIFICACIONES
+  HTML donde aparece:
+    - templates/base.html
+    - templates/colegiado/notificaciones.html
+
+.notif-texto
+  Hace: Bloque de texto de notificacion.
+  Seccion CSS: PANEL DE NOTIFICACIONES
+  HTML donde aparece:
+    - templates/base.html
+
+.notif-ticket
+  Hace: Color de notificacion de ticket.
+  Seccion CSS: PANEL DE NOTIFICACIONES
+  HTML donde aparece:
+    - templates/base.html
+    - templates/colegiado/notificaciones.html
+
+.notif-titulo
+  Hace: Titulo de una notificacion.
+  Seccion CSS: PANEL DE NOTIFICACIONES
+  HTML donde aparece:
+    - templates/base.html
+
+.notificacion-titulo
+  Hace: Titulo del panel de notificaciones.
+  Seccion CSS: PANEL DE NOTIFICACIONES, SIDEBAR, LOGO Y NAVEGACION
+  HTML donde aparece:
+    - templates/base.html
+
+.pagina
+  Hace: Contenedor estandar centrado de una pantalla.
+  Seccion CSS: PAGINAS, ENCABEZADOS Y TITULOS
+  HTML donde aparece:
+    - templates/admin/admin_colegiados.html
+    - templates/admin/admin_comprobante_fiscal.html
+    - templates/admin/admin_cuotas.html
+    - templates/admin/admin_cursos.html
+    - templates/admin/admin_cursos_asignados.html
+    - templates/admin/admin_dashboard.html
+    - templates/admin/admin_evidencias_pago.html
+    - templates/admin/admin_facturacion.html
+    - templates/admin/admin_facturacion_configuracion.html
+    - templates/admin/admin_firma_edni.html
+    - templates/admin/admin_historial_cuota.html
+    - templates/admin/admin_medios_pago.html
+    - ... y 20 archivo(s) mas
+
+.pagina-estrecha
+  Hace: Contenedor centrado de ancho reducido.
+  Seccion CSS: PAGINAS, ENCABEZADOS Y TITULOS
+  HTML donde aparece:
+    - templates/colegiado/certificado_curso.html
+    - templates/colegiado/constancia.html
+
+.pagina-media
+  Hace: Contenedor centrado de ancho mediano.
+  Seccion CSS: PAGINAS, ENCABEZADOS Y TITULOS
+  HTML donde aparece:
+    - templates/colegiado/notificaciones.html
+
+.panel-contador
+  Hace: Contador dentro del panel de notificaciones.
+  Seccion CSS: PANEL DE NOTIFICACIONES
+  HTML donde aparece:
+    - templates/base.html
+
+.panel-footer
+  Hace: Pie del panel de notificaciones.
+  Seccion CSS: PANEL DE NOTIFICACIONES
+  HTML donde aparece:
+    - templates/base.html
+
+.panel-vacio
+  Hace: Mensaje cuando el panel no tiene datos.
+  Seccion CSS: PANEL DE NOTIFICACIONES
+  HTML donde aparece:
+    - templates/base.html
+
+.print-header
+  Hace: Cabecera visible solo al imprimir.
+  Seccion CSS: ESTILOS PARA IMPRIMIR, IMPRESION
+  HTML donde aparece:
+    - templates/colegiado/estado_cuenta.html
+
+.punto-dorado
+  Hace: Punto indicador de notificacion nueva.
+  Seccion CSS: PANEL DE NOTIFICACIONES
+  HTML donde aparece:
+    - templates/base.html
+
+.resumen-card
+  Hace: Tarjeta de resumen numerico.
+  Seccion CSS: ESTILOS PARA IMPRIMIR, TARJETAS Y CONTENEDORES
+  HTML donde aparece:
+    - templates/admin/admin_cuotas.html
+    - templates/admin/admin_cursos.html
+    - templates/admin/admin_cursos_asignados.html
+    - templates/admin/admin_evidencias_pago.html
+    - templates/admin/admin_facturacion.html
+    - templates/admin/admin_historial_cuota.html
+    - templates/admin/admin_medios_pago.html
+    - templates/admin/admin_pagos_demo.html
+    - templates/colegiado/dashboard.html
+    - templates/colegiado/estado_cuenta.html
+    - templates/colegiado/pagos.html
+    - templates/ponente/ponente_dashboard.html
+    - ... y 2 archivo(s) mas
+
+.resumen-grid
+  Hace: Grilla de tarjetas resumen.
+  Seccion CSS: FILAS, FILTROS Y GRILLAS, RESPONSIVE
+  HTML donde aparece:
+    - templates/admin/admin_cuotas.html
+    - templates/admin/admin_cursos.html
+    - templates/admin/admin_cursos_asignados.html
+    - templates/admin/admin_evidencias_pago.html
+    - templates/admin/admin_facturacion.html
+    - templates/admin/admin_historial_cuota.html
+    - templates/admin/admin_medios_pago.html
+    - templates/admin/admin_pagos_demo.html
+    - templates/ponente/ponente_dashboard.html
+    - templates/ponente/ponente_notificaciones.html
+    - templates/ponente/ponente_seguimiento.html
+
+.resumen-label
+  Hace: Etiqueta de tarjeta resumen.
+  Seccion CSS: PAGINAS, ENCABEZADOS Y TITULOS
+  HTML donde aparece:
+    - templates/admin/admin_cuotas.html
+    - templates/admin/admin_cursos.html
+    - templates/admin/admin_cursos_asignados.html
+    - templates/admin/admin_evidencias_pago.html
+    - templates/admin/admin_facturacion.html
+    - templates/admin/admin_historial_cuota.html
+    - templates/admin/admin_medios_pago.html
+    - templates/admin/admin_pagos_demo.html
+    - templates/colegiado/comprobante_pago.html
+    - templates/colegiado/dashboard.html
+    - templates/colegiado/estado_cuenta.html
+    - templates/colegiado/pagos.html
+    - ... y 4 archivo(s) mas
+
+.resumen-valor
+  Hace: Numero principal de una tarjeta resumen.
+  Seccion CSS: PAGINAS, ENCABEZADOS Y TITULOS
+  HTML donde aparece:
+    - templates/admin/admin_cuotas.html
+    - templates/admin/admin_cursos.html
+    - templates/admin/admin_cursos_asignados.html
+    - templates/admin/admin_evidencias_pago.html
+    - templates/admin/admin_facturacion.html
+    - templates/admin/admin_historial_cuota.html
+    - templates/admin/admin_medios_pago.html
+    - templates/admin/admin_pagos_demo.html
+    - templates/colegiado/dashboard.html
+    - templates/colegiado/estado_cuenta.html
+    - templates/colegiado/pagos.html
+    - templates/colegiado/pasarela_demo.html
+    - ... y 3 archivo(s) mas
+
+.sidebar
+  Hace: Menu lateral fijo del sistema.
+  Seccion CSS: ESTRUCTURA GENERAL DEL SISTEMA, RESPONSIVE
+  HTML donde aparece:
+    - templates/base.html
+
+.sidebar-brand
+  Hace: Zona superior del menu lateral donde va el logo.
+  Seccion CSS: SIDEBAR, LOGO Y NAVEGACION
+  HTML donde aparece:
+    - templates/base.html
+
+.sidebar-help
+  Hace: Zona inferior de ayuda del sidebar.
+  Seccion CSS: SIDEBAR, LOGO Y NAVEGACION
+  HTML donde aparece:
+    - templates/base.html
+
+.sidebar-nav
+  Hace: Contenedor de enlaces del menu lateral.
+  Seccion CSS: SIDEBAR, LOGO Y NAVEGACION
+  HTML donde aparece:
+    - templates/base.html
+
+.sin-margen
+  Hace: Elimina margen.
+  Seccion CSS: PAGINAS, ENCABEZADOS Y TITULOS
+  HTML donde aparece:
+    - templates/admin/admin_comprobante_fiscal.html
+    - templates/admin/admin_historial_cuota.html
+    - templates/admin/admin_pagos_demo.html
+    - templates/colegiado/estado_cuenta.html
+    - templates/colegiado/pagos.html
+    - templates/colegiado/pasarela_demo.html
+    - templates/colegiado/tramites.html
+
+.subtitulo-pagina
+  Hace: Texto descriptivo bajo el titulo superior.
+  Seccion CSS: MENSAJES Y ALERTAS DEL SISTEMA
+  HTML donde aparece:
+    - templates/base.html
+
+.subtitulo-wrapper
+  Hace: Espaciado del subtitulo de pagina.
+  Seccion CSS: CONTENIDO PRINCIPAL Y BARRA SUPERIOR, MENSAJES Y ALERTAS DEL SISTEMA, RESPONSIVE
+  HTML donde aparece:
+    - templates/base.html
+
+.tabla-datos
+  Hace: Estilo base de tablas.
+  Seccion CSS: TABLAS GENERALES
+  HTML donde aparece:
+    - templates/admin/admin_colegiados.html
+    - templates/admin/admin_comprobante_fiscal.html
+    - templates/admin/admin_cuotas.html
+    - templates/admin/admin_cursos.html
+    - templates/admin/admin_cursos_asignados.html
+    - templates/admin/admin_evidencias_pago.html
+    - templates/admin/admin_facturacion.html
+    - templates/admin/admin_historial_cuota.html
+    - templates/admin/admin_medios_pago.html
+    - templates/admin/admin_pagos_demo.html
+    - templates/admin/admin_reportes.html
+    - templates/admin/admin_tickets.html
+    - ... y 7 archivo(s) mas
+
+.tabla-responsive
+  Hace: Contenedor con scroll horizontal para tablas.
+  Seccion CSS: TABLAS GENERALES
+  HTML donde aparece:
+    - templates/admin/admin_colegiados.html
+    - templates/admin/admin_comprobante_fiscal.html
+    - templates/admin/admin_cuotas.html
+    - templates/admin/admin_cursos.html
+    - templates/admin/admin_cursos_asignados.html
+    - templates/admin/admin_evidencias_pago.html
+    - templates/admin/admin_facturacion.html
+    - templates/admin/admin_historial_cuota.html
+    - templates/admin/admin_medios_pago.html
+    - templates/admin/admin_pagos_demo.html
+    - templates/admin/admin_reportes.html
+    - templates/admin/admin_tickets.html
+    - ... y 6 archivo(s) mas
+
+.tarjeta
+  Hace: Caja blanca general con borde y sombra.
+  Seccion CSS: ESTILOS PARA IMPRIMIR, TARJETAS Y CONTENEDORES
+  HTML donde aparece:
+    - templates/colegiado/perfil_soporte.html
+    - templates/colegiado/tramites.html
+    - templates/ponente/ponente_dashboard.html
+    - templates/ponente/ponente_seguimiento.html
+
+.tarjeta-amplia
+  Hace: Tarjeta con padding mayor.
+  Seccion CSS: TARJETAS Y CONTENEDORES
+  HTML donde aparece:
+    - templates/colegiado/tramites.html
+
+.tarjeta-encabezado
+  Hace: Cabecera interna de tarjeta.
+  Seccion CSS: TARJETAS Y CONTENEDORES
+  HTML donde aparece:
+    - templates/admin/admin_colegiados.html
+    - templates/admin/admin_comprobante_fiscal.html
+    - templates/admin/admin_historial_cuota.html
+    - templates/admin/admin_pagos_demo.html
+    - templates/admin/admin_tickets.html
+    - templates/admin/admin_usuarios.html
+    - templates/colegiado/estado_cuenta.html
+    - templates/colegiado/pagos.html
+    - templates/colegiado/pasarela_demo.html
+    - templates/colegiado/tramites.html
+    - templates/ponente/ponente_seguimiento.html
+
+.tarjeta-tabla
+  Hace: Caja que contiene una tabla.
+  Seccion CSS: ESTILOS PARA IMPRIMIR, TARJETAS Y CONTENEDORES
+  HTML donde aparece:
+    - templates/admin/admin_colegiados.html
+    - templates/admin/admin_comprobante_fiscal.html
+    - templates/admin/admin_cuotas.html
+    - templates/admin/admin_cursos.html
+    - templates/admin/admin_cursos_asignados.html
+    - templates/admin/admin_evidencias_pago.html
+    - templates/admin/admin_facturacion.html
+    - templates/admin/admin_facturacion_configuracion.html
+    - templates/admin/admin_historial_cuota.html
+    - templates/admin/admin_medios_pago.html
+    - templates/admin/admin_mercado_pago_configuracion.html
+    - templates/admin/admin_pagos_demo.html
+    - ... y 8 archivo(s) mas
+
+.texto-apoyo
+  Hace: Parrafo descriptivo de apoyo.
+  Seccion CSS: PAGINAS, ENCABEZADOS Y TITULOS
+  HTML donde aparece:
+    - templates/admin/admin_comprobante_fiscal.html
+    - templates/admin/admin_dashboard.html
+    - templates/admin/admin_facturacion.html
+    - templates/admin/admin_facturacion_configuracion.html
+    - templates/admin/admin_firma_edni.html
+    - templates/admin/admin_historial_cuota.html
+    - templates/admin/admin_mercado_pago_configuracion.html
+    - templates/admin/admin_pagos_demo.html
+    - templates/admin/admin_reportes.html
+    - templates/admin/admin_tickets.html
+    - templates/admin/admin_tramites.html
+    - templates/admin/admin_validar_firma.html
+    - ... y 10 archivo(s) mas
+
+.texto-mono
+  Hace: Texto monoespaciado para codigos o matriculas.
+  Seccion CSS: TEXTOS Y UTILIDADES BASICAS
+  HTML donde aparece:
+    - templates/admin/admin_colegiados.html
+    - templates/admin/admin_cuotas.html
+    - templates/admin/admin_cursos_asignados.html
+    - templates/admin/admin_evidencias_pago.html
+    - templates/admin/admin_facturacion.html
+    - templates/admin/admin_firma_edni.html
+    - templates/admin/admin_historial_cuota.html
+    - templates/admin/admin_medios_pago.html
+    - templates/admin/admin_pagos_demo.html
+    - templates/admin/admin_reportes.html
+    - templates/admin/admin_tickets.html
+    - templates/admin/admin_tramites.html
+    - ... y 7 archivo(s) mas
+
+.texto-pequeno
+  Hace: Texto pequeno de ayuda.
+  Seccion CSS: TEXTOS Y UTILIDADES BASICAS
+  HTML donde aparece:
+    - templates/admin/admin_colegiados.html
+    - templates/admin/admin_comprobante_fiscal.html
+    - templates/admin/admin_cuotas.html
+    - templates/admin/admin_cursos.html
+    - templates/admin/admin_cursos_asignados.html
+    - templates/admin/admin_evidencias_pago.html
+    - templates/admin/admin_facturacion.html
+    - templates/admin/admin_facturacion_configuracion.html
+    - templates/admin/admin_firma_edni.html
+    - templates/admin/admin_historial_cuota.html
+    - templates/admin/admin_medios_pago.html
+    - templates/admin/admin_mercado_pago_configuracion.html
+    - ... y 19 archivo(s) mas
+
+.texto-principal
+  Hace: Texto importante en azul.
+  Seccion CSS: TEXTOS Y UTILIDADES BASICAS
+  HTML donde aparece:
+    - templates/admin/admin_colegiados.html
+    - templates/admin/admin_comprobante_fiscal.html
+    - templates/admin/admin_cuotas.html
+    - templates/admin/admin_cursos.html
+    - templates/admin/admin_cursos_asignados.html
+    - templates/admin/admin_evidencias_pago.html
+    - templates/admin/admin_facturacion.html
+    - templates/admin/admin_historial_cuota.html
+    - templates/admin/admin_medios_pago.html
+    - templates/admin/admin_pagos_demo.html
+    - templates/admin/admin_reportes.html
+    - templates/admin/admin_tickets.html
+    - ... y 16 archivo(s) mas
+
+.texto-secundario
+  Hace: Texto secundario gris.
+  Seccion CSS: TEXTOS Y UTILIDADES BASICAS
+  HTML donde aparece:
+    - templates/admin/admin_colegiados.html
+    - templates/admin/admin_comprobante_fiscal.html
+    - templates/admin/admin_cuotas.html
+    - templates/admin/admin_cursos.html
+    - templates/admin/admin_cursos_asignados.html
+    - templates/admin/admin_evidencias_pago.html
+    - templates/admin/admin_historial_cuota.html
+    - templates/admin/admin_medios_pago.html
+    - templates/admin/admin_pagos_demo.html
+    - templates/admin/admin_reportes.html
+    - templates/admin/admin_tickets.html
+    - templates/admin/admin_usuarios.html
+    - ... y 14 archivo(s) mas
+
+.titulo-pagina
+  Hace: Titulo grande dentro del contenido.
+  Seccion CSS: PAGINAS, ENCABEZADOS Y TITULOS, RESPONSIVE
+  HTML donde aparece:
+    - templates/admin/admin_colegiados.html
+    - templates/admin/admin_comprobante_fiscal.html
+    - templates/admin/admin_cuotas.html
+    - templates/admin/admin_cursos.html
+    - templates/admin/admin_cursos_asignados.html
+    - templates/admin/admin_dashboard.html
+    - templates/admin/admin_evidencias_pago.html
+    - templates/admin/admin_facturacion.html
+    - templates/admin/admin_facturacion_configuracion.html
+    - templates/admin/admin_firma_edni.html
+    - templates/admin/admin_historial_cuota.html
+    - templates/admin/admin_medios_pago.html
+    - ... y 18 archivo(s) mas
+
+.titulo-panel
+  Hace: Titulo de panel o tarjeta.
+  Seccion CSS: PAGINAS, ENCABEZADOS Y TITULOS
+  HTML donde aparece:
+    - templates/colegiado/certificado_curso.html
+    - templates/colegiado/constancia.html
+    - templates/colegiado/dashboard.html
+    - templates/colegiado/perfil_soporte.html
+    - templates/ponente/ponente_dashboard.html
+    - templates/ponente/ponente_notificaciones.html
+    - templates/ponente/ponente_seguimiento.html
+
+.titulo-seccion
+  Hace: Titulo de seccion.
+  Seccion CSS: PAGINAS, ENCABEZADOS Y TITULOS
+  HTML donde aparece:
+    - templates/admin/admin_comprobante_fiscal.html
+    - templates/admin/admin_historial_cuota.html
+    - templates/admin/admin_pagos_demo.html
+    - templates/colegiado/dashboard.html
+    - templates/colegiado/estado_cuenta.html
+    - templates/colegiado/pagos.html
+    - templates/colegiado/pasarela_demo.html
+    - templates/colegiado/tramites.html
+
+.usuario-header
+  Hace: Datos del usuario en la barra superior.
+  Seccion CSS: CONTENIDO PRINCIPAL Y BARRA SUPERIOR, RESPONSIVE, SIDEBAR, LOGO Y NAVEGACION
+  HTML donde aparece:
+    - templates/base.html
+
+.usuario-matricula
+  Hace: Matricula o usuario mostrado debajo del nombre.
+  Seccion CSS: CONTENIDO PRINCIPAL Y BARRA SUPERIOR
+  HTML donde aparece:
+    - templates/base.html
+
+.usuario-nombre
+  Hace: Nombre del usuario actual.
+  Seccion CSS: CONTENIDO PRINCIPAL Y BARRA SUPERIOR
+  HTML donde aparece:
+    - templates/base.html

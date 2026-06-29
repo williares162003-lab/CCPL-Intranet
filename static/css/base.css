@@ -1,3 +1,5 @@
+/* VARIABLES Y REGLAS BASE */
+
 :root {
     --azul: #073b78;
     --azul-hover: #052d5c;
@@ -68,6 +70,8 @@ img {
     font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 24;
 }
 
+/* ESTRUCTURA GENERAL DEL SISTEMA */
+
 .app-shell {
     display: flex;
     min-height: 100vh;
@@ -84,6 +88,8 @@ img {
     background: var(--blanco);
     border-right: 1px solid var(--borde);
 }
+
+/* SIDEBAR, LOGO Y NAVEGACION */
 
 .sidebar-brand {
     padding: 14px 14px 16px;
@@ -213,6 +219,8 @@ img {
     line-height: 1.5;
 }
 
+/* CONTENIDO PRINCIPAL Y BARRA SUPERIOR */
+
 .contenido {
     flex: 1;
     min-width: 0;
@@ -341,6 +349,8 @@ img {
     padding: 24px 32px 32px;
 }
 
+/* MENSAJES Y ALERTAS DEL SISTEMA */
+
 .subtitulo-wrapper {
     padding-top: 24px;
 }
@@ -389,6 +399,8 @@ img {
     background: #fff1f2;
     border-color: #fecdd3;
 }
+
+/* PAGINAS, ENCABEZADOS Y TITULOS */
 
 .pagina {
     max-width: 1280px;
@@ -490,6 +502,8 @@ img {
     line-height: 1.6;
 }
 
+/* TARJETAS Y CONTENEDORES */
+
 .tarjeta,
 .tarjeta-tabla,
 .fecha-card,
@@ -522,6 +536,8 @@ img {
     padding: 20px 24px;
     border-bottom: 1px solid var(--borde-claro);
 }
+
+/* TABLAS GENERALES */
 
 .tabla-responsive {
     overflow-x: auto;
@@ -556,6 +572,8 @@ img {
     background: #f8fafc;
 }
 
+/* TEXTOS Y UTILIDADES BASICAS */
+
 .centro {
     text-align: center !important;
 }
@@ -588,6 +606,8 @@ img {
 .capitalizar {
     text-transform: capitalize;
 }
+
+/* FILAS, FILTROS Y GRILLAS */
 
 .fila-flex {
     gap: 12px;
@@ -684,6 +704,8 @@ img {
 .columna-8 {
     grid-column: span 8;
 }
+
+/* BOTONES GENERALES */
 
 .boton,
 .boton-mini,
@@ -800,6 +822,8 @@ img {
     cursor: not-allowed;
 }
 
+/* FORMULARIOS GENERALES */
+
 .formulario {
     display: grid;
     gap: 16px;
@@ -869,6 +893,8 @@ textarea.campo-formulario {
     padding-top: 8px;
 }
 
+/* ESTADOS, BADGES Y ACCIONES DE TABLA */
+
 .estado-badge {
     display: inline-flex;
     align-items: center;
@@ -920,7 +946,6 @@ textarea.campo-formulario {
     gap: 6px;
 }
 
-/* Formularios dentro de acciones no deben romper el flex row */
 .acciones-tabla form {
     display: inline-flex;
 }
@@ -928,6 +953,8 @@ textarea.campo-formulario {
 .fila-vacia {
     padding: 40px 20px !important;
 }
+
+/* MODALES Y CONFIRMACIONES */
 
 .modal-fondo {
     position: fixed;
@@ -1048,6 +1075,8 @@ textarea.campo-formulario {
 .boton-cerrar:hover {
     background: #f1f5f9;
 }
+
+/* PANEL DE NOTIFICACIONES */
 
 .notif-panel {
     position: fixed;
@@ -1207,9 +1236,13 @@ textarea.campo-formulario {
     z-index: 40;
 }
 
+/* IMPRESION */
+
 .print-header {
     display: none;
 }
+
+/* RESPONSIVE */
 
 @media (max-width: 1100px) {
     .grid-seis {
@@ -1301,6 +1334,8 @@ textarea.campo-formulario {
         width: 100%;
     }
 }
+
+/* ESTILOS PARA IMPRIMIR */
 
 @media print {
 
