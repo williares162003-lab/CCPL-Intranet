@@ -19,6 +19,33 @@ def _columna_existe(cursor, tabla, columna):
     return cursor.fetchone() is not None
 
 
+def _sumar_un_mes(anio, mes):
+    if mes == 12:
+        return anio + 1, 1
+    return anio, mes + 1
+
+
+def _nombre_mes(mes):
+    meses = [
+        "",
+        "Enero",
+        "Febrero",
+        "Marzo",
+        "Abril",
+        "Mayo",
+        "Junio",
+        "Julio",
+        "Agosto",
+        "Septiembre",
+        "Octubre",
+        "Noviembre",
+        "Diciembre",
+    ]
+    if 1 <= int(mes) <= 12:
+        return meses[int(mes)]
+    return ""
+
+
 def leer_dashboard_admin():
     try:
         conn = obtenerconexion()
