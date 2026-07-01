@@ -997,6 +997,14 @@ def _comprobantes_tiene_evidencia(cursor):
     return cursor.fetchone() is not None
 
 
+def _facturacion_tablas_existen(cursor):
+    cursor.execute("SHOW TABLES LIKE 'comprobantes_fiscales'")
+    if cursor.fetchone() is None:
+        return False
+    cursor.execute("SHOW COLUMNS FROM comprobantes_fiscales LIKE 'comprobante_pago_id'")
+    return cursor.fetchone() is not None
+
+
 def _comprobante_emitido_por_cuota(cursor, p_cuota_id):
     cursor.execute(
         "SELECT id, serie, numero FROM comprobantes_pago "
